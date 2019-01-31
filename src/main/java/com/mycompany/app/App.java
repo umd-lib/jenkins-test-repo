@@ -3,19 +3,33 @@ package com.mycompany.app;
 /**
  * Hello world!
  */
-public class App
-{
-
+public class App {
+    /**
+     * The message to display.
+     */
     private final String message = "Hello World!";
 
-    public App() {}
+    /**
+     * Default constructor.
+     */
+    public App() {
+    }
 
-    public static void main(String[] args) {
+    /**
+     * Main method.
+     *
+     * @param args the arguments from the command-line
+     */
+    public static void main(final String[] args) {
         System.out.println(new App().getMessage());
     }
 
-    private final String getMessage() {
+    /**
+     * Getter method.
+     *
+     * @return the message
+     */
+    private String getMessage() {
         return message;
     }
-
 }
