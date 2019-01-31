@@ -71,7 +71,10 @@ pipeline {
         sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} clean package"
         
         // Collect JUnit reports
-        junit '**/target/surefire-reports/*.xml'        
+        junit '**/target/surefire-reports/*.xml'
+        
+        // Collect Checkstyle reports
+        recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')], unstableTotalAll: 1)
       }
     }
     stage('Integration Test') {
@@ -92,15 +95,13 @@ pipeline {
       steps {
         sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} install"
         
-        // Collect Checkstyle reports
-        recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')], unstableTotalAll: 1)
       }
     }
-    stage('CleanWorkspace') {
-      steps {
-        cleanWs()
-      }
-    }
+//    stage('CleanWorkspace') {
+//      steps {
+//        cleanWs()
+//      }
+//    }
   }
   
   post {

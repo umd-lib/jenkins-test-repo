@@ -15,7 +15,57 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <properties>
+    <!-- Checkstyle -->
+    <!-- checkstyle.version corresponds to Eclipse Checkstyle plugin version-->
+    <checkstyle.version>8.12</checkstyle.version>
+    <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
+    <maven.jxr.version>3.0.0</maven.jxr.version>
+  </properties>
   <build>
+    <pluginManagement>
+      <plugins>
+        <!-- Checkstyle -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>${maven.checkstyle.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>com.puppycrawl.tools</groupId>
+              <artifactId>checkstyle</artifactId>
+              <version>${checkstyle.version}</version>
+            </dependency>
+          </dependencies>
+          <configuration>
+            <!-- Modified to include all files that Eclipse Checkstyle plugin checks -->
+            <includes>**/*.java,**/*.properties,**/*.xml</includes>
+            <resourceIncludes>**/*.properties,**/*.xml</resourceIncludes>
+            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+            <testSourceDirectories>src/test</testSourceDirectories>
+            <violationSeverity>warning</violationSeverity>
+          </configuration>
+          <executions>
+            <execution>
+              <id>verify-checkstyle</id>
+              <phase>package</phase>
+              <configuration>
+                <encoding>UTF-8</encoding>
+                <consoleOutput>true</consoleOutput>
+                <failsOnError>false</failsOnError>
+                <failOnViolation>false</failOnViolation>
+                <linkXRef>false</linkXRef>
+              </configuration>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
         <!-- Build an executable JAR -->
@@ -32,6 +82,21 @@
           </archive>
         </configuration>
       </plugin>
+      <!-- Checkstyle -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
+  
+  <reporting>
+    <plugins>
+      <!-- Used by Checkstyle in generating reports -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
