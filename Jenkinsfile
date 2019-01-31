@@ -53,11 +53,12 @@ pipeline {
     
     EMAIL_SUBJECT = "$EMAIL_SUBJECT_PREFIX - " +
                     '$PROJECT_NAME - ' +
+                    'GIT_BRANCH_PLACEHOLDER - ' +
                     '$BUILD_STATUS! - ' +
                     "Build # $BUILD_NUMBER"
 
     EMAIL_CONTENT =
-        '''$PROJECT_NAME - $BUILD_STATUS! - Build # $BUILD_NUMBER:
+        '''$PROJECT_NAME - GIT_BRANCH_PLACEHOLDER - $BUILD_STATUS! - Build # $BUILD_NUMBER:
            |
            |Check console output at $BUILD_URL to view the results.
            |
@@ -65,27 +66,62 @@ pipeline {
   }
 
   stages {
+    stage('Initialize') {
+      steps {
+        script {
+          // Retrieve the actual Git branch being built for use in email.
+          //
+          // For pull requests, the actual Git branch will be in the
+          // CHANGE_BRANCH environment variable.
+          //
+          // For actual branch builds, the CHANGE_BRANCH variable won't exist
+          // (and an exception will be thrown) but the branch name will be
+          // part of the PROJECT_NAME variable, so it is not needed.
+          
+          ACTUAL_GIT_BRANCH = ''
+          
+          try {
+            ACTUAL_GIT_BRANCH = CHANGE_BRANCH + ' - '
+          } catch (groovy.lang.MissingPropertyException mpe) {
+            // Do nothing. A branch (as opposed to a pull request) is being
+            // built
+          }            
+
+          // Replace the "GIT_BRANCH_PLACEHOLDER" in email variables
+          EMAIL_SUBJECT = EMAIL_SUBJECT.replaceAll('GIT_BRANCH_PLACEHOLDER - ', ACTUAL_GIT_BRANCH )
+          EMAIL_CONTENT = EMAIL_CONTENT.replaceAll('GIT_BRANCH_PLACEHOLDER - ', ACTUAL_GIT_BRANCH )
+        }
+      }
+    }
+    
     stage('Build') {
       steps {
         // Run the maven build
         sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} clean package"
         
         // Collect JUnit reports
-        junit '**/target/surefire-reports/*.xml'
+        junit '**/target/surefire-reports/*.xml'        
+      }
+    }
+    
+    stage ('Analysis') {
+      steps {
+        sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} checkstyle:checkstyle"
         
         // Collect Checkstyle reports
         recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')], unstableTotalAll: 1)
       }
     }
+    
     stage('Integration Test') {
       steps {
         // Lock the HIPPO_SELENIUM_PORT resource to prevent multiple Tomcats
         // from running Selenium tests at the same time (and cause port
         // collisions).
-        lock(resource: "HIPPO_SELENIUM_PORT_${env.NODE_NAME}") {
+//        lock(resource: "HIPPO_SELENIUM_PORT_${env.NODE_NAME}") {
           // Run the integration tests
           sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} -DrunSeleniumTests=true verify"
-        }
+//        }
         
         // Collect reports
 //        junit '**/target/failsafe-reports/*.xml'
@@ -97,11 +133,11 @@ pipeline {
         
       }
     }
-//    stage('CleanWorkspace') {
-//      steps {
-//        cleanWs()
-//      }
-//    }
+    stage('CleanWorkspace') {
+      steps {
+        cleanWs()
+      }
+    }
   }
   
   post {
