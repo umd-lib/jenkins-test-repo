@@ -75,6 +75,10 @@ pipeline {
         
         // Collect Checkstyle reports
         recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')], unstableTotalAll: 1)
+        
+        echo "GIT_BRANCH: $GIT_BRANCH (${env.GIT_BRANCH})"
+        echo "env.BRANCH_NAME: ${env.BRANCH_NAME}"
+        echo "*****CHANGE_BRANCH: $CHANGE_BRANCH"
       }
     }
     stage('Integration Test') {
