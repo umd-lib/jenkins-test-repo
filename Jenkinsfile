@@ -53,11 +53,12 @@ pipeline {
     
     EMAIL_SUBJECT = "$EMAIL_SUBJECT_PREFIX - " +
                     '$PROJECT_NAME - ' +
+                    'GIT_BRANCH_PLACEHOLDER - ' +
                     '$BUILD_STATUS! - ' +
                     "Build # $BUILD_NUMBER"
 
     EMAIL_CONTENT =
-        '''$PROJECT_NAME - $BUILD_STATUS! - Build # $BUILD_NUMBER:
+        '''$PROJECT_NAME - GIT_BRANCH_PLACEHOLDER - $BUILD_STATUS! - Build # $BUILD_NUMBER:
            |
            |Check console output at $BUILD_URL to view the results.
            |
@@ -65,6 +66,21 @@ pipeline {
   }
 
   stages {
+    stage('Initialize') {
+      steps {
+        script {
+//          if (CHANGE_BRANCH) {
+//            EMAIL_SUBJECT = EMAIL_SUBJECT.replaceAll('GIT_BRANCH_PLACEHOLDER - ', '$CHANGE_BRANCH')
+//          } else {
+//            EMAIL_SUBJECT = EMAIL_SUBJECT.replaceAll('GIT_BRANCH_PLACEHOLDER - ', 'FOOBAR')
+//          }
+          EMAIL_SUBJECT = EMAIL_SUBJECT.replaceAll('GIT_BRANCH_PLACEHOLDER - ', "$CHANGE_BRANCH - " )
+        }
+        
+        echo "*****EMAIL_SUBJECT: $EMAIL_SUBJECT"
+      }
+    }
+    
     stage('Build') {
       steps {
         // Run the maven build
@@ -75,6 +91,9 @@ pipeline {
         
         // Collect Checkstyle reports
         recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')], unstableTotalAll: 1)
+        
+        echo "GIT_BRANCH: $GIT_BRANCH (${env.GIT_BRANCH})"
+        echo "env.BRANCH_NAME: ${env.BRANCH_NAME}"
       }
     }
     stage('Integration Test') {
