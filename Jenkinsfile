@@ -97,10 +97,13 @@ pipeline {
     stage('Build') {
       steps {
         // Run the maven build
-        sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} clean package"
-        
+        sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} clean package"        
+      }
+      post {
         // Collect JUnit reports
-        junit '**/target/surefire-reports/*.xml'        
+        always {
+          junit 'target/surefire-reports/*.xml' 
+        }
       }
     }
     
@@ -113,20 +116,20 @@ pipeline {
       }
     }
     
-    stage('Integration Test') {
-      steps {
-        // Lock the HIPPO_SELENIUM_PORT resource to prevent multiple Tomcats
-        // from running Selenium tests at the same time (and cause port
-        // collisions).
+//    stage('Integration Test') {
+//      steps {
+//        // Lock the HIPPO_SELENIUM_PORT resource to prevent multiple Tomcats
+//        // from running Selenium tests at the same time (and cause port
+//        // collisions).
 //        lock(resource: "HIPPO_SELENIUM_PORT_${env.NODE_NAME}") {
-          // Run the integration tests
-          sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} -DrunSeleniumTests=true verify"
+//          // Run the integration tests
+//          sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} -DrunSeleniumTests=true verify"
 //        }
-        
-        // Collect reports
+//        
+//        // Collect reports
 //        junit '**/target/failsafe-reports/*.xml'
-      }
-    }
+//      }
+//    }
     stage('Create install artifacts') {      
       steps {
         sh "mvn --batch-mode --show-version ${MAVEN_SETTINGS_XML} install"

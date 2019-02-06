@@ -51,6 +51,12 @@ public class AppTest {
             fail("\"message\" is not \"Hello World!\"");
         }
     }
+    
+    @Test
+    public void testFailingTest()
+    {
+      fail("This test fails.");
+    }
 
     /**
      * Clean up the streams.
