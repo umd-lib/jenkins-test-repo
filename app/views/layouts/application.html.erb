@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= yield(:title) %> | ORCID@UMD</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+  </head>
+
+<body class="site">
+  <%= environment_banner %>
+<div class="skipnav">
+  <a class="sr-only sr-only-focusable" href="#maincontent">Skip to main content</a>
+</div>
+
+<div class="container-fluid no-pad container">
+<section  id="header">
+ <div class="row">
+    <div class="col-md-3 col-sm-4 col-6">
+      <a href="//lib.umd.edu" target="_blank"><img id="logo-header" class="img-responsive"     width="170px" alt="University of Maryland Libraries Logo" src="https://s3.amazonaws.com/libapps/sites/1504/banner/liblogo.png">    </a>
+    </div>
+    <div class="col-md-5 col-sm-4 col-6">
+		<div class="app-title">ORCID@UMD</div>
+	</div>
+	<div class="col-md-4 col-sm-4 col-12">
+		<a class="float-right" href="<%= orcid_at_umd_link %>" target="_blank">About ORCID@UMD</a>
+	</div>
+  </div>
+
+</section>
+</div>
+
+
+<main class="container margin-bottom-10 site-content">
+	<div class="row">
+		<div class="col-md-10">
+    <%= yield %>
+
+		</div>
+	</div>
+
+</main>
+<footer class="panel-footer">
+	 <div class="container">
+		 <div class="row">
+			<div class="col-md-4 col-xs-12">
+				<div class="margin-bottom-10"><a href="https://gradschool.umd.edu/" target="_blank"><%= image_tag('umd-grad-logo.png', width: '270px', alt: 'UMD Graduate School logo') %><!--<img src="images/umd-grad-logo.png" alt="UMD Graduate School logo" style="width:270px" />--></a>
+				</div>
+			</div>
+
+			<div class="col-md-6 col-xs-12">
+				<div class="margin-bottom-10">
+					Infrastructure and hosting for this project is provided by <a href="https://www.lib.umd.edu" target="_blank">University of Maryland Libraries</a>, with generous support from the <a href="https://gradschool.umd.edu/" target="_blank"> University of Maryland Graduate School</a>
+				</div>
+			</div>
+			<div class="col-md-2 col-xs-12">
+			    <div style="text-align: right;">
+					<a href="https://www.umd.edu/web-accessibility" target="_blank">Web Accessibility</a> <br/>
+					<a href="<%= orcid_at_umd_link %>" target="_blank">About ORCID@UMD</a>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</footer>
+
+
+
+<!-- UMD Header -->
+<script src="https://umd-header.umd.edu/build/bundle.js?search=0&search_domain=&events=0&news=0&schools=0&admissions=0&support=1&support_url=&wrapper=1160&sticky=0"></script>
+</html>

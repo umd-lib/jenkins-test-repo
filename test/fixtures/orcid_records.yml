@@ -1,0 +1,6 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  uid: 123456789
+  orcid_id: MyString
+  registered_at: 2019-03-11 13:33:02

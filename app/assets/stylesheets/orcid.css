@@ -1,0 +1,117 @@
+
+/* Custom styles for ORCID ID UI */
+
+
+.no-pad {
+  	padding: 5px 15px;
+}
+main {
+	margin: 10px 0;
+	border-top: 1px solid #555;
+	padding: 20px;
+}
+
+.app-title{
+    color: #000;
+    font-size: 34px;
+}
+.app-title, a:hover {
+    color: #000;
+    text-decoration: none;
+}
+
+p a, l a, div a, .app-title {
+    font-weight: 800;
+}
+.margin-bottom-10 {
+	margin-bottom: 10px;
+}
+.terms {
+	border: 1px solid #ccc;
+	padding: 10px;
+	margin: 15px 0;
+}
+
+.terms-link {
+  text-decoration: underline;
+}
+
+.terms-emphasized-text {
+  font-weight: bold;
+  font-style: italic;
+}
+
+.custom-control-label::before,
+.custom-control-label::after {
+	width: 1.25rem;
+	height: 1.25rem;
+	top: 0.1rem !important;
+    left: -2rem !important;
+	right: 2rem !important;
+}
+.custom-control-label {
+    margin-left: 0.5rem !important;
+    font-size: 1rem !important;
+}
+.panel-footer {
+    color: #fff;
+    background: #333;
+    padding: 20px 0 30px;
+}
+.panel-footer a,.panel-footer a:hover,.panel-footer a:active {
+    color: #f0ad4e;
+}
+.panel-footer a:hover {
+    text-decoration: underline;
+}
+
+
+/* Sticky footer */
+
+.site {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+}
+.site-content {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 0 auto;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+}
+
+/* end of sticky footer*/
+
+@media (max-width: 992px){
+  .app-title {
+      font-size: 28px;
+  }
+}
+
+@media (max-width: 768px){
+	#logo-header{
+		width: 150px;
+		margin-top: 5px;
+	}
+	.app-title {
+		font-size:20px;
+		padding-top: 10px;
+	}
+}
+
+@media (max-width: 479px){
+	#logo-header{
+		width: 130px;
+		margin-top: 5px;
+	}
+	.app-title {
+		font-size: 18px;
+	}
+}

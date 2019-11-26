@@ -1,0 +1,26 @@
+<% provide(:title, "Error") %>
+
+<h1>Application Error</h1>
+
+<h2>An error has occurred.</h2>
+
+<div><strong>Timestamp:</strong> <%= @timestamp %></div>
+
+<% if @error_code %>
+  <div><strong>Error Code:</strong> <%= @error_code %></div>
+<% end %>
+<% if @error_code_type %>
+  <div><strong>Error Code Type:</strong> <%= @error_code_type %></div>
+<% end %>
+
+<% if @error_message %>
+  <div><strong>Error Message:</strong> <%= @error_message %></div>
+<% end %>
+
+<% if @error_description %>
+  <div><strong>Error Description:</strong>
+     <% @error_description.each do |line| %>
+       <div><%= line %></div>
+     <% end %>
+  </div>
+<% end %>

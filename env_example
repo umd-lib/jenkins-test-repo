@@ -1,0 +1,37 @@
+# Example .env file
+# Make a copy of this file named ".env" and fill out the properties
+# Note: The .env file should _not_ be checked in to Git!
+
+# URL of the CAS login endpoint
+CAS_SERVER_URL=https://login.umd.edu/cas
+
+# The CAS session attribute
+CAS_SESSION_ATTRIBUTE=cas
+
+# CAS attribute for the 9-digit UID
+# For development, use "uid"
+CAS_UID_ATTRIBUTE=u_id
+
+# CAS attribute for the user's first name
+CAS_FIRST_NAME_ATTRIBUTE=givenName
+
+# CAS attribute for the user's last name
+CAS_LAST_NAME_ATTRIBUTE=sn
+
+# Client ID for accessing the ORCID API
+ORCID_CLIENT_ID=
+
+# Client secret for accessing the OCRID API
+ORCID_CLIENT_SECRET=
+
+# URL to request an ORCID authorization code
+# Example: https://sandbox.orcid.org/oauth/token
+ORCID_AUTH_CODE_URL=
+
+# URL to send user to for authorizing ORCID accessing
+# Example: https://sandbox.orcid.org/oauth/authorize
+ORCID_AUTHORIZE_ACCESS_URL=
+
+# Application URL sent to ORCID for receiving the authorization code callback
+# Example: http://localhost:3000/orcid_auth_code_callback
+AUTH_CODE_CALLBACK_URL=

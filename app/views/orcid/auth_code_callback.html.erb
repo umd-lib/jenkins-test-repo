@@ -1,0 +1,29 @@
+<% provide(:title, "Confirmation") %>
+
+<h1>ORCID ID Capture Confirmation</h1>
+
+<h2>
+  <%= @orcid_name %>
+</h2>
+
+<p>
+  You have successfully registered ORCID ID
+  <a href="<%= @orcid_record.orcid_id %>" target="_blank">
+    <img src="/ORCID-iD_icon-16x16.png"> <%= @orcid_record.orcid_id %></a>. Thank You!
+  </a>
+</p>
+
+<p>
+  Now that you have an ORCID you can start managing your identity! The first
+  thing you should do is go to the ORCID website
+  (<a href="https://orcid.org/">https://orcid.org/</a>) and fill out your
+  profile, describing your employment history, funding record and publishing
+  record.
+</p>
+
+<p>
+  In many cases, when you write a grant, or submit an manuscript for
+  publication, linking to your ORCID ID is built into the workflow. You can also
+  include it on your website and other creative achievements as you like. It is
+  your ID!
+</p>

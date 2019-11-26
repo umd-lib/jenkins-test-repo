@@ -1,0 +1,1430 @@
+@charset "UTF-8";
+/* CSS Document */
+
+/* .umd-wrapper {
+    border-top: 1px solid #000;
+    padding-top: 20px;
+} */
+
+/* Override font in unify shop.style.css */
+* {
+    font-size: 14px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+body {
+    font-size: 14px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+/* Environment Banner */
+
+.environment-banner {
+    height: 30px; /* fixed heigth 30px */
+    padding: 3px 25px;
+    margin: 0;
+}
+.dev-local p.environment-banner {
+    background:#008000;
+    color: #fff;
+}
+.dev-server p.environment-banner {
+    background:#fff100;
+    color: #000;
+}
+.stage-server p.environment-banner {
+    background:#0000ff;
+    color: #fff;
+}
+.prod-server p.environment-banner {
+    display: none!important;
+}
+
+/* Skip Navigation */
+
+#skiplinks a {
+    padding: 6px;
+    position: absolute;
+    top: -40px;
+    left: 0px;
+    color: white;
+    border-right: 1px solid white;
+    border-bottom: 1px solid white;
+    border-bottom-right-radius: 8px;
+    background: transparent;
+    -webkit-transition: top 1s ease-out, background 1s linear;
+    transition: top 1s ease-out, background 1s linear;
+    z-index: 100;
+}
+#skiplinks a:focus {
+	position:absolute;
+	left:100px;
+	top:75px;
+	background:#222;
+	outline:0;
+	-webkit-transition: top .1s ease-in, background .5s linear;
+    transition: top .1s ease-in, background .5s linear;
+}
+
+p, li, label {
+	color: #333;
+}
+/*Headings*/
+h1, h1 > a{
+  font-size: 30px;
+  line-height: 35px;
+  margin-bottom: 15px;
+}
+h2, h2 > a {
+  font-size: 22px;
+  line-height: 33px;
+}
+h3, h3 > a {
+  font-size:18px;
+  line-height: 27px;
+}
+h4, h4 > a {
+  font-size: 16px;
+  line-height: 25px;
+}
+h5, h5 > a {
+  line-height: 20px;
+}
+h6, h6 > a {
+  line-height: 18px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #a40404;
+  margin-top: 5px;
+  text-shadow: none;
+  font-weight: normal;
+  font-family: "Open Sans", Arial, sans-serif;
+}
+.header-v1 .navbar-default .navbar-nav > li > a {
+	color: #333;
+}
+.headline {
+    margin: 10px 0 15px;
+}
+.font-sm {
+    font-size: 13px;
+}
+.font-lg {
+	font-size: 16px;
+}
+.font-underline {
+	text-decoration: underline;
+}
+.font-italic {
+	font-style: italic;
+}
+.um-red {
+	color:#a40404;
+}
+.text-hidden {
+    font-size: 0;
+    width: 1px;
+    height: 1px;
+    display: inline-block;
+    overflow: hidden;
+    position: absolute!important;
+    border: 0!important;
+    padding: 0!important;
+    margin: 0!important;
+    clip: rect(1px,1px,1px,1px);
+}
+.font-light-gray {
+    color: #767676;
+}
+.border-bottom {
+    border-bottom: 1px solid #ccc;
+}
+.float-left {
+    float: left;
+    padding: 5px 10px 8px 0;
+}
+.float-right {
+    float: right;
+    padding: 5px 0 8px 10px;
+}
+.img-caption {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-style: italic;
+}
+img.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 5px;
+}
+.tab {
+    padding-left: 20px;
+}
+.border-bottom {
+	border-bottom: 1px solid #f7f7f7;
+}
+/* blue hyper link color changed from #006699 to #035e8c, a bit darker for better contrast */
+li a {
+    color: #035e8c;
+}
+/* bold style for hyper links that are not in main menu */
+p a, l a, div a {
+    font-weight: 500;
+}
+a {
+    /* These are technically the same, but use both for Firefox & IE support */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+.font-blue {
+    color: #035e8c;
+}
+.menu-description {
+    padding: 0 13px;
+}
+
+/* Info bar
+-------------------------------------*/
+.info-bar {
+    background: rgba(0, 0, 0, 0.66);
+    position: relative;
+    z-index: 32;
+    color: #fff;
+    padding: 8px 0;
+    margin: 8px 0;
+}
+/* Remove extra br from info bar text */
+.todays-hours > br{
+    display: none;
+}
+.btn-group.lib-btn-group {
+    position: static;
+}
+/* make google search box in info-bar smaller */
+#googlesearch.form-control {
+    height: 22px;
+    padding: 1px 5px 0;
+    border: none;
+    font-size: 10pt;
+}
+.lib-googlesearch-btn{
+    height: 22px;
+    min-width: 40px;
+}
+.lib-info-bar-left,
+.lib-info-bar-left strong,
+.lib-info-bar-left span {
+    font-size: 13px;
+}
+.lib-info-bar-left {
+    margin: 2px -4px 0 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.lib-info-bar-right {
+    margin: 1px 0 1px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+/* LIBWEB-3138 */
+.info-bar-hours-attributes {
+    white-space: nowrap;
+}
+.lib-btn-group > .btn {
+    border: none;
+    margin: 0;
+    padding: 2px;
+}
+.btn-gray-color {
+    background: #d1d1d1;
+    color: #000;
+}
+.btn-warning {
+	color: #000;
+}
+.service-block-red {
+	background: #a04040;
+}
+.btn-group-xs>.btn, .btn-xs {
+	font-weight: 600;
+}
+.btn-gray-color:hover,
+.btn-gray-color:focus,
+.btn-gray-color:active {
+    background: #333;
+    color: #fff;
+}
+.lib-info-bar-btns {
+    margin-left: -8px;
+    margin-right: -8px;
+}
+.lib-btn-group-justified {
+    table-layout: auto;
+    border-spacing: 8px 0;
+}
+.lib-info-bar-left > br,
+.info-bar-hours-attributes > br,
+.info-bar > div > br {
+    display:none;
+}
+@media (max-width: 991px) {
+    .lib-info-bar-left {
+        margin: -3px -4px 3px 4px;
+    }
+}
+@media (max-width: 767px) {
+    .lib-searchbox {
+        padding-top: 12px;
+        margin-top: -10px;
+    }
+    .lib-info-bar-btns {
+        padding-right: 0;
+        padding-bottom: 4px;
+    }
+    .lib-btn-group > .btn {
+        padding: 6px;
+    }
+    #googlesearch.form-control {
+        height: 30px;
+        font-size: 12pt;
+    }
+    .lib-googlesearch-btn{
+        height: 30px;
+    }
+    .btn-group-justified>.btn-group .dropdown-menu {
+        left: 0
+    }
+}
+@media (max-width: 479px) {
+    .lib-searchbox {
+        margin-top: 8px;
+    }
+}
+@media (min-width: 768px) {
+    .lib-info-bar-btns {
+        padding-right: 5px;
+        margin-right: -13px;
+    }
+    .lib-info-bar-searchbox {
+        padding-left: 5px;
+        padding-right: 0px;
+        margin-left: 3px;
+    }
+}
+
+/* Cross-site Header Alert
+------------------------------------- */
+.header-alert {
+    background: gold;
+    border: none;
+    color: #000;
+    padding: 15px 25px 10px 25px;
+    margin-bottom: 0;
+}
+.header-alert p {
+    display: inline;
+    color: #000;
+}
+.header-alert a, .header-alert a:visited, .header-alert a:focus, .header-alert a:active{
+    text-decoration: underline;
+    color: #000;
+}
+.header-alert a:hover{
+    text-decoration: none;
+}
+@media (max-width: 991px) {
+    .header-alert {
+        padding: 15px 15px 10px 15px;
+}
+}
+
+/* Site menu arrow bug: LIBWEB-2669
+------------------------------------- */
+.list-toggle:after {
+    pointer-events: none;
+}
+
+/* Mega Menu
+------------------------------------- */
+.mega-menu > .container {
+    padding-right: 30px;
+    padding-left: 0;
+}
+.header-v1 .dropdown-menu li a {
+    color: #035e8c !important;
+    font-size: 14px;
+}
+.header-v1 .dropdown-menu li a:hover {
+    color: #fff !important;
+}
+.dropdown-menu {
+    min-width: 300px;
+}
+.menu-des > li {
+    color: #666;
+}
+/* LIBWEB-3137, LIBWEB-3173 & LIBWEB-3266; CSS Hack by @xtai */
+@media (min-width: 992px) {
+    /* Overwrite unify header-v1.css */
+    ul.nav li.dropdown .dropdown-menu {
+        display: block;
+        position: fixed;
+        overflow-x:hidden;
+        overflow: hidden;
+        transition: max-height .05s ease-out, opacity .05s ease-out;
+        max-height: 0px;
+        opacity: 0;
+        border: none;
+    }
+    ul.nav li.dropdown:hover .dropdown-menu,
+    ul.nav li.dropdown:active .dropdown-menu,
+    ul.nav li.dropdown .dropdown-menu:hover {
+        display: block;
+        position: absolute;
+        opacity: 1;
+        max-height: 470px;
+		overflow: auto;
+        max-width: 1000px;
+        border-top: solid 2px #a40404;
+        border-bottom: solid 2px #a40404;
+    }
+    /* When hover: delay 1s */
+    ul.nav li.dropdown:hover .dropdown-menu,
+    ul.nav li.dropdown .dropdown-menu:hover {
+        transition: max-height .15s ease-out 1s, opacity .05s ease-out 1s;
+    }
+    /* When click: immediately show the dropdown menu */
+    ul.nav li.dropdown:active .dropdown-menu {
+        transition: none;
+    }
+}
+.header-v1 .mega-menu .dropdown.mega-menu-3col .dropdown-menu {
+    right: 30px;
+    width: 1000px;
+}
+.header-v1 .mega-menu .dropdown.mega-menu-3col .dropdown-menu .container {
+    max-width: 100%;
+}
+.header-v1 .mega-menu .dropdown.mega-menu-2col .dropdown-menu {
+    right: 30px;
+    width: 760px;
+}
+.header-v1 .mega-menu .dropdown.mega-menu-2col .dropdown-menu .container {
+    max-width: 100%;
+}
+@media (max-width: 1199px) {
+    .header-v1 .mega-menu .dropdown.mega-menu-3col .dropdown-menu {
+        width: 900px;
+    }
+}
+.header-v1 .dropdown-menu .active > a, .header-v1 .dropdown-menu li > a:hover {
+    transition: none;
+}
+
+/* Search Box
+------------------------------------- */
+.lib-search-block {
+    /* Backup bg image */
+    min-height: 280px;
+    position: relative;
+    margin: 0px 15px 0 15px;
+    padding: 30px;
+}
+.lib-search-block .tab-content {
+    padding: 10px 0 0;
+}
+.lib-search-block-subsite {
+    margin: 0 15px 15px;
+    position: relative;
+}
+.lib-search-block-subsite .lib-searchbox {
+    margin: 0px -15px;
+}
+.lib-searchbox {
+    padding: 10px;
+    text-align: left;
+    opacity: .97;
+    border: 1px solid #eee;
+    background: #fafafa none repeat scroll 0 0;
+}
+.lib-search-text-hidden-xs {
+    display: block;
+    padding: 10px 0;
+}
+.lib-search-text-visible-xs {
+    display: none;
+}
+/* add border for inactive search tab - LIBWEB-3224 */
+.tab-v1 .nav-tabs > li > a {
+    border-top: solid 2px #a40404!important;
+    border-left: solid 2px #a40404!important;
+    border-right: solid 2px #a40404!important;
+}
+.nav-tabs > li {
+    margin-bottom: -2px;
+}
+.db-form.form-inline .form-group {
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+.db-search-desc-text {
+    margin: 5px 0 -5px;
+}
+.lib-searchbox-subsite-text {
+    margin: -5px 0;
+}
+#databases > #search-navigation > .html-block > p {
+    margin: 5px 0 -5px;
+}
+/* Available Now
+------------------------------------*/
+.availability {
+	background: #f7f7f7;
+	padding: 5px;
+}
+.availability table {
+	margin:2px 40px 5px 30px;
+}
+.availability td {
+    border-top: 0 !important;
+    padding: 5px !important;
+    border-bottom: 1px solid #eee;
+}
+.availability h5 {
+    margin: 2px;
+}
+.available-time {
+	font-style: italic;
+	color: #555;
+	font-size: 13px;
+}
+/* links in footer */
+.link-list a {
+    display: inline-block;
+    font-size: 13px;
+    text-transform: none;
+}
+.footer-v1 address a {
+	color: #f0ad4e;
+	text-decoration: underline;
+}
+/* Hide UBorrow and Classic Catalog initally
+------------------------------------- */
+.box-worldCat,
+.uborrow,
+.classic {
+    display: none;
+}
+.give-now {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+.give-now a {
+    color: #555;
+    text-decoration: none;
+}
+.give-now:hover a,
+.give-now:focus a {
+    color: #333;
+}
+
+.subsite-left {
+    padding-right: 20px;
+}
+.subsite-right {
+    overflow: hidden;
+    padding-left: 20px;
+}
+
+@media (max-width: 767px) {
+    .subsite-left {
+        padding-right: 15px;;
+    }
+    .subsite-right {
+        padding-left: 15px;;
+    }
+}
+
+/* Banner Image for Sub Site
+------------------------------------- */
+.lib-banner-sub {
+    padding: 60px 20px 5px;
+    text-align: left;
+    min-height: 150px;
+    margin: 0 0 8px;
+    display:none;
+}
+.lib-banner-sub h1 {
+    font-size: 30px;
+}
+.lib-banner-sub:after {
+  background: none;
+}
+.subsite-right img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.subsite-left img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.subsite-right iframe {
+    height: auto;
+    margin: auto;
+    width: 100%;
+}
+
+/* Subsite Footer
+------------------------------------- */
+.subsite-footer {
+    font-style: italic;
+    margin: 10px 0;
+    padding-top: 15px;
+    clear: both;
+}
+.subsite-footer hr {
+    margin: 10px 0;
+}
+.subsite-footer a {
+	font-weight:600;
+}
+
+.mCustomScrollbar {
+    height: 220px;
+}
+.breadcrumbs {
+    padding: 0;
+}
+.breadcrumbs.breadcrumbs-dark,
+.breadcrumbs.breadcrumbs-light {
+    padding: 0 10px;
+    margin-bottom: 20px;
+}
+
+/* Hours
+------------------------------------ */
+.hours {
+    left: -.5em;
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+}
+.hours-selected {
+    margin-bottom: 15px;
+    text-align:center;
+    font-size: 16px;
+}
+.sky-form {
+    border: none;
+}
+.sky-form a {
+    color: #035e8c;
+}
+.ui-datepicker-calendar span {
+    color: #555;
+}
+.ui-datepicker-other-month > .ui-priority-secondary {
+    color: #767676;
+}
+.hours-list {
+    margin-left: 0;
+    margin-right: 0;
+}
+.hours-branch {
+    display: block;
+}
+.hours-desktop-today-btn {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: #555;
+    background: #fcfcfc;
+    border: solid 1px #e5e5e5;
+}
+.hours-desktop-today-btn:hover,
+.hours-desktop-today-btn:focus {
+    background: #fcfcfc;
+}
+.hours-mobile-today-btn {
+    color: #555;
+    background: #fcfcfc;
+    border: solid 1px #e5e5e5;
+}
+.hours-mobile-today-btn:hover,
+.hours-mobile-today-btn:focus {
+    background: #fcfcfc;
+}
+.hours-mobile-datepicker {
+    padding-bottom: 10px;
+}
+.hours-mobile-datepicker > .col-sm-2.col-xs-4 {
+    padding-right: 6px
+}
+.hours-mobile-datepicker > .col-sm-10.col-xs-8 {
+    padding-left: 6px
+}
+.bg-light.hours-list.row:target {
+    transition: background-color 0.5s;
+    -webkit-transition: background-color 0.5s;
+    -moz-transition: background-color 0.5s;
+    -o-transition-: background-color 0.5s;
+    background-color: #fff2a8;
+}
+.bg-light.hours-list.row:target > span {
+    font-weight: 600;
+}
+/* date picker in newspaper browse view */
+.ui-datepicker td span {
+	color: #767676 !important;
+}
+.ui-datepicker th span {
+	color: #555 !important;
+}
+.list-group {
+    padding: 0;
+}
+.lib-submenu-home {
+    color: #000;
+    font-size: 14px;
+    text-align:center;
+}
+.lib-submenu-heading {
+    font-size: 14px;
+    white-space: normal;
+    text-align: center;
+    margin: 0;
+    padding: 5px;
+    background: #333;
+    color: #fff;
+    border-radius: 5px 5px 0 0;
+}
+.lib-submenu-home a {
+    color: #000;
+}
+.lib-submenu-btn .btn.focus,
+.lib-submenu-btn .btn:hover,
+.lib-submenu-btn .btn:active {
+    color:#eee;
+}
+.sidebar-nav-v1 > li.active,
+.sidebar-nav-v1 > li.active:hover {
+    background: #d7d7d7 none repeat scroll 0 0;
+}
+.sidebar-nav-v1 > li.active > a {
+	color: #000;
+}
+.sidebar-nav-v1 li ul a {
+	font-size: 13px;
+}
+/* LIBWEB-3028 */
+#ui-datepicker-div {
+    z-index: 1002 !important;
+}
+/* LIBWEB-3255 */
+.hours-weekly-branch {
+    margin: 0 0 10px 0;
+}
+.hours-weekly-dropdown-button {
+    margin: 8px 0 0 10px;
+}
+.hours-weekly-dropdown-button li.active > a,
+.hours-weekly-dropdown-button li.active > a:hover,
+.hours-weekly-dropdown-button li.active > a:focus {
+    background-color: #a40404;
+}
+.hours-highlight-clone > li {
+    background-color: #fff2a8;
+}
+.hours-highlight-clone > li > span {
+    font-weight: 600;
+}
+@media (max-width: 767px) {
+    .hours-weekly-branch {
+        float: none!important;
+        margin: -15px 0 10px 0;
+    }
+    .hours-weekly-dropdown-button {
+        float: none!important;
+        margin: -10px 0 10px 0;
+    }
+}
+
+/* Staff Directory
+------------------------------------- */
+p.font-lg,
+p.font-lg a {
+    font-size: 16px;
+}
+div.directory-search-record p {
+    margin: 0px;
+    color: #333;
+}
+div.directory-search-record {
+    margin-bottom: 10px;
+}
+.specialist-research-subjects-title {
+    margin: 0;
+    padding: 0;
+}
+h2.directory-search-letter,
+h3.directory-search-letter {
+    text-decoration: none;
+}
+p.directory-specialists-title,
+p.directory-specialists-title span,
+p.directory-specialists-title a {
+    font-size: 20px;
+    line-height: 27px;
+}
+div.directory-div ul,
+div.directory-search-record ul {
+    padding-left: 20px;
+}
+.a2z {
+    list-style: outside none none;
+    text-align: left;
+    word-spacing: 2px;
+    padding: 0;
+}
+.a2z > li {
+    display: inline-block;
+    text-align: center;
+}
+.a2z > li.divider {
+    width: 5px;
+}
+@media (max-width: 1199px) {
+    .a2z > li {
+        min-width: 14px;
+        line-height: 30px;
+        text-align: center;
+    }
+    .a2z > li.divider {
+        min-width: 8px;
+        width: 8px;
+    }
+}
+@media (max-width: 767px) {
+    .a2z > li {
+        min-width: 30px;
+    }
+    .a2z > li.divider {
+        min-width: 0px;
+        width: 0px;
+        margin: 0 -3px;
+    }
+}
+h2.h2-small-font,
+h4.h4-small-font {
+    font-size: 16px;
+    line-height: 20px;
+}
+div.directory-div {
+    color: #555;
+    margin: 0;
+}
+
+/* Search Pagination
+------------------------------------- */
+.search-pagination-ellipsis,
+.search-pagination-ellipsis:hover,
+.search-pagination-ellipsis:active,
+.search-pagination-ellipsis:focus {
+    cursor: default!important;
+    background-color: #eee!important;
+    border-color: #767676!important;
+    color: #555!important;
+    padding: 5px!important;
+}
+.sort-list-btn h3 {
+    color: #000;
+    margin-right: 5px;
+    font-size: 13px;
+}
+.sort-list-btn .btn-default {
+    border-color: #bbb;
+    color: #000;
+}
+.sort-list-btn .btn-default:hover, .sort-list-btn .btn-default:focus, .sort-list-btn .btn-default:active, .sort-list-btn .btn-default.active, .sort-list-btn .open > .dropdown-toggle.btn-default {
+    border-color: #bbb;
+    color: #000;
+}
+.sort-list-btn .dropdown-menu li a {
+    color: #000;
+}
+.pagination li a {
+    color: #000;
+    padding: 5px 7px;
+}
+.solr-search-options .btn {
+	padding: 6px 4px;
+}
+.pagination > li > a, .pagination > li > span {
+    border: 1px solid #767676;
+}
+
+/* Search Filters
+------------------------------------- */
+.facetsearch {
+    border: 1px solid #ccc;
+    margin: 10px 0;
+    padding: 10px;
+}
+.facetsearch-field {
+    width: 90%;
+}
+.filter-by-block .panel-body {
+    padding: 10px;
+}
+.filter-by-block .panel-group h2 a {
+    font-size: 16px;
+    padding: 10px;
+}
+.filter-by-block .panel-group h2 i {
+    font-size: 18px;
+    margin-top: 10px;
+}
+.checkbox-list .checkbox input:checked + span:after {
+    opacity: 1;
+}
+.checkbox-list .checkbox input + span:after {
+    opacity: 0;
+    position: absolute;
+}
+.checkbox-list .checkbox input + span:after {
+    top: -3px;
+    left: -2px;
+    width: 15px;
+    height: 15px;
+    content: '\f00c';
+    text-align: center;
+    font: normal 8px/17px FontAwesome;
+    color: #a40404;
+}
+.checkbox-list .checkbox span {
+    left: 0;
+    top: 5px;
+    width: 15px;
+    height: 15px;
+    outline: none;
+    display: block;
+    background: #fff;
+    border-width: 2px;
+    position: absolute;
+    border-style: solid;
+}
+.checkbox-list .checkbox small a {
+    color: #000;
+}
+
+.checkbox-list .checkbox {
+    font-size: 13px;
+    color: #000;
+}
+.checkbox-list .checkbox span {
+    border-color: #555;
+}
+.checkbox-list .checkbox:hover span {
+    border-color: #000;
+}
+.checkbox-list .checkbox input:checked + span {
+    border-color: #a40404;
+}
+.subsite-left label {
+    font-weight: normal;
+}
+.search-record {
+    border-bottom: 1px solid #ccc;
+    margin: 10px 0;
+    padding: 5px 0 10px 0;
+}
+
+/* Multi-lang navigation buttons
+------------------------------------- */
+.lang-nav {
+    margin-bottom: 10px;
+}
+@media (max-width: 991px) {
+    .pagination li a {
+    padding: 5px 12px;
+}
+}
+@media (max-width: 767px) {
+    .lang-nav {
+        margin-top: 2px;
+    }
+    .search-results > .search-record > .row {
+        margin-bottom: 10px;
+    }
+}
+
+
+
+.current-language,
+.current-language:active,
+.current-language:hover,
+.current-language:focus {
+    background-color: #a40404;
+    border-color: #a40404;
+    color: #fff;
+    cursor: pointer;
+    z-index: inherit!important;
+}
+
+.other-language:active,
+.other-language:hover,
+.other-language:focus {
+    background: #b61332;
+    border-color: #b61332;
+    color: #fff;
+}
+
+/* Carousel slider
+------------------------------------------*/
+/* overwrite style defined in app.css */
+.carousel-v1 .carousel-arrow a span {
+    top: 50%;
+    opacity: 0.6;
+    background: #000;
+    margin-top: -18px;
+    padding: 2px 12px;
+    position: absolute;
+}
+.carousel-v1 .carousel-arrow a.left span {
+    left: 0;
+}
+.carousel-v1 .carousel-arrow a.right span {
+    right: 0;
+}
+.carousel-indicators {
+    bottom: 35px;
+}
+.carousel-indicators > li {
+    border-radius: 10px !important;
+    margin: 0 5px;
+}
+.carousel-v1 .carousel-caption {
+    bottom: 0;
+}
+.carousel-inner a {
+    color: #fff;
+}
+
+/* Re-position and change style for carousel on hours page */
+.lib-hours > .carousel-arrow > a.carousel-control {
+    position:absolute;
+    font-size: 16px;
+}
+.lib-hours > .carousel-arrow > .carousel-control {
+    bottom: inherit;
+    top: 30px;
+}
+.lib-hours > .carousel-arrow > a i {
+    background: none;
+    color: #035e8c;
+    font-size: 18px;
+    margin-top: -18px;
+    opacity: 1;
+    padding: 2px 12px;
+    position: absolute;
+    top: 50%;
+}
+.lib-hours > .carousel-arrow > a.left i {
+    left: 15px;
+    top: 1px;
+}
+.lib-hours > .carousel-arrow > a.right i {
+    right: 15px;
+    top: 1px;
+}
+.form-control {
+    color: #000;
+    font-size: 14px;
+    height: 30px;
+    border: 1px solid #aaa;
+}
+.filter-by-block {
+    padding: 0;
+}
+/* LIBWEB-3029 */
+@media (max-width: 991px) {
+    .carousel-indicators {
+        bottom: 25px;
+    }
+    .carousel-v1 .carousel-caption {
+        bottom: 0;
+        margin-bottom: -36px;
+    }
+    .carousel-v1 .carousel-caption p {
+        margin-bottom: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .carousel-inner {
+        padding-bottom: 36px;
+    }
+}
+
+/* Solr Result Detail Page
+------------------------------------- */
+/*  http://getbootstrap.com/css/#tables-responsive
+FireFox Table Problem */
+@-moz-document url-prefix() {
+    fieldset {
+        display: table-cell;
+    }
+}
+.sort-list-btn .btn .caret {
+    margin-left: 5px;
+}
+.dropdown-menu {
+    min-width: 100px;
+}
+.solr-search-options {
+    margin: 12px 0 0;
+}
+@media (max-width: 991px) {
+    .solr-search-options {
+        margin: -20px 0 0;
+    }
+    .sort-list-btn {
+        float: left;
+    }
+    .info-bar {
+        margin: 0 0 8px 0;
+    }
+    .header-v1 .dropdown-menu li a:hover {
+        color: #035e8c !important;
+        text-decoration: underline !important;
+    }
+}
+
+.margin-left-25 {
+	margin-left: 25px;
+}
+
+.font-gray {
+	color: #555;
+}
+.width-55{
+	width: 55px;
+}
+
+.label-light{
+	color: #000!important;
+}
+
+.umd-student-newspapers-search-record {
+	height: auto;
+	overflow: hidden;
+}
+.newspaper-datepicker a{
+	font-weight: 700;
+}
+.textbook-status {
+	color: #555;
+    background-color: #fff2a8;;
+    padding: 3px;
+    margin: 5px 0;
+    border: 1px solid #faebcc;;
+}
+
+/* Solr Mirador Detail Page
+------------------------------------- */
+.mirador-viewer {
+	width: 100%;
+	height: 700px;
+}
+
+/* News headlines
+------------------------------------- */
+.profile .comment {
+    padding: 10px;
+    min-height: 75px;
+}
+.profile .comment img {
+    height: 55px;
+    width: 55px;
+}
+.profile .panel-heading {
+    background: #f7f7f7 none repeat scroll 0 0;
+    border-bottom: 1px solid #ccc;
+    color: #000;
+}
+	.profile .comment p {
+	    font-size: 13px;
+}
+.profile .panel-title {
+    font-size: 20px;
+}
+.news-events {
+    margin: 20px 10px 0;
+}
+.editable {
+    position: relative;
+    display: inline;
+}
+
+/* remove hr for rss feed */
+.rss-main > hr {
+    display: none;
+}
+
+/* Google Custom Search Page
+------------------------------------- */
+.site-custom-search-right {
+    border-left: 2px solid #333;
+}
+
+/* MD Map (and DB Finder) Browse Page
+------------------------------------- */
+.browse-panel-group .panel-dark {
+    border-color: #dedede;
+    margin-bottom: -6px;
+}
+.browse-panel-group .panel-body {
+    font-size: 16px;
+}
+.browse-panel-group .panel-dark > .panel-heading.in {
+    background-color: #d7d7d7;
+    color: #000;
+}
+.browse-panel-group .panel-dark > .panel-heading {
+    background-color: #fff;
+    color: #035e8c;
+}
+.browse-panel-group .panel-heading .panel-title a {
+    display: block;
+    font-size: 16px;
+    margin: -10px -15px;
+    padding: 10px 15px;
+}
+.browse-panel-group .panel-heading .panel-title a:hover,
+.browse-panel-group .panel-heading .panel-title a:active,
+.browse-panel-group .panel-heading .panel-title a:focus {
+    text-decoration: none;
+}
+.browse-panel-group .panel-heading.in .panel-title a,
+.browse-panel-group .panel-heading.in .panel-title a:hover,
+.browse-panel-group .panel-heading.in .panel-title a:active,
+.browse-panel-group .panel-heading.in .panel-title a:focus {
+    color: #000;
+}
+.browse-panel-group .panel-dark > .panel-heading.in .panel-title:after {
+    color: #fff;
+    content: "\f107";
+}
+.browse-panel-group .panel-dark > .panel-heading .panel-title:after {
+    float: right;
+    margin-top: -24px;
+    color: #777;
+    font-size: 14px;
+    content: "\f105";
+    font-weight: normal;
+    font-family: FontAwesome;
+    pointer-events: none;
+}
+.btn-sm > span {
+    font-size: 12px;
+}
+/* column-width compatibility: http://caniuse.com/#search=column-width */
+.browse-multi-col {
+    /* 191 = 11.5em  CSS3 Multiple column layout
+    = 4 cols in lg = 3 in md = 2 in sm = 1/2 in xs */
+    background-color: #f9f9f9;
+    column-width: 191px;
+    -moz-column-width: 191px;
+    -webkit-column-width: 191px;
+}
+.browse-multi-col ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+.browse-multi-col ul li:first-child {
+    margin-top: 0px;
+}
+
+/* Subsite Slideshow (MSPAL for now)
+------------------------------------- */
+#subsiteCarousel {
+    margin: 20px 0;
+}
+#subsiteCarousel .carousel-inner img {
+    width: 100%;
+}
+
+/* Bookplate
+------------------------------------- */
+.subsite-bookplate-img {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* IRROC and OER header hr
+------------------------------------- */
+.umd-logo-header-hr {
+    margin: 25px 0 5px;
+    padding: 5px 0 0;
+}
+
+/* Search Result List LIBWEB-3130 */
+.search-result-list-btn {
+    width: 22px;
+}
+
+/* Breadcrumbs
+------------------------------------- */
+.breadcrumbs {
+  border-bottom: none;
+}
+.breadcrumb {
+  padding: 0 15px 0 0;
+  margin: 0 0 15px 0;
+  top:0;
+}
+.breadcrumb a{
+  color: #069;
+}
+.breadcrumb li:first-child {
+  font-color: #a40404;
+}
+
+/* Responsive Stylesheets
+------------------------------------- */
+@media (max-width: 767px) {
+    .mega-menu > .container {
+        padding-right: 0;
+    }
+    .lib-submenu {
+        min-height: 50px;
+        margin: 0 5px 0 5px;
+    }
+    /* 5px margin on top for sm and xs */
+    .lib-margin-top {
+        margin-top:5px;
+    }
+    .lib-search-block-subsite {
+        margin: 15px;
+        position: relative;
+    }
+    .lib-search-block-subsite .lib-searchbox {
+        margin: 5px -15px;
+    }
+    .lib-search-block {
+        min-height: 180px;
+        padding: 0;
+        margin: 15px 15px 0;
+        background: #fff;
+    }
+    .lib-submenu-btn {
+        margin: 0;
+    }
+    .give-now {
+        position: absolute;
+        top: 0px;
+        right: 10px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 479px) {
+    /* 5px margin on top for sm and xs */
+    .lib-margin-top {
+        margin-top:5px;
+    }
+    .lib-search-block {
+        margin: 0 15px;
+    }
+    .give-now {
+        top: 15px;
+    }
+    .db-az{
+        word-spacing: 0.7em;
+        margin-bottom: 0.5em;
+    }
+    .breadcrumbs.breadcrumbs-light h1 {
+        font-size: 20px;
+        margin: 3px 0;
+        color: #000;
+    }
+    .lib-search-text-hidden-xs {
+        display: none;
+    }
+    .lib-search-text-visible-xs {
+        display: block;
+        padding: 5px 0;
+        margin-bottom: -25px;
+    }
+    .form-control {
+	    font-size: 13px;
+    }
+    .availability table {
+		margin:0;
+	}
+    .available-time {
+		display: block;
+		padding-left: 28px;
+    }
+    .record-title {
+    	font-weight: bold;
+	}
+    /* News headlines
+------------------------------------- */
+	.profile .comment {
+    	padding: 10px 0;
+	}
+	.profile .comment img {
+    	height: 25px;
+    	width: 25px;
+	}
+	.profile .comment p {
+	    font-size: 13px;
+	}
+	.profile .panel-title {
+    	font-size: 18px;
+	}
+}
+
+.db-category-list{
+	 list-style-type: none;
+}
+
+/* Content Rewriter */
+.contentRewriterFailure {
+  margin-top:5px;
+  font-weight: bold;
+  margin-bottom:5px;
+}
+
+/* DBFinder - Subject Specialists*/
+.db-specialists-photo {
+  width: 58px;
+  float: right;
+}
+db-specialists-subjects {
+  margin-left: 55px;
+  float: left;
+}
+.db-specialists-photo img {
+  width: 55px;
+  padding-left: 3px;
+}
+.db-specialists li {
+  font-size: 13px;
+}
+.db-specialists-subjects > ul {
+  padding-left: 16px;
+}
+
+/* Solr search */
+.search-snippet {
+  color: #6a6a6a;
+  font-style: italic;
+}

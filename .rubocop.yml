@@ -1,0 +1,71 @@
+# Enables Rails cops
+Rails:
+  Enabled: true
+
+# Exclude auto-generated files
+AllCops:
+  Exclude:
+    - 'config.ru'
+    - 'Gemfile'
+    - 'Rakefile'
+    - 'bin/**/*'
+    - 'config/**/*'
+    - 'config/initializers/*'
+    - 'config/application.rb'
+    - 'db/schema.rb'
+    - 'db/migrate/*'
+    - 'lib/**/*'
+    - 'db/seeds.rb'
+
+  TargetRubyVersion: 2.6
+  TargetRailsVersion: 5.2
+
+Metrics/AbcSize:
+  Exclude:
+    - 'app/controllers/*_controller.rb'
+
+# Increase max allowed line length
+Metrics/LineLength:
+  Max: 120
+  Exclude:
+    - 'app/controllers/*_controller.rb'
+    - 'test/**/*'
+
+Metrics/ClassLength:
+  Exclude:
+    - 'test/**/*'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'test/**/*'
+
+Metrics/ModuleLength:
+  Exclude:
+    - 'test/**/*'
+    - 'app/controllers/concerns/personnel_request_controller.rb'
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
+# The following configuration exclude checks that seem
+# silly, or conflict with the way Rails naturally does
+# things.
+Style/Documentation:
+  Exclude:
+    - '/**/*'
+    - 'app/controllers/*_controller.rb'
+    - 'app/helpers/*_helper.rb'
+    - 'test/**/*'
+
+Style/ClassVars:
+  Exclude:
+    - 'test/**/*'
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - 'test/**/*'
+
+Layout/IndentationConsistency:
+  EnforcedStyle: rails
+
+

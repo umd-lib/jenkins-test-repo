@@ -1,0 +1,94 @@
+<% provide(:title, "Terms of Service") %>
+
+<h1>Terms of Service</h1>
+
+<p>
+<a class="terms-link" href="http://orcid.org/" target="_blank">ORCID</a> is an
+international, interdisciplinary, open, and not-for-profit organization that
+aims to connect research and researchers by providing an open-access registry
+(referred to as the “Registry”) of persistent unique identifiers for individual
+researchers, and to work with the research community to embed these identifiers
+in research workflows such as manuscript and grant submission.
+</p>
+
+<p>
+The University of Maryland is a member of ORCID, which allows the University,
+to integrate authenticated ORCID identifiers into grant application processes;
+ingest ORCID data to maintain internal systems such as institutional
+repositories; and link ORCID identifiers to other IDs and registry systems.
+</p>
+
+<p>
+Before proceeding, researchers are encouraged to read the following ORCID terms:
+</p>
+
+<div class="terms">
+  <p class="terms-link">
+  <a href="http://about.orcid.org/legal" target="_blank">ORCID Terms of Use</a>
+  </p>
+
+  <p>
+  The following Terms and Conditions shall not apply to the University of
+  Maryland: (a) Section 14 Indemnity, (b) Section 15 Business Use of the Registry,
+  and (c) Section 17 Arbitration/Governing Law.
+  </p>
+
+  <p class = "terms-link">
+  <a href="http://about.orcid.org/privacy-policy" target="_blank">ORCID Privacy Policy</a>
+  </p>
+
+  <p>
+  The following terms shall not apply to the University of Maryland: (a) the
+  final paragraph of Privacy Policy 11.0 International Data Transfer; governing
+  Law and (b) the final paragraph in the Privacy Policy 12.0 Enforcement and
+  Arbitration.
+  </p>
+
+  <p class = "terms-link">
+  <a href="http://about.orcid.org/content/orcid-dispute-procedures" target="_blank">ORCID Record Dispute Procedures</a>
+  </p>
+
+  <p>
+  The following terms shall not apply to the University of Maryland: (a) the
+  second paragraph in Dispute Procedures Section 6 &#8211;Mediation and (b) the
+  following sentence in the third paragraph in Dispute Procedures Section 6:
+  “The Claimant shall inform the ORCID Ombudsperson about his or her decision to
+  mediate a dispute and the final outcome.”
+  </p>
+
+  <p class="terms-emphasized-text">
+  By continuing with the creation and/or registration of the ORCID ID:
+  </p>
+
+  <p class="terms-emphasized-text">
+  I acknowledge that I have read and I understand ORCID’s policies, procedures,
+  terms and conditions as currently available, and I acknowledge that it is my
+  responsibility to check for updates periodically.
+  </p>
+
+  <p class="terms-emphasized-text">
+  I agree to abide by ORCID’s policies, procedures, terms and conditions in all
+  respects, as in effect from time to time, as they apply to me.
+  </p>
+
+  <p class="terms-emphasized-text">
+  I acknowledge that I am solely responsible for obtaining all required
+  authorizations or consents to deposit data into my Record and to make it
+  available according to the selected privacy settings. I represent that, to the
+  best of my knowledge, the deposit of data will not violate the copyright or any
+  other intellectual property right, or the privacy, publicity, or any other
+  rights of a third party.
+  </p>
+</div>
+
+<form id="terms" action="/orcid_auth_code_request">
+  <fieldset>
+    <div class="form-control-lg custom-checkbox text-center">
+    <input type="checkbox" class="custom-control-input" required="required" id="agree">
+    <label class="custom-control-label" for="agree"> I have read and I accept the Terms and Conditions. (required)</label>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+  </fieldset>
+</form>
