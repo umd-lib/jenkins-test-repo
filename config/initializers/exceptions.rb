@@ -1,0 +1,1 @@
+class NoUnitForUnitUser < StandardError; end

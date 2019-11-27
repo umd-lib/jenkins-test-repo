@@ -1,0 +1,7 @@
+<div class="actions">
+  <%= form.submit class: 'btn btn-success' %>
+  <%= link_to 'Cancel', polymorphic_path(object), class: 'btn btn-danger' %>
+  <% if policy(object).index? %>
+    <%= link_to 'List All', polymorphic_path(object.class), class: 'btn btn-default' %>
+  <% end %>
+</div>

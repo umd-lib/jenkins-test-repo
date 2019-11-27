@@ -1,0 +1,58 @@
+# frozen_string_literal: true
+
+# rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Naming/UncommunicativeMethodParamName
+def construct_summary_worksheet(wb, styles, record_set)
+  # Requests Count Worksheet Construction
+  wb.add_worksheet(name: 'Requests Count by Review Status') do |sheet| # rubocop:disable Metrics/BlockLength
+    row_num = 1
+    data = record_set
+
+    sheet.add_row ['Consolidated Libraries', 'Requests Count by Review Status'],
+                  style: [styles[:title], styles[:extra_title]],
+                  widths: %i[auto ignore]
+    sheet.merge_cells "B#{row_num}:D#{row_num}"
+    row_num += 1
+
+    sheet.add_row ['', ''],
+                  style: [styles[:title], nil],
+                  widths: %i[auto ignore]
+    row_num += 1
+
+    sheet.add_row ['Requests Count Category', 'Under Review', 'Approved', 'Not Approved', 'Contingent', 'Total'],
+                  style: styles[:header_bottom_border]
+    row_num += 1
+
+    data_start_row = row_num
+    data.each do |record|
+      record_row = [record[:category], record[:under_review], record[:approved], record[:not_approved],
+                    record[:contingent], "=SUM(B#{row_num}:E#{row_num})", record[:other_support]]
+      sheet.add_row record_row,
+                    style: [nil, nil, nil, nil, nil, nil],
+                    widths: :auto
+      row_num += 1
+    end
+    data_end_row = row_num - 1
+
+    sheet.add_row ['Total',
+                   "=SUM(B#{data_start_row}:B#{data_end_row})",
+                   "=SUM(C#{data_start_row}:C#{data_end_row})",
+                   "=SUM(D#{data_start_row}:D#{data_end_row})",
+                   "=SUM(E#{data_start_row}:E#{data_end_row})",
+                   "=SUM(F#{data_start_row}:F#{data_end_row})"],
+                  style: [styles[:summary_description],
+                          styles[:summary_result_top_border],
+                          styles[:summary_result_top_border],
+                          styles[:summary_result_top_border],
+                          styles[:summary_result_top_border],
+                          styles[:summary_result]],
+                  widths: :auto
+    row_num += 1
+  end
+end
+# rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Naming/UncommunicativeMethodParamName
+
+wb = xlsx_package.workbook
+
+styles = wb.define_styles
+
+construct_summary_worksheet(wb, styles, record_set)

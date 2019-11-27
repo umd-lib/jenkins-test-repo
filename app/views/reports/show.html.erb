@@ -1,0 +1,44 @@
+<div class="container">
+  <div class="page-header">
+    <h1><%= @report.name.underscore.humanize %>
+      <div class='pull-right' data-turbolinks='false'><%= link_to "Download", report_download_path(@report, format: @report.format),
+        class: 'btn btn-success' unless @report.output.nil? %></div>
+      </h1>
+    </div>
+
+
+  <table class="table table-striped">
+    <tbody>
+      <tr>
+        <th>Format:</th>
+        <td id="code"><%= @report.format %></td>
+      </tr>
+
+      <tr>
+        <th>Creator:</th>
+        <td id="name"><%= @report.creator.name %></td>
+      </tr>
+
+      <tr>
+        <th>Created At:</th>
+        <td id="created_at"><%= @report.created_at %></td>
+      </tr>
+
+      <tr>
+        <th>Status:</th>
+        <td id="status">
+          <%= @report.status %>
+          <% if @report.status_message %>
+            <span id="status_message"> - <%= @report.status_message %></span>
+          <% end %>
+        </td>
+      </tr>
+
+      <tr>
+        <th>Parameters:</th>
+        <td id="parameters"><%= @report.parameters %></td>
+      </tr>
+
+    </tbody>
+  </table>
+</div>

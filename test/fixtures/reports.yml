@@ -1,0 +1,45 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+report_completed:
+  status: 3     # Completed
+  format: 0     # xlsx
+  name: Report_Completed
+  user: admin
+  created_at: 2016-10-01 20:00:00
+  output: Nothing
+
+requests_by_type:
+  status: completed
+  format: xlsx
+  name: RequestsByTypeReport
+  user: admin
+  created_at: 2016-10-01 20:30:00
+
+
+report_with_error:
+  status: 2    # Error
+  format: 1    # pdf
+  name: Report_with_Error
+  user: admin
+  created_at: 2016-10-01 21:00:00
+
+report01:
+  status: 3     # Completed
+  format: 0     # xlsx
+  name: Report01
+  user: admin
+  created_at: 2016-10-01 22:00:00
+  output: Nothing
+
+report02:
+  status: 3    # Completed
+  format: 1    # pdf
+  name: Report02
+  user: admin
+  created_at: 2016-10-01 22:30:00
+
+report03:
+  status: 3    # Completed
+  format: 1    # pdf
+  name: Report03
+  user: admin
+  created_at: 2016-10-01 23:00:00

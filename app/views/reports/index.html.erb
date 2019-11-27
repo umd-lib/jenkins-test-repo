@@ -1,0 +1,43 @@
+<div class='container'>
+  <div class="page-header">
+    <h1>
+      Reports
+      <span class='pull-right'><%= link_to( "New", new_report_path, class: "btn btn-success" ) %></span>
+    </h1>
+  </div>
+
+  <div class="btn-toolbar pagination">
+    <div class='btn-group'><%= will_paginate( @requests, renderer: BootstrapPagination::Rails) %></div>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th id="name">Name</th>
+        <th id="format">Format</th>
+        <th id="creator_name">Creator</th>
+        <th id="created_at">Created At</th>
+        <th id="status">Status</th>
+        <th id="download">Output</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @reports.each do |report| %>
+        <%= content_tag :tr, id: "report_#{report.id}" do %>
+          <td headers="name"><%= report.name.underscore.humanize %></td>
+          <td headers="format"><%= report.format %></td>
+          <td headers="creator_name"><%= report.creator.name  %></td>
+          <td headers="created_at"><%= report.created_at  %></td>
+          <td headers="status"><%= report.status %></td>
+          <td headers="download"><%= link_to "Download", report_download_path(report, format: report.format), class: 'download' unless report.output.nil? %></td>
+          <%= render 'shared/index_action_buttons', object: report %>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="btn-toolbar pagination">
+    <div class='btn-group'><%= will_paginate( @requests, renderer: BootstrapPagination::Rails) %></div>
+  </div>
+</div>

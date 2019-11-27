@@ -1,0 +1,31 @@
+<%= simple_form_for @request, html:  {"data-model-klass": @model_klass.name.underscore }   do |f| %>
+  
+  <%= render partial: "edit_form_header", locals: { f: f } %> 
+	<%= render 'shared/form_errors', errors: @request.errors %>
+
+  <div class='panel panel-default'>
+    <div class="panel-body">
+      <%= f.input :position_title , input_html: { class: 'copy' } %>
+      <%= f.input :employee_type, as: :select,  collection:  @request.valid_employee_types , input_html: { class: 'copy' } %>
+      <%= f.input :request_type, as: :select,  collection:  @model_klass::VALID_REQUEST_TYPES , input_html: { class: 'copy' } %>
+      <%= f.input :contractor_name , input_html: { class: 'copy' } %>
+      <%= f.input :number_of_months , input_html: { class: 'copy' } %> 
+      <%= f.input :annual_base_pay, value: number_with_precision( f.object.annual_base_pay, precision: 2, delmitier: ',' ) , input_html: { class: 'copy' } %>
+      <%= f.input :nonop_funds , input_html: { class: 'copy' } %>
+      <%= f.input :nonop_source , input_html: { class: 'copy' } %>
+      
+      <%= f.association :organization, collection: current_user.available_departments, label_method: :name, input_html: { class: 'department-select copy' }, include_blank: false %>
+      <%= f.association :unit, collection: current_user.active_units, input_html: { class: 'unit-select copy' }, required: current_user.org_types.none? { |o| o != "unit" }  %>
+
+      <%= f.input :justification, input_html: { class: "word-limit copy", "data-word-limit": 125 } %>
+      
+    </div>
+  </div>
+  
+  <%= render partial: "request_admin_only", locals: { f: f } %> 
+  <div class="page-footer">
+    <h2><%= render partial: "form_btns", locals: { f: f } %></h2>
+  </div>
+
+
+<% end %>

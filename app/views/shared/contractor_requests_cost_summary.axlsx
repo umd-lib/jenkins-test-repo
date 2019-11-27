@@ -1,0 +1,310 @@
+# frozen_string_literal: true
+
+# @return [String] a "safe" cell name for uses with the Axlsx gem by removing
+#    spaces and underscores from the given name.
+def axls_safe_cell_name(name)
+  name.delete(' ').delete('_')
+end
+
+# Sets the name of the given row/col to the given name
+# Note: The name must be unique in the workbook, not just the worksheet.
+# Also, Excel cannot seem to handle names should not contain underscores ("_"),
+# spaces (" "), or dashes ("-").
+def name_cell_in_row(row, col, cell_name)
+  cell_location = "#{row.worksheet.name}!#{row.cells[col].r_abs}"
+  row.worksheet.workbook.add_defined_name cell_location, name: cell_name
+end
+
+# Adds a row describing the parameters used to create the report
+#
+# @param wb [Axlsx::Workbook] the workbook to add the worksheet to
+# @param record_set [Hash] the data to use
+def add_parameter_description_row(sheet, record_set)
+  # Add Parameter Description Row
+  allowed_review_statuses = record_set[:allowed_review_statuses]
+  allowed_review_statuses_desc = allowed_review_statuses.map(&:name).join(', ')
+  sheet.add_row ["Requests with Review Status: #{allowed_review_statuses_desc}"],
+                style: [],
+                widths: [:ignore]
+end
+
+# Adds a row indicating the creation date of the report
+#
+# @param sheet [Axlsx::Worksheet] the workbook to add the worksheet to
+# @param created_at [ActiveSupport::TimeWithZone] the report creation time
+def add_report_creation_date_row(sheet, created_at)
+  sheet.add_row ["Report creation date: #{created_at}"],
+                style: [],
+                widths: [:ignore]
+end
+
+# Constructs a worksheet for a single division.
+#
+# @param wb [Axlsx::Workbook] the workbook to add the worksheet to
+# @param styles [Hash] the pre-defined styles
+# @param record_set [Hash] the data to use
+# @param division [Division] the division to use
+# @param created_at [ActiveSupport::TimeWithZone] the report creation time
+# rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/LineLength, Naming/UncommunicativeMethodParamName
+def construct_division_worksheet(wb, styles, record_set, division, created_at)
+  default_col_width = 16
+  # Division Worksheet Construction
+  wb.add_worksheet(name: axls_safe_cell_name(division)) do |sheet| # rubocop:disable Metrics/BlockLength
+    data = record_set[:summary_data]
+    row_num = 1
+    current_fiscal_year = record_set[:current_fiscal_year]
+    previous_fiscal_year = record_set[:previous_fiscal_year]
+
+    sheet.add_row [division, "Divisional Summary of Salaried Contractor Requests - #{current_fiscal_year}"],
+                  style: [styles[:title], styles[:extra_title]],
+                  widths: %i[auto ignore]
+    sheet.merge_cells "B#{row_num}:D#{row_num}"
+    row_num += 1
+
+    sheet.add_row ['', ''],
+                  style: [styles[:title], nil],
+                  widths: %i[auto ignore]
+    row_num += 1
+
+    sheet.add_row ['Dept Name', "C2's", 'Contract Faculty', 'Total', 'Grant, Gift, Other Support'],
+                  style: styles[:header_bottom_border]
+    row_num += 1
+
+    data_start_row = row_num
+    data.each do |record|
+      next unless record[:division] == division
+
+      sheet.add_row [record[:department],
+                     record[:c2],
+                     record[:cfac],
+                     "=SUM(B#{row_num}:C#{row_num})",
+                     record[:other_support]],
+                    style: [nil,
+                            styles[:currency],
+                            styles[:currency],
+                            styles[:summary_result_currency],
+                            styles[:currency]],
+                    widths: [:auto, default_col_width, :auto,
+                             default_col_width, :auto]
+      row_num += 1
+    end
+    data_end_row = row_num - 1
+
+    row = sheet.add_row ["Total Salaried Contractor Requested for #{current_fiscal_year}",
+                         "=SUM(B#{data_start_row}:B#{data_end_row})",
+                         "=SUM(C#{data_start_row}:C#{data_end_row})",
+                         "=SUM(D#{data_start_row}:D#{data_end_row})",
+                         "=SUM(E#{data_start_row}:E#{data_end_row})"],
+                        style: [styles[:summary_description],
+                                styles[:summary_result_top_border_currency],
+                                styles[:summary_result_top_border_currency],
+                                styles[:summary_result_top_border_currency],
+                                styles[:summary_result_currency]],
+                        widths: :auto
+    # Cell names must be unique in workbook. Can't use "_" to separate
+    # words, because it turns the next letter into uppercase.
+    name_cell_in_row(row, 1, axls_safe_cell_name(division + 'C2Totals'))
+    name_cell_in_row(row, 2, axls_safe_cell_name(division + 'CFacTotals'))
+    name_cell_in_row(row, 3, axls_safe_cell_name(division + 'TotalTotals'))
+    name_cell_in_row(row, 4, axls_safe_cell_name(division + 'OtherSupportTotals'))
+    row_num += 1
+
+    # Blank Row
+    sheet.add_row
+    row_num += 1
+
+    # Previous Fiscal Year Row
+    row = sheet.add_row ["Less: Total Salaried Contractor Approved for #{previous_fiscal_year}",
+                         nil, nil, "=SUM(B#{row_num}:C#{row_num})", nil],
+                        style: [styles[:summary_description],
+                                styles[:summary_result_currency],
+                                styles[:summary_result_currency],
+                                styles[:summary_result_currency],
+                                styles[:summary_result_currency]],
+                        widths: :auto
+    # Cell names must be unique in workbook. Can't use "_" to separate
+    # words, because it turns the next letter into uppercase.
+    name_cell_in_row(row, 1, axls_safe_cell_name(division + 'PrevFyC2Totals'))
+    name_cell_in_row(row, 2, axls_safe_cell_name(division + 'PrevFyCFacTotals'))
+    name_cell_in_row(row, 3, axls_safe_cell_name(division + 'PrevFyTotalTotals'))
+    name_cell_in_row(row, 4, axls_safe_cell_name(division + 'PrevFyOtherSupportTotals'))
+    row_num += 1
+
+    # Blank Row
+    sheet.add_row
+    row_num += 1
+
+    # Increase/Decrease Row
+    sheet.add_row ['Increase (Decrease) in Salaried Contractor',
+                   "=#{axls_safe_cell_name(division + 'C2Totals')} - #{axls_safe_cell_name(division + 'PrevFyC2Totals')}",
+                   "=#{axls_safe_cell_name(division + 'CFacTotals')} - #{axls_safe_cell_name(division + 'PrevFyCFacTotals')}",
+                   "=#{axls_safe_cell_name(division + 'TotalTotals')} - #{axls_safe_cell_name(division + 'PrevFyTotalTotals')}",
+                   "=#{axls_safe_cell_name(division + 'OtherSupportTotals')} - #{axls_safe_cell_name(division + 'PrevFyOtherSupportTotals')}"],
+                  style: [styles[:summary_description],
+                          styles[:summary_result_currency],
+                          styles[:summary_result_currency],
+                          styles[:summary_result_currency],
+                          styles[:summary_result_currency]],
+                  widths: :auto
+    row_num += 1
+
+    # Blank Row
+    sheet.add_row
+    row_num += 1
+
+    # Add Parameter Description Row
+    add_parameter_description_row(sheet, record_set)
+    row_num += 1
+
+    # Add Report creation time row
+    add_report_creation_date_row(sheet, created_at)
+    row_num += 1
+  end
+end
+# rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/LineLength, Naming/UncommunicativeMethodParamName
+
+# Constructs a summary worksheet, inserting it at the front of the workbook.
+#
+# @param wb [Axlsx::Workbook] the workbook to add the worksheet to
+# @param styles [Hash] the pre-defined styles
+# @param record_set [Hash] the data to use
+# @param division [Division] the division to use
+# @param created_at [ActiveSupport::TimeWithZone] the report creation time
+# rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Naming/UncommunicativeMethodParamName
+def construct_summary_worksheet(wb, styles, record_set, created_at)
+  # Summary Worksheet Construction
+  default_col_width = 16
+  wb.insert_worksheet(0, name: 'Summary_Contractor') do |sheet| # rubocop:disable Metrics/BlockLength
+    row_num = 1
+    current_fiscal_year = record_set[:current_fiscal_year]
+    previous_fiscal_year = record_set[:previous_fiscal_year]
+
+    sheet.add_row ['Consolidated Libraries', "Summary of Salaried Contractor Requests - #{current_fiscal_year}"],
+                  style: [styles[:title], styles[:extra_title]],
+                  widths: %i[auto ignore]
+    sheet.merge_cells "B#{row_num}:D#{row_num}"
+    row_num += 1
+
+    sheet.add_row [nil, nil],
+                  style: [styles[:title], nil],
+                  widths: %i[auto ignore]
+    row_num += 1
+
+    sheet.add_row [nil, nil, nil, 'Less:', nil, nil, nil],
+                  style: styles[:header],
+                  widths: :auto
+    row_num += 1
+
+    sheet.add_row ['Div Name', "C2's", 'Contract Faculty',
+                   'Other Support', "Net #{current_fiscal_year} Request",
+                   "Net #{previous_fiscal_year} Request", 'Increase (Decrease)'],
+                  style: styles[:header_bottom_border]
+    row_num += 1
+
+    data_start_row = row_num
+    divisions = record_set[:divisions]
+    divisions.each do |div|
+      div_code = div.code.downcase
+      sheet.add_row [div.code,
+                     "=#{axls_safe_cell_name(div_code + 'C2Totals')}",
+                     "=#{axls_safe_cell_name(div_code + 'CFacTotals')}",
+                     "=#{axls_safe_cell_name(div_code + 'OtherSupportTotals')}",
+                     "=SUM(B#{row_num}:C#{row_num}) - D#{row_num}",
+                     nil,
+                     "=E#{row_num} - F#{row_num}"],
+                    style: [nil,
+                            styles[:currency],
+                            styles[:currency],
+                            styles[:currency],
+                            styles[:summary_result_currency],
+                            styles[:currency],
+                            styles[:currency]],
+                    widths: [:auto, default_col_width, :auto, nil, nil, nil]
+      row_num += 1
+    end
+    data_end_row = row_num - 1
+
+    row = sheet.add_row ["Total Salaried Contractor Requested for #{current_fiscal_year}",
+                         "=SUM(B#{data_start_row}:B#{data_end_row})",
+                         "=SUM(C#{data_start_row}:C#{data_end_row})",
+                         "=SUM(D#{data_start_row}:D#{data_end_row})",
+                         "=SUM(E#{data_start_row}:E#{data_end_row})",
+                         "=SUM(F#{data_start_row}:F#{data_end_row})",
+                         "=SUM(G#{data_start_row}:G#{data_end_row})"],
+                        style: [styles[:summary_description],
+                                styles[:summary_result_top_border_currency],
+                                styles[:summary_result_top_border_currency],
+                                styles[:summary_result_top_border_currency],
+                                styles[:summary_result_currency],
+                                styles[:summary_result_currency],
+                                styles[:summary_result_currency]],
+                        widths: :auto
+    name_cell_in_row(row, 1, 'SummaryC2Totals')
+    name_cell_in_row(row, 2, 'SummaryCFacTotals')
+    name_cell_in_row(row, 3, 'SummaryOtherSupportTotals')
+    name_cell_in_row(row, 4, 'SummaryNetRequest')
+    row_num += 1
+
+    # Blank Row
+    sheet.add_row
+    row_num += 1
+
+    # Previous Fiscal Year Row
+    row = sheet.add_row ["Less: Salaried Contractor Requested for #{previous_fiscal_year}",
+                         nil, nil, nil, nil],
+                        style: [styles[:summary_description],
+                                styles[:summary_result_currency],
+                                styles[:summary_result_currency],
+                                styles[:summary_result_currency],
+                                styles[:summary_result_currency]],
+                        widths: :auto
+    name_cell_in_row(row, 1, 'SummaryPrevFyC2Totals')
+    name_cell_in_row(row, 2, 'SummaryPrevFyCFacTotals')
+    name_cell_in_row(row, 3, 'SummaryPrevFyOtherSupportTotals')
+    name_cell_in_row(row, 4, 'SummaryPrevFyNetRequest')
+    row_num += 1
+
+    # Blank Row
+    sheet.add_row
+    row_num += 1
+
+    # Increase/Decrease Row
+    sheet.add_row ['Increase (Decrease) in Salaried Contractor',
+                   '=SummaryC2Totals - SummaryPrevFyC2Totals',
+                   '=SummaryCFacTotals - SummaryPrevFyCFacTotals',
+                   '=SummaryOtherSupportTotals - SummaryPrevFyOtherSupportTotals',
+                   '=SummaryNetRequest - SummaryPrevFyNetRequest'],
+                  style: [styles[:summary_description],
+                          styles[:summary_result_currency],
+                          styles[:summary_result_currency],
+                          styles[:summary_result_currency],
+                          styles[:summary_result_currency]],
+                  widths: :auto
+    row_num += 1
+
+    # Blank Row
+    sheet.add_row
+    row_num += 1
+
+    # Add Parameter Description Row
+    add_parameter_description_row(sheet, record_set)
+    row_num += 1
+
+    # Add Report creation time row
+    add_report_creation_date_row(sheet, created_at)
+    row_num += 1
+  end
+end
+# rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Naming/UncommunicativeMethodParamName
+
+wb = xlsx_package.workbook
+styles = wb.define_styles
+
+# Create worksheet for each division
+divisions = record_set[:divisions]
+divisions.each do |div|
+  construct_division_worksheet(wb, styles, record_set, div.code, created_at)
+end
+
+# Create summary worksheet
+construct_summary_worksheet(wb, styles, record_set, created_at)

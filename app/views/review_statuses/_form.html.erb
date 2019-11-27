@@ -1,0 +1,33 @@
+<div class='container'>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+	    <%= simple_form_for @review_status do |f| %>
+	
+
+        <div class="page-header">
+          <h2><%= @review_status.name %> <small>Review Status</small>
+            <div class="pull-right">
+              <% if edit_or_new? %> 
+                <%= link_to 'Back', review_statuses_path, class: 'btn btn-default' %>
+                <%= f.submit 'Save', class: 'btn btn-success' %>
+              <% elsif show? %>
+                <%= link_to 'Edit', edit_review_status_path(@review_status.id), class: 'btn btn-success' %>
+              <% end %>
+            </div>
+          </h2>
+        </div>
+  
+	
+		    <%= render 'shared/form_errors', errors: @review_status.errors %>
+  
+        <div class='panel panel-default'>
+          <div class="panel-body">
+              <%= f.input :name, disabled: !edit_or_new?  %>
+              <%= f.input :code, disabled: !edit_or_new?  %>
+              <%= f.input :color, as: :color, type: :color,  disabled: !edit_or_new?  %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class='container'>
+  <div class="page-header">
+    <h1>Annual Staffing Requests</h1>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading"><h3>Current Fiscal Year: <%= FiscalYear.next_year %></h3></div>
+    <div class="panel-body">
+      <ul class="list-group requests-homepage">
+        <li class='alert alert-danger'>
+          <h4 class='list-group-item' style='text-align: center'><b>Cutoff Dates</b></h4>
+          <div class='list-group-item'>
+            <table class="table-condensed" style="margin: 0px auto;">
+                <% OrganizationCutoff.where.not( organization_type: 'root' ).order(cutoff_date: :asc, organization_type: :desc).each do |cutoff| %>
+                  <tr>
+                    <td>
+                      <strong><%= cutoff.organization_type.humanize %></strong>
+                    </td>
+                    <td>
+                      <%= cutoff.cutoff_date.strftime("%B %e, %Y") %>
+                    </td>
+                  </tr>
+                </li>
+                <% end %>
+            </table>
+          </div>
+        </li>
+        <li class='alert alert-info'><%= link_to 'Labor and Assistance Requests', polymorphic_url( LaborRequest ), class: "list-group-item btn-link" %>
+          <div class="well"><%= t('help_text.labor_request_description') %></div>
+        </li>
+        <li class='alert alert-warning'><%= link_to 'Staff Requests', polymorphic_url( StaffRequest ), class: "list-group-item" %>
+          <div class="well"><%= t('help_text.staff_request_description') %></div>
+        </li>
+        <li class='alert alert-success'><%= link_to 'Salaried Contractor Requests', polymorphic_url( ContractorRequest ), class: "list-group-item" %>
+          <div class="well"><%= t('help_text.contractor_request_description') %></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

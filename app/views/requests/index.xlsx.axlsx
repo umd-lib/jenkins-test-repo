@@ -1,0 +1,42 @@
+# frozen_string_literal: true
+
+record_set = Array.wrap(record_set)
+worksheets = klass.respond_to?(:worksheets) ? klass.worksheets : [klass.name]
+
+wb = xlsx_package.workbook
+styles = wb.define_styles
+
+record_set.each_with_index do |records, i|
+  name = worksheets[i] || worksheets.first
+  wb.add_worksheet(name: name.pluralize) do |sheet|
+    first_column_style = nil
+    first_column_width = nil
+
+    sheet_klass = name.constantize
+
+    fields = sheet_klass.fields.flat_map { |k| k == :organization__name ? [:division__name, k] : k }
+
+    formats, widths = formats_and_widths(fields)
+
+    header_row = fields.map { |field| sheet_klass.human_attribute_name(field.to_s.split('__').first.intern) }
+    sheet.add_row ['Request Category'] + header_row, style: styles[:header_bottom_border]
+    records.each do |record|
+      data = [record.class.name.underscore.humanize] + fields.map do |field|
+        if currency_field?(field.intern)
+          # for currency fields we need to specify the "xlsx" format, because
+          # otherwise we'll get the currency formatting used for the HTML pages,
+          # which confuses Excel
+          call_record_field record, field, :xlsx
+        else
+          # otherwise we want all the view helpers called
+          call_record_field record, field
+        end
+      end
+      row_styles = [first_column_style] + formats.map { |f| f.nil? ? nil : styles[f] }
+      column_widths = [first_column_width] + widths
+
+      sheet.add_row data, style: row_styles
+      sheet.column_widths(*column_widths)
+    end
+  end
+end

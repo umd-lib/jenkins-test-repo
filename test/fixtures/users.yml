@@ -1,0 +1,188 @@
+---
+admin:
+  cas_directory_id: admin
+  name: admin
+  created_at: 2017-08-07 08:12:07.167333000 Z
+  updated_at: 2017-08-07 08:12:07.167333000 Z
+  admin: true
+not_admin:
+  cas_directory_id: not_admin
+  name: Not Admin
+  created_at: 2017-08-07 09:42:24.092893000 Z
+  updated_at: 2017-08-07 09:42:24.092893000 Z
+  admin: false
+red_shirt:
+  cas_directory_id: red_shirt
+  name: Red Shirt ( gets killed often )
+  created_at: 2017-08-07 09:42:24.092893000 Z
+  updated_at: 2017-08-07 09:42:24.092893000 Z
+  admin: false
+two_roles:
+  cas_directory_id: dos_roles
+  name: I have two roles
+  admin: false
+middle_mgmt:
+  cas_directory_id: middle_mgmt
+  name: I Am A Department Head
+  admin: false
+user_3:
+  id: 3
+  cas_directory_id: milford.windler
+  name: Raheem Rowe DDS
+  created_at: 2017-09-11 20:10:19.198283000 Z
+  updated_at: 2017-09-11 20:10:19.198283000 Z
+  admin: false
+user_4:
+  id: 4
+  cas_directory_id: enola_lueilwitz
+  name: Joana Kassulke
+  created_at: 2017-09-11 20:10:19.215422000 Z
+  updated_at: 2017-09-11 20:10:19.215422000 Z
+  admin: false
+user_5:
+  id: 5
+  cas_directory_id: reuben.crooks
+  name: Aisha Abshire
+  created_at: 2017-09-11 20:10:19.229534000 Z
+  updated_at: 2017-09-11 20:10:19.229534000 Z
+  admin: false
+user_6:
+  id: 6
+  cas_directory_id: david
+  name: Robin Franecki
+  created_at: 2017-09-11 20:10:19.245493000 Z
+  updated_at: 2017-09-11 20:10:19.245493000 Z
+  admin: false
+user_7:
+  id: 7
+  cas_directory_id: magdalena.bartoletti
+  name: August Beatty
+  created_at: 2017-09-11 20:10:19.266415000 Z
+  updated_at: 2017-09-11 20:10:19.266415000 Z
+  admin: false
+user_8:
+  id: 8
+  cas_directory_id: reina
+  name: Aaliyah Kulas
+  created_at: 2017-09-11 20:10:19.291301000 Z
+  updated_at: 2017-09-11 20:10:19.291301000 Z
+  admin: false
+user_9:
+  id: 9
+  cas_directory_id: mikel_boyer
+  name: Mr. Clyde Spencer
+  created_at: 2017-09-11 20:10:19.314605000 Z
+  updated_at: 2017-09-11 20:10:19.314605000 Z
+  admin: false
+user_10:
+  id: 10
+  cas_directory_id: bennie.oconnell
+  name: Horacio Schiller
+  created_at: 2017-09-11 20:10:19.332371000 Z
+  updated_at: 2017-09-11 20:10:19.332371000 Z
+  admin: false
+user_11:
+  id: 11
+  cas_directory_id: rafael
+  name: Coty Blick
+  created_at: 2017-09-11 20:10:19.348261000 Z
+  updated_at: 2017-09-11 20:10:19.348261000 Z
+  admin: false
+user_12:
+  id: 12
+  cas_directory_id: jennings
+  name: Ethel Mante
+  created_at: 2017-09-11 20:10:19.363881000 Z
+  updated_at: 2017-09-11 20:10:19.363881000 Z
+  admin: false
+user_13:
+  id: 13
+  cas_directory_id: elise
+  name: Coy Gleason
+  created_at: 2017-09-11 20:11:11.322861000 Z
+  updated_at: 2017-09-11 20:11:11.322861000 Z
+  admin: false
+user_14:
+  id: 14
+  cas_directory_id: juana_hodkiewicz
+  name: Elza Reilly
+  created_at: 2017-09-11 20:11:11.339988000 Z
+  updated_at: 2017-09-11 20:11:11.339988000 Z
+  admin: false
+user_15:
+  id: 15
+  cas_directory_id: dayton.zemlak
+  name: Mr. Lavern Schuppe
+  created_at: 2017-09-11 20:11:11.354461000 Z
+  updated_at: 2017-09-11 20:11:11.354461000 Z
+  admin: false
+user_16:
+  id: 16
+  cas_directory_id: sammie
+  name: Alford Stokes
+  created_at: 2017-09-11 20:11:11.367898000 Z
+  updated_at: 2017-09-11 20:11:11.367898000 Z
+  admin: false
+user_17:
+  id: 17
+  cas_directory_id: deonte
+  name: Krystel Huels
+  created_at: 2017-09-11 20:11:11.381573000 Z
+  updated_at: 2017-09-11 20:11:11.381573000 Z
+  admin: false
+user_18:
+  id: 18
+  cas_directory_id: danika.stoltenberg
+  name: Josiane Prohaska
+  created_at: 2017-09-11 20:11:11.395040000 Z
+  updated_at: 2017-09-11 20:11:11.395040000 Z
+  admin: false
+user_19:
+  id: 19
+  cas_directory_id: blaise
+  name: Xzavier Kshlerin V
+  created_at: 2017-09-11 20:11:11.408990000 Z
+  updated_at: 2017-09-11 20:11:11.408990000 Z
+  admin: false
+user_20:
+  id: 20
+  cas_directory_id: paolo
+  name: Mr. Fidel Pfannerstill
+  created_at: 2017-09-11 20:11:11.423346000 Z
+  updated_at: 2017-09-11 20:11:11.423346000 Z
+  admin: false
+user_21:
+  id: 21
+  cas_directory_id: demetris
+  name: Joaquin Wyman
+  created_at: 2017-09-11 20:11:11.438068000 Z
+  updated_at: 2017-09-11 20:11:11.438068000 Z
+  admin: false
+user_22:
+  id: 22
+  cas_directory_id: freeda.reichert
+  name: Jaycee Smith
+  created_at: 2017-09-11 20:11:11.453435000 Z
+  updated_at: 2017-09-11 20:11:11.453435000 Z
+  admin: false
+user_23:
+  id: 23
+  cas_directory_id: susana.hand
+  name: Miss Malinda Powlowski
+  created_at: 2017-09-11 20:11:11.468626000 Z
+  updated_at: 2017-09-11 20:11:11.468626000 Z
+  admin: false
+user_24:
+  id: 24
+  cas_directory_id: dagmar.quigley
+  name: Roosevelt Schiller II
+  created_at: 2017-09-11 20:11:11.488499000 Z
+  updated_at: 2017-09-11 20:11:11.488499000 Z
+  admin: false
+user_25:
+  id: 25
+  cas_directory_id: cf1tz
+  name: cfitz
+  created_at: 2017-09-11 20:11:23.122246000 Z
+  updated_at: 2017-09-11 20:11:23.122246000 Z
+  admin: true

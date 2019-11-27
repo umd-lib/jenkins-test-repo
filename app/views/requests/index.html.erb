@@ -1,0 +1,47 @@
+<div class="page-header">
+  <h1><%= @model_klass.human_name %>
+  <% if policy(@model_klass).new? %> 
+      <span class='pull-right btn-wrapper'><%= link_to( t('actions.new'), new_polymorphic_url(@model_klass ), class: "btn btn-success" ) %></span>
+  <% end %>
+  <span class="pull-right btn-wrapper">
+    <%= link_to t('Export'), params.permit(:controller, :action, :page, :archive ).merge( format: :xlsx ), class: 'btn btn-info', :id => 'export' %>
+	</span>  
+  <% if current_user.admin? && policy(@model_klass).update? %>
+		<span class='pull-right btn-wrapper'>	
+			<div class="btn-group">
+				<button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <%= t('actions.update-status') %>
+					<span class="caret"></span>
+					<span class="sr-only">Toggle Dropdown</span>
+        </button> 
+				<ul id='change-review-status' class="dropdown-menu">
+					<% ReviewStatus.all.each do |rst| %> 
+						<li><a href="#" data-record-type="<%= @model_klass.name.underscore %>"  data-review-status="<%= rst.id %>"><%= rst.name %></a></li>
+					<% end %> 
+				</ul>
+     	</div>
+ 		</span> 
+	<% end %>
+  
+  <% if archive? %> 
+    <span class='pull-right btn-wrapper'><%= link_to t('actions.view_active'), polymorphic_url( @model_klass.source_class, archive: false), class: 'btn btn-info'  %></span> 
+  <% else %>
+    <span class='pull-right btn-wrapper'><%= link_to t('actions.view_archive'), polymorphic_url( @model_klass, archive: true), class: 'btn btn-info'  %></span> 
+  <% end %>
+  </h1>
+</div>
+
+<% if flash[:error] %>
+  <div class="alert alert-danger"><%= flash[:error] %></div>
+<% end %>
+<% if archive? %> 
+  <div class="alert alert-warning text-center">
+    <h3> 
+      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+      <b>Please Note:</b> You are currently in the archive.</b> 
+      <%= link_to "Click Here To Exit", polymorphic_url( @model_klass.source_class, archive: false), class: 'btn btn-link'  %>
+    </h3> 
+  </div>
+<% end %>
+
+<%= render partial: "shared/requests_table" %>

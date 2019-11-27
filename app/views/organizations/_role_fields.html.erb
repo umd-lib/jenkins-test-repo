@@ -1,0 +1,12 @@
+<div class='role nested-fields'>
+ 	<%= link_to_remove_association("remove", f, { class: 'pull-right remove-role' }) unless !edit_or_new?  %> 
+ 	<% if f.object.user %> 
+	  <div class="input">	
+			<label>User</label>	
+			<%= link_to( f.object.user.name, user_path(f.object.user)) %>	
+		</div>	
+	<% else %>
+		<%= f.input :user_id, collection: User.all, label_method: :name,
+			value_method: :id,  as: :select, required: true %>
+	<% end %>
+</div>

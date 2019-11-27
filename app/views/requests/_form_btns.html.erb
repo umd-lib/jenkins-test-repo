@@ -1,0 +1,10 @@
+<div class="pull-right">
+  <%= link_to 'Return to List', polymorphic_path(@model_klass), class: 'btn btn-default' %>
+  <% if edit_or_new? %> 
+    <%= f.submit 'Save', class: 'btn btn-success' %>
+  <% elsif show? && policy(@request).edit? %>
+    <%= link_to 'Edit', edit_polymorphic_path(@request), class: 'btn btn-success' %>
+  <% end %>
+  <%= link_to('Copy', new_polymorphic_url(@model_klass) , class: 'btn btn-warning spawner', data:
+              { toggle: "tooltip", title: "Copy Record to New Fiscal Year" }) if @request.archived_proxy  %>
+</div>

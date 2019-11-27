@@ -1,0 +1,29 @@
+.impersonate {
+  background-color: $impersonate_background;
+  text-align: center;
+  color: $impersonate_color;
+  display:inline-block;
+  width: 100%;
+  height: $impersonate_height;
+}
+
+.impersonate button {
+  vertical-align: baseline;
+  text-decoration-style: dotted;
+  text-decoration-line: underline;
+}
+
+// Impersonate button
+.btn-impersonate {
+  background-color: $impersonate_background;
+  color: $impersonate_color;
+}
+
+.btn-impersonate:hover {
+  background-color: darken($impersonate_background, 5%);
+  color: $impersonate_color !important;
+}
+
+.impersonate-extra-padding-top {
+  padding-top: $impersonate_height;
+}

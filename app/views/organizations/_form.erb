@@ -1,0 +1,132 @@
+<div class='container'>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <%= simple_form_for(@organization) do |f| %>
+        
+        <div class="page-header">
+          <h2><%= @organization.name || "New Organization" %> 
+              <div class='pull-right'> 
+                <%= link_to 'Back', organizations_path, class: 'btn btn-default' %>
+                <%= f.submit 'Save', class: 'btn btn-success' %>
+              </div>
+          </h2>
+        </div>
+        
+          <div class='alert alert-info' role='alert'>
+            <h4>
+              <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+              
+              <% if @organization.organization_cutoff %>
+              Request Cutoff is set to <%= @organization.organization_cutoff.cutoff_date %>
+            <% end %>
+            <div class='label label-info pull-right'>Active Records:<span class='badge'> <%= @organization.requests_count %></span></div> 
+            <div class='label label-primary pull-right'>Archived Records:<span class='badge'> <%= @organization.archived_requests_count %></span></div></h4>
+          </div>
+          <% if @organization.archived_records? %> 
+            <div class='alert alert-warning' role='alert'>
+              <h4>
+              <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+              <%= @organization.name %> has records that have been archived. It is not possible to change it's name,
+              code, organization type, or parent
+            </div>
+          <% end %>     
+        <%= render 'shared/form_errors', errors: @organization.errors %>
+          
+          
+          <div class='panel panel-default'>
+            <div class="panel-body">
+              <%= f.input :name, disabled: @organization.archived_records? %>
+              <%= f.input :code, disabled: @organization.archived_records? %>
+              <%= f.input :organization_type, as: :select, 
+                collection:  Organization.organization_types.keys.reject { |o| o == 'root' },
+                disabled: ( f.object.root? || f.object.archived_records? ) %>
+              <% unless @organization.organization_type == 'root' %> 
+                <div class="input"> 
+                  <%= f.label :parent %>
+                  <% if @organization.parent %>
+                    <%= link_to( @organization.parent.description, @organization.parent, { id: "parent_link" }) %>
+                  <% else %>
+                    <a href="#" id="parent_link" />
+                  <% end %>
+                    
+                  <%= f.hidden_field :organization_id %> 
+                  <button type="button" class="btn btn-info" <%= 'disabled' if @organization.archived_records? or !edit_or_new? %> 
+                      data-toggle="modal" data-target="#orgModal">Select Parent</button> 
+                </div>
+              <% end %> 
+              <%= f.input :deactivated, as: :hidden %>
+              <div class='input'> 
+                <label class='string optional' for='deactivated'>Deactivated</label>
+                <div class="btn-group btn-toggle"> 
+                  <button class="btn toggle-yes <%= @organization.deactivated? ? 'off' : 'on' %>" <%= 'disabled' if !edit_or_new? %>>Active</button>
+                  <button class="btn toggle-no <%= @organization.deactivated? ? 'on' : 'off' %>" <%= 'disabled' if !edit_or_new? %>>Deactive</button>
+                </div>
+              </div>
+            </div>
+          </div>
+            
+          <div class='panel panel-default'>
+            <div class="panel-heading"><span>Members</span>
+              <% if edit_or_new? %> 
+                <span class='pull-right'>
+                  <%= link_to_add_association(	f, :roles,
+                                              { class: "add-roles", 
+                                                "data-association-insertion-node": "#roles",
+                                                "data-association-insertion-method": 'append'}) do  %>
+                                                            <i class='glyphicon glyphicon-plus-sign'></i>Add Member 
+                  <% end %>
+                </span>
+              <% end %>
+            </div>
+            <div class="panel-body" id="roles">
+              <%= f.fields_for :roles, f.object.roles do |role| %>
+                  <%= render 'role_fields', f: role %>
+              <% end %>
+            </div>
+          </div>
+          
+        <% end %>
+
+
+    <% @organization.ancestors.each do |ancestor| %>
+      <div class='panel panel-default'>
+        <div class="panel-heading"><span>Users with access from <%= link_to ancestor.description, ancestor %></span>
+        </div>
+          
+        <div class="panel-body" id="roles">
+          <ul>
+            <% ancestor.users.each do |u| %>
+              <li><%= link_to u.description, u %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
+
+
+
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="orgModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Organizations</h4>
+      </div>
+      <div class="modal-body">
+        <div class='container' id="tree" ></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render partial: 'organization_tree' %>

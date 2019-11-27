@@ -1,0 +1,32 @@
+<td headers="actions">                                                                                                                                                                                      
+  <span style="white-space: nowrap">                                                                                                                                                                        
+    <% if policy(object).show? %>                                                                                                                                                                           
+      <%= link_to show_polymorphic_url( object ), class: "btn btn-default", title: "Details" do %>                                                                                                                                  
+        <i class="glyphicon glyphicon-info-sign"></i>                                                                                                                                                       
+      <% end %>                                                                                                                                                                                             
+    <% end %>                                                                                                                                                                                               
+    <% if policy(object).edit? %>                                                                                                                                                                           
+      <%= link_to edit_path(object), class: "btn btn-info", title: "Edit" do %>                                                                                                                 
+        <i class="glyphicon glyphicon-pencil"></i>                                                                                                                                                          
+      <% end %>                                                                                                                                                                                             
+    <% end %>                                                                                                                                                                                               
+                                                                                                                                                                                                            
+    <% if policy(object).destroy? %>                                                                                                                                                                        
+      <% if object.respond_to?('allow_delete?') && !object.allow_delete? %>                                                                                                                                 
+        <button class="btn btn-danger delete" disabled="disabled"><i class="glyphicon glyphicon-trash"></i></button>                                                                                        
+      <% else %>                                                                                                                                                                                            
+        <%= link_to show_polymorphic_url(object, permitted_params ), method: :delete,                                                                                                                                                                
+              data: { confirm: confirm_delete_text(object) }, class: "btn btn-danger delete", title: "Delete" do %>                                                                                         
+          <i class="glyphicon glyphicon-trash"></i>                                                                                                                                                         
+        <% end %>                                                                                                                                                                                           
+      <% end %>                                                                                                                                                                                             
+    <% end %>                                                                                                                                                                                               
+    
+    <% if policy(object).impersonate? %>
+      <%= link_to impersonate_user_path(object), class: "btn btn-impersonate", title: "Impersonate" do %>
+        <i class="glyphicon glyphicon-sunglasses"></i>
+      <% end %>  
+   <% end %>
+
+  </span>                                                                                                                                                                                                   
+</td>

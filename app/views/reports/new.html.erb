@@ -1,0 +1,13 @@
+<div class='container'>
+  <div class="page-header">
+    <h1>New Report</h1>
+  </div>
+
+  <% @report.manager.reports.sort.each do |subreport| %>
+    <div class="panel panel-default">
+      <div class="panel-body">
+          <%= render_report_form(subreport)  %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,10 @@
+// Impersonate CSS settings
+
+$impersonate_background: darkorchid;
+$impersonate_color: white;
+$impersonate_height: 35px;
+
+
+@import 'home.scss';
+@import 'impersonate.scss';
+@import 'form.scss';

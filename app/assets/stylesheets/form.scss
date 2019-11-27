@@ -1,0 +1,50 @@
+.input { 
+  padding: 10px 0; 
+
+  label { margin: 0 10px; width: 15em; }
+}
+
+.arrow-up { 
+  &:after {
+    margin-left: 2px; 
+    font-family: 'Glyphicons Halflings';
+    content: "\e113";
+  }
+}
+
+.arrow-down { 
+  &:after {
+    margin-left: 2px; 
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";
+  }
+}
+
+.pagination { 
+  text-align: center;
+  width: 100%; 
+  > .btn-group { float: none;  }
+
+}
+
+.page-header .btn-wrapper { padding: 0 1px; }
+
+.page-footer {
+    padding-bottom: 9px;
+    margin: 40px 0 40px;
+    border-top: 1px solid #eeeeee;
+}
+
+
+.required abbr { color: red;  }
+.alert { 
+  margin-top: 10px; 
+  > .required  { display: inline; }
+}
+
+
+a.list-group-item {
+  color: #0088cc;
+  text-decoration: underline;
+  background-color: transparent;
+}  

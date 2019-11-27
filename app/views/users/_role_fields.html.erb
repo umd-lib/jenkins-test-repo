@@ -1,0 +1,5 @@
+<div class='role nested-fields'>
+ 	<%= link_to_remove_association("remove", f, { class: 'pull-right remove-role' }) unless !edit_or_new?  %> 
+  <%= f.input :organization_id, collection: Organization.flat_tree, label_method: :flat_tree_description,
+    value_method: :id,  as: :select, required: true, disabled: !edit_or_new? %>
+</div>

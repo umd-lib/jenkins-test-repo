@@ -1,0 +1,82 @@
+<div class='container'>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+	    <%= simple_form_for @user do |f| %>
+	
+
+        <div class="page-header">
+          <h2><%= @user.cas_directory_id %> <small>User</small>
+            <div class="pull-right">
+              <% if edit_or_new? %> 
+                <%= link_to 'Back', users_path, class: 'btn btn-default' %>
+                <%= f.submit 'Save', class: 'btn btn-success' %>
+              <% elsif show? %>
+                <%= link_to 'Edit', edit_user_path(@user.id), class: 'btn btn-success' %>
+              <% end %>
+            </div>
+          </h2>
+        </div>
+  
+	
+		    <%= render 'shared/form_errors', errors: @user.errors %>
+  
+        <div class='panel panel-default'>
+          <div class="panel-body">
+              <%= f.input :cas_directory_id, disabled: ( @user.id? or !edit_or_new? ) %>
+              <%= f.input :name, disabled: !edit_or_new?  %>
+              <%= f.input :admin, as: :select, disabled: !edit_or_new?  %>
+          </div>
+        </div>
+
+        <div class='panel panel-default'>
+          <% if edit_or_new? %> 
+            <div class="panel-heading"><span>Roles</span>
+                <span class='pull-right'>
+                  <%= link_to_add_association(	f, :roles,
+                                              { class: "add-roles", 
+                                                "data-association-insertion-node": "#roles",
+                                                "data-association-insertion-method": 'append'}) do  %>
+                    <i class='glyphicon glyphicon-plus-sign'></i>Add Roles 
+                  <% end %> 
+              </span>
+            </div>
+          <% end %>
+          
+          <div class="panel-body" id="roles">
+            <%= f.fields_for :roles, f.object.roles do |role| %>
+              <%= render 'role_fields', f: role %>
+            <% end %>
+          </div>
+        
+        </div>
+  
+      <% end %>
+
+      <% if @user.all_organizations.length > 0 %>
+        <div class='panel panel-default'>
+          <div class="panel-heading">
+            <span>Current roles provide access to the following organizations:</span>
+          </div>
+          <div class="panel-body" id="roles">
+            <ul>
+              <% @user.all_organizations.each do |org| %>
+                <li>
+                  <%= link_to org.description, org %> 
+                  <% if org.organization_cutoff %>
+                    Cutoff Date: <%= org.organization_cutoff.cutoff_date %>
+                  <% end %> 
+                  <% if org.cutoff? %> 
+                    <span class='label label-danger pull-right'>INACTIVE</span>   
+                  <% else %> 
+                    <span class='label label-info pull-right'>ACTIVE</span>   
+                  <% end %> 
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+</div>

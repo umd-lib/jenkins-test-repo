@@ -1,0 +1,32 @@
+<div class='container'>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+	    <%= simple_form_for @link do |f| %>
+	
+
+        <div class="page-header">
+          <h2><%= @link.text %> <small>Link</small>
+            <div class="pull-right">
+              <% if edit_or_new? %> 
+                <%= link_to 'Back', links_path, class: 'btn btn-default' %>
+                <%= f.submit 'Save', class: 'btn btn-success' %>
+              <% elsif show? %>
+                <%= link_to 'Edit', edit_link_path(@link.id), class: 'btn btn-success' %>
+              <% end %>
+            </div>
+          </h2>
+        </div>
+  
+	
+		    <%= render 'shared/form_errors', errors: @link.errors %>
+  
+        <div class='panel panel-default'>
+          <div class="panel-body">
+              <%= f.input :text, disabled: !edit_or_new?  %>
+              <%= f.input :url, disabled: !edit_or_new?  %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

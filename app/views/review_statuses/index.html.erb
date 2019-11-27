@@ -1,0 +1,39 @@
+<div class='container'>
+
+  <div class="page-header">
+    <h1>Review Statuses
+      <span class='pull-right'><%= link_to( "New", new_review_status_path, class: "btn btn-success" ) %></span>
+    </h1>
+  </div>
+  
+  <div class="btn-toolbar pagination">
+    <div class='btn-group'><%= will_paginate( @review_statuses, renderer: BootstrapPagination::Rails) %></div>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Code</th>
+        <th>Color</th> 
+        <th></th> 
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @review_statuses.each do |status| %>
+        <%= content_tag :tr, id: "status_#{status.id}" do %>
+          <td><%= status.name %></td>
+          <td><%= status.code %></td>
+          <td>
+            <input value="<%= status.color %>" 
+                   readonly="readonly" disabled="disabled" 
+                                       name="review_status[color]" id="<%= status.id %>_color" type="color"> 
+          </td> 
+          <%= render 'shared/index_action_buttons', object: status %> 
+        <% end %>
+      <% end %>
+    </tbody>
+
+  </table>
+</div>

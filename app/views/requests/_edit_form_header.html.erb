@@ -1,0 +1,34 @@
+<%= javascript_tag do %>
+  var depts_and_units = <%= current_user.available_departments.inject({}) { |m, dept| m[dept.id] = dept.children.collect &:id ; m }.to_json.html_safe %>;
+  $(function () { $('[data-toggle="tooltip"]').tooltip() })
+<% end %>
+<div class="page-header">
+  <h2><%= @model_klass.name.underscore.humanize.titleize %>
+      <%= render partial: "form_btns", locals: { f: f } %> 
+  </h2>
+  <% if !Pundit.policy!(current_user, @request).edit? %>
+    <div class='alert alert-warning' role='alert'>
+      <i class='glyphicon glyphicon-exclamation-sign'></i> 
+      The submission window for this request has ended.
+    </div>
+  <% end %>
+  <% if @request.archived_proxy? %>
+    <div class='alert alert-warning' role='alert'>
+      <i class='glyphicon glyphicon-exclamation-sign'></i> 
+      The submission is in the archive associated to FY: <%= @request.archived_fiscal_year.financial_year %>
+    </div>
+  <% end %>
+  <% if @request.spawned? %>
+    <div class='alert alert-info' role='alert'>
+      <i class='glyphicon glyphicon-exclamation-sign'></i> 
+      Copied from archive. Please review and save in order to create a new record in <%= FiscalYear.current %>
+    </div>
+  <% end %>
+
+  <% if edit_or_new? %> 
+    <div class='alert alert-info' role='alert'>
+      <i class='glyphicon glyphicon-exclamation-sign'></i> 
+      Fields marked with <div class='required'><abbr>*</abbr></div> are required. 
+    </div>
+  <% end %>
+</div>

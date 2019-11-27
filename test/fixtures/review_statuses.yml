@@ -1,0 +1,41 @@
+---
+under_review:
+  id: 1
+  name: Under Review
+  color: "#ffffff"
+  created_at: 2017-08-07 08:11:27.221218000 Z
+  updated_at: 2017-08-07 08:11:27.221218000 Z
+  code: UnderReview
+  requests_count: 112
+approved: 
+  id: 2
+  name: Approved
+  color: "#dcf5d0"
+  created_at: 2017-08-07 08:11:27.233000000 Z
+  updated_at: 2017-08-07 08:11:27.233000000 Z
+  code: Approved
+  requests_count: 132
+not_approved:
+  id: 3
+  name: Not Approved
+  color: "#fa7073"
+  created_at: 2017-08-07 08:11:27.245366000 Z
+  updated_at: 2017-08-07 08:11:27.245366000 Z
+  code: NotApproved
+  requests_count: 104
+contingent:
+  id: 4
+  name: Contingent
+  color: "#b3dffc"
+  created_at: 2017-08-07 08:11:27.258871000 Z
+  updated_at: 2017-08-07 08:11:27.258871000 Z
+  code: Contingent
+  requests_count: 102
+never:
+  id: 5
+  name: Never
+  color: "#fff"
+  created_at: 2017-08-07 08:11:27.258871000 Z
+  updated_at: 2017-08-07 08:11:27.258871000 Z
+  code: Never
+  requests_count: 0 

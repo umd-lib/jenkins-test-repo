@@ -1,0 +1,26 @@
+// Place all the styles related to the StaticPages controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+.page-header { position: relative; }
+ul.version { position: absolute; right: 0; bottom: 8px; list-style: none; }
+ul.version li { display: inline; margin: 0 5px; font-size: 10px; }
+
+ul.requests-homepage { list-style: none; }
+ul.requests-homepage a.list-group-item { font-weight: bold; }
+
+
+.org-info { 
+  border-style: solid;
+  border-width: 1px;
+  border-color: $impersonate_background;
+  .label { display: block; }
+
+ }
+
+.org-tree { 
+  .glyphicon-ok-circle { color: #008000; }
+  .glyphicon-remove-circle { color: #c91010; }
+  .glyphicon-ban-circle { color: #f0ad4e; }
+ }
+
+a.edit-links { display: block; width: 100%; }

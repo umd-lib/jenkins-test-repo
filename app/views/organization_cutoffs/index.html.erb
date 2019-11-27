@@ -1,0 +1,26 @@
+<div class="container">
+  <div class="page-header">
+    <h1>Organization Cutoff Dates</h1>
+  </div>
+      <% @cutoffs.each do |cutoff| %>
+        <div class='panel panel-default'>
+          <div class="panel-body">
+              <%= simple_form_for cutoff, html: { class: '' } do |f| %>
+                <div class='col-md-10 col-md-offset-1'>
+                  <h4><%= case cutoff.organization_type
+                          when "root"
+                            "Root"
+                          else
+                            cutoff.organization_type.to_s.pluralize.humanize
+                          end
+                      %></h4> 
+                  <%= f.input :cutoff_date, as: :string, 
+                      value: cutoff.humanize, 
+                      input_html: { class: 'datepicker', id: "#{cutoff.id.to_s}_cutoff_date" }  %>
+                  <%= f.submit "Update",  class: 'pull-right btn btn-success'  %> 
+                </div>
+              <% end %>
+          </div>
+        </div>
+      <% end %>
+</div>

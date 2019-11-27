@@ -1,0 +1,14 @@
+<%#
+# Displays "Admin Use Only" section for personnel request "Show" pages 
+%>
+<% if current_user.admin? %>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Admin Use Only</h3>
+		</div>
+		<div class="panel-body">
+			<%= f.association :review_status %>
+			<%= f.input :review_comment %>
+		</div>
+	</div>
+<% end %>				

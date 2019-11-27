@@ -1,0 +1,33 @@
+<div class="btn-toolbar pagination">
+	<div class='btn-group'><%= will_paginate( @requests, renderer: BootstrapPagination::Rails) %></div>
+</div>
+
+<div class='table-responsive' >
+  <table class="table table-striped <%= 'archive' if false  %>">
+		<thead class='<%= "#{@model_klass.name.underscore}_fields" %>'>
+			<tr>
+				<th>
+					<input id="select-all" type="checkbox"></input> 
+				</th>
+				<%- @model_klass.index_fields.each do |field | %>
+          <th id="<%= field.to_s %>"><%= multi_sort_link( map_sort(field), t(field, scope: [ :activerecord, :attributes, :request, :index_labels ])  ) %></th>
+				<% end %>
+        <th id="actions">
+          <%= reset_sorts_link %> 
+			</tr>
+		</thead>    
+    <tbody>
+      <%- @requests.each do |record| %>
+        <tr <%= "style=background-color:#{record.review_status.color};" if record.review_status %> >
+          <td class='select-record'>
+            <input name="ids[]"  value="<%= record.id %>" type="checkbox"> 
+          </td>
+          <%- @model_klass.index_fields.each do |field| %> 
+              <td headers="<%= field.to_s %>"><%= call_record_field( record, field ) %></td>
+          <% end %> 
+          <%= render 'shared/index_action_buttons', object: record %> 
+        </tr>
+      <% end %>
+    </tbody> 
+  </table>
+</div>

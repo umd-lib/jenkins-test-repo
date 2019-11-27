@@ -1,0 +1,29 @@
+<%= form_for @report,  namespace: "#{subreport.class.to_s.underscore}_" do |f| %>
+  <%= render 'shared/form_errors', errors: @report.errors %>
+  <div class "panel-heading"><h3 class="panel-title"><%= report_name %> : <%= subreport.description %></h3></div> 
+  <table class="table table-striped">
+    <tbody>
+      <tr>
+        <th><%= f.label :format %></th>
+        <td><%= f.select :format, report_formats(subreport) %></td>
+      </tr>
+      <%= f.fields_for :parameters do |pf| %> 
+        <tr>
+          <th><%= pf.label 'Include Requests with Review Status' %></th>
+          <td>
+            <% ReviewStatus.all.each do |reviewStatus| %>
+              <%= pf.check_box(:review_status_ids, {multiple: true, checked: true}, reviewStatus.id, nil) %>
+              <%= pf.label(:review_status,  reviewStatus.name)  %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>   
+    </tbody>
+  </table>
+
+  <%= f.hidden_field :user_id, value:  current_user.id %>
+  <%= f.hidden_field :name, value: subreport.class.to_s %>
+ 
+  <%= render partial: 'shared/form_action_buttons', locals: { form: f, object: @report } %>
+
+<% end %>

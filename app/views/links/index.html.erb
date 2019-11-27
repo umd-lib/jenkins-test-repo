@@ -1,0 +1,30 @@
+<div class='container'>
+
+  <div class="page-header">
+    <h1>Help Links
+      <span class='pull-right'><%= link_to( "New", new_link_path, class: "btn btn-success", id: "new-link" ) %></span>
+    </h1>
+  </div>
+  
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Text</th>
+        <th>Link</th>
+        <th></th> 
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @links.each do |link| %>
+        <%= content_tag :tr, id: "link_#{link.id}" do %>
+          <td><%= link.text %></td>
+          <td><%= link.url %></td>
+          <%= render 'shared/index_action_buttons', object: link %> 
+        <% end %>
+      <% end %>
+    </tbody>
+
+  </table>
+</div>
+

@@ -1,0 +1,6 @@
+<li class='help-link'>
+  <% if current_user.admin? %>
+    <i class='glyphicon glyphicon-remove-sign remove-link pull-left'></i>
+  <% end %>
+  <%=  link_to(link.text, link.url, target: "_blank", class: "pull-right") %> 
+</li>

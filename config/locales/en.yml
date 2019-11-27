@@ -1,0 +1,102 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# The following keys must be escaped otherwise they will not be retrieved by
+# the default I18n backend:
+#
+# true, false, on, off, yes, no
+#
+# Instead, surround them with single quotes.
+#
+# en:
+#   'true': 'foo'
+#
+# To learn more, please read the Rails Internationalization guide
+# available at http://guides.rubyonrails.org/i18n.html.
+
+en:
+  dictionary:
+    personnel_request: &personnel_request
+      nonop_funds: Gift/Other Funds
+      organization: Department
+      nonop_source: Gift/Other Funds source
+      employee_type__code: Employee Type
+      request_type__code: Request Type
+      division__code: Division
+      department__code: Department
+      unit__code: Unit
+      review_status__name: Review Status
+      index_labels:
+        organization__name: Department
+        unit__name: Unit
+        number_of_positions: "# of Positions"
+        number_of_months: "Months"
+        number_of_weeks: "Weeks"
+        hours_per_week: "Hours/wk"
+        nonop_funds: Other Funds
+        review_status__name: Status
+        contractor_name: Contractor Name
+        employee_name: Employee Name
+        request_model_type: Type
+        user__name: Submitted By
+  hints: &hints
+    annual_base_pay: Estimated 12-month salary, prorated per term of contract or FTE if applicable. For Pay Adjustments, include only the amount of the requested adjustment to salary.
+    contractor_name: Include name of person currently in the position or who vacated the position, if applicable.
+    hourly_rate: Anticipated minimum wage effective July 1, 2018 is $10.10/hr.
+    employee_name: Include name of person currently in position or who vacated the position, if applicable.
+    hours_per_week: Estimated number of hours the person will work per week.
+    justification: Provide a brief explanation justifying the purpose for the request. Limit 125 words.
+    nonop_funds: The dollar amount of gift or other funds supporting the request.
+    nonop_source: Name of the gift account or name of the source of funds supporting the request.
+    number_of_months: Length of Contract period in months.
+    number_of_positions: You may combine students on the same line provided they are at the same rate of pay and the same number of hours per week.
+    number_of_weeks_html: Estimated number of weeks the person will work during the fiscal year. Refer to the Number of Weeks Guide under &quot;Help&quot; for assistance.
+    position_title: Position name/title.
+    unit: Select Unit name within a department, if applicable.
+    labor_request_description: Hourly Staff (Contingent 1's), Students and hourly faculty.
+    staff_request_description: New Staff & Faculty State-lined positions (conversion of contract positions to regular state-lined positions, Backfill a current position, Administrative and Acting Stipend request, and any other adjustment to salary for current State-lined positions; Graduate Assistants (Backfill & New request)).
+    contractor_request_description: Temporary salaried staff & faculty (Contingent 2's and Contract Faculty).
+  help_text:
+    labor_request_description: Hourly Staff (Contingent 1's), Students and hourly faculty.
+    staff_request_description: New Staff & Faculty State-lined positions (conversion of contract positions to regular state-lined positions, Backfill a current position, Administrative and Acting Stipend request, and any other adjustment to salary for current State-lined positions; Graduate Assistants (Backfill & New request)).
+    contractor_request_description: Temporary salaried staff & faculty (Contingent 2's and Contract Faculty).
+  activerecord:
+    attributes:
+      user: &user
+        cas_directory_id: CAS Directory ID
+      request:
+        <<: *personnel_request
+
+  simple_form:
+    labels:
+      user:
+        <<: *user
+      request:
+        <<: *personnel_request
+    hints:
+      labor_request:
+        <<: *hints
+      staff_request:
+        <<: *hints
+      contractor_request:
+        <<: *hints
+  confirm_delete_prompt:
+    default: Are you sure?
+    with_description: "Are you sure you want to delete '%{description}'?"
+
+  reset_sorting: Reset Sorting

@@ -1,0 +1,7 @@
+<%= javascript_tag do %>
+  var treeData = <%=  @organizations.to_json.html_safe %>;
+  var action = '<%= params['action'] %>';
+  (function($){
+    new OrganizationTree(treeData, action);
+  })(jQuery); 
+<% end %>
