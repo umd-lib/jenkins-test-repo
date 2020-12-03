@@ -43,10 +43,10 @@ def get_args():
     return parser.parse_args()
 
 
-def process_message(message):
+def process_message(id, message):
     """ Process a single message and return as a dict. """
 
-    processed = {}
+    processed = {'id': id}
 
     # Extract the headers
     for header, value in message.items():
@@ -56,10 +56,11 @@ def process_message(message):
 
         if header == 'Date':
             processed['Date'] = value
+            logger.debug(f'date: {value}')
 
         elif header == 'From':
             # For now, ignore the messages which were forwarded manually from
-            # lib-whpoolreports to lib-whpoolreports-servcie
+            # lib-whpoolreports to lib-whpoolreports-service
             if 'lib-whpoolreports' in value:
                 return None
 
@@ -67,6 +68,44 @@ def process_message(message):
 
         elif header == 'Subject':
             processed['Title'] = process_title(value)
+
+    processed['files'] = []
+
+    # Iterate over each part of the message
+    for part in message.walk():
+        content_type = part.get_content_type()
+        filename = part.get_filename()
+
+        logger.debug(f'attachment: {content_type=}')
+        logger.debug(f'attachment: {filename=}')
+
+        # Assert that this won't happen
+        if filename in ('body.html', 'body.txt', 'body-redacted.html'):
+            logger.error(f'filename conflict: {filename}')
+            return None
+
+        if content_type in ('text/plain', 'text/html'):
+            # Decode and convert back to UTF-8 bytes
+            bytes = part.get_payload(decode=True)
+            charset = part.get_content_charset()
+            if charset is None:
+                charset = 'UTF-8'
+            string = bytes.decode(charset)
+            bytes = string.encode('UTF-8')
+
+            if not filename:
+                # Likely a body part
+                if content_type == 'text/plain':
+                    filename = 'body.txt'
+                else:
+                    filename = 'body.html'
+
+        elif filename:
+            bytes = part.get_payload(decode=True)
+
+        # Anything we want to save now has a filename and bytes to store
+        if filename:
+            processed['files'].append((filename, bytes))
 
     return processed
 
@@ -79,8 +118,12 @@ title_scrub = [
 def process_title(value):
     """ Build the Title field from the message Subject header. """
 
+    logger.debug(f'title: Subject={value}')
+
     for scrub in title_scrub:
-        value = value.replace(scrub, '')
+        if scrub in value:
+            value = value.replace(scrub, '')
+            logger.debug(f'title: scrubbed "{scrub}": {value}')
 
     return value
 
@@ -121,16 +164,37 @@ def process_reporter(value):
     return value
 
 
-def write_message(csvwriter, outdir, processed):
+def write_message(id, processed, csvwriter, outdir):
     """ Write out a single processed message. """
 
     # Write metadata to the CSV file
     csvwriter.writerow(
-        [processed['Date'],
+        [processed['id'],
+         processed['Date'],
          processed['Reporter'],
          processed['Title'],
          ]
     )
+
+    # Create the directory for storing per message files
+    mdir = outdir / f'{processed["id"]:03d}'
+
+    logger.debug(f'message directory: {mdir}')
+
+    if not mdir.is_dir():
+        try:
+            os.mkdir(mdir)
+        except OSError as e:
+            logger.error(f'Error creating {mdir}: {e}')
+            return
+        else:
+            logger.debug(f'created {mdir}')
+
+    # Create the files
+    for filename, bytes in processed['files']:
+        logger.debug(f'Creating {filename=}, size={len(bytes)}')
+        with open(mdir / filename, 'wb') as outfile:
+            outfile.write(bytes)
 
 
 def main():
@@ -173,17 +237,17 @@ def main():
         csvwriter = csv.writer(csvfile)
 
         # Add the headers
-        csvwriter.writerow(['Date', 'Reporter', 'Title'])
+        csvwriter.writerow(['id', 'Date', 'Reporter', 'Title'])
 
         # Iterate over messages in the mbox file
-        for _, message in box.iteritems():
+        for id, message in box.iteritems():
 
             # Process a single message
-            processed = process_message(message)
+            processed = process_message(id, message)
 
             if processed:
                 # Write out the message
-                write_message(csvwriter, outdir, processed)
+                write_message(id, processed, csvwriter, outdir)
 
 
 if __name__ == "__main__":
