@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# Sync the contents of the service account INBOX to local INBOX.mbox file
+# Sync the contents of the service account folder(s) as provided in a comma
+# separated list
 # pip install imapbackup3
 imapbackup3 \
-  --folders INBOX \
+  --folders "$1" \
   --ssl \
   --server imap.gmail.com \
   --port 993 \
