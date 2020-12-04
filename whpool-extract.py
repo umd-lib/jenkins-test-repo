@@ -14,6 +14,7 @@ import sys
 # format suitable for curatorial review.
 
 logger = logging.getLogger('whpool-extract')
+logger.setLevel(logging.INFO)
 
 
 def get_args():
@@ -84,6 +85,7 @@ def process_message(id, message):
             logger.error(f'filename conflict: {filename}')
             return None
 
+        bytes = None
         if content_type in ('text/plain', 'text/html'):
             # Decode and convert back to UTF-8 bytes
             bytes = part.get_payload(decode=True)
@@ -242,10 +244,14 @@ def main():
         # Iterate over messages in the mbox file
         for id, message in box.iteritems():
 
+            logger.info(f'Processing message {id}')
+
             # Process a single message
             processed = process_message(id, message)
 
             if processed:
+                logger.info(f'Writing message {id}')
+
                 # Write out the message
                 write_message(id, processed, csvwriter, outdir)
 
