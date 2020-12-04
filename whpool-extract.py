@@ -170,7 +170,14 @@ def process_reporter(value):
             logger.debug(f'reporter: scrubbed "{scrub}": {value}')
 
     if m := reporter_extract.match(value):
-        value = m.group(1)
+        s = re.split(r' *, *', m[1])
+        if len(s) == 1:
+            value = s[0]
+        else:
+            # Change "LastName, FirstName" to "FirstName LastName"
+            # Ignore anything after a second comma
+            value = s[1] + " " + s[0]
+
         logger.debug(f'reporter: extracted: {value}')
 
     return value
