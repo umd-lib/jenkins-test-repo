@@ -16,6 +16,8 @@ import sys
 logger = logging.getLogger('whpool-extract')
 logger.setLevel(logging.INFO)
 
+HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
+           'Comments']
 
 def get_args():
     """ Create parsers and return a namespace object. """
@@ -47,7 +49,12 @@ def get_args():
 def process_message(id, message):
     """ Process a single message and return as a dict. """
 
-    processed = {'id': id}
+    processed = {
+        'id': id,
+        'PoolReport': 'true',
+        'Publish': 'false',
+        'Comments': '',
+    }
 
     # Extract the headers
     for header, value in message.items():
@@ -68,7 +75,7 @@ def process_message(id, message):
             processed['Reporter'] = process_reporter(value)
 
         elif header == 'Subject':
-            processed['Title'] = process_title(value)
+             process_title(processed, value)
 
     processed['files'] = []
 
@@ -117,7 +124,7 @@ title_scrub = [
 ]
 
 
-def process_title(value):
+def process_title(processed, value):
     """ Build the Title field from the message Subject header. """
 
     logger.debug(f'title: Subject={value}')
@@ -127,7 +134,10 @@ def process_title(value):
             value = value.replace(scrub, '')
             logger.debug(f'title: scrubbed "{scrub}": {value}')
 
-    return value
+    processed['Title'] = value
+
+    if 'reportable' in value.lower():
+        processed['PoolReport'] = 'false'
 
 
 reporter_scrub = [
@@ -175,6 +185,9 @@ def write_message(id, processed, csvwriter, outdir):
          processed['Date'],
          processed['Reporter'],
          processed['Title'],
+         processed['PoolReport'],
+         processed['Publish'],
+         processed['Comments'],
          ]
     )
 
@@ -239,7 +252,7 @@ def main():
         csvwriter = csv.writer(csvfile)
 
         # Add the headers
-        csvwriter.writerow(['id', 'Date', 'Reporter', 'Title'])
+        csvwriter.writerow(HEADERS)
 
         # Iterate over messages in the mbox file
         for id, message in box.iteritems():
