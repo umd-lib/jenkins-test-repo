@@ -77,6 +77,18 @@ def process_message(id, message):
         elif header == 'Subject':
              process_title(processed, value)
 
+    # Process all parts and attachments
+    process_files(processed, message)
+
+    # Process the body content
+    process_body(processed)
+
+    return processed
+
+
+def process_files(processed, message):
+    """ Process all parts and attachments. """
+
     processed['files'] = []
 
     # Iterate over each part of the message
@@ -89,8 +101,9 @@ def process_message(id, message):
 
         # Assert that this won't happen
         if filename in ('body.html', 'body.txt', 'body-redacted.html'):
-            logger.error(f'filename conflict: {filename}')
-            return None
+            m = f'filename conflict: {filename}'
+            logger.error(m)
+            raise Exception(m)
 
         bytes = None
         if content_type in ('text/plain', 'text/html'):
@@ -116,7 +129,29 @@ def process_message(id, message):
         if filename:
             processed['files'].append((filename, bytes))
 
-    return processed
+
+def process_body(processed):
+    """ Generate body-redacted.html. """
+
+    # Extract the body
+    html, text = None, None
+    for filename, bytes in processed['files']:
+        if filename == 'body.html':
+            html = bytes.decode('UTF-8')
+        elif filename == 'body.txt':
+            text = bytes.decode('UTF-8')
+
+    # Use the text version if HTML is not available
+    if not html:
+        if not text:
+            m = f'Unable to find message body: {processed["id"]}'
+            logger.error(m)
+            raise Exception(m)
+
+        html = f"<html><body><pre>{text}</pre></body></html>"
+
+    # Add the new body-redacted.html file
+    processed['files'].append(('body-redacted.html', html.encode('UTF-8')))
 
 
 title_scrub = [
