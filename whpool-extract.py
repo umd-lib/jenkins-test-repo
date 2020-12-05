@@ -129,6 +129,16 @@ def process_files(processed, message):
         if filename:
             processed['files'].append((filename, bytes))
 
+body_scrub = [
+    '''-- 
+To unsubscribe from this group and stop receiving emails from it, send an email to all+unsubscribe@whpoolreports.com.''',
+    '''-- <br />
+To unsubscribe from this group and stop receiving emails from it, send an email to <a href="mailto:all+unsubscribe@whpoolreports.com">all+unsubscribe@whpoolreports.com</a>.<br />''',
+]
+
+
+p_charset = re.compile(r'charset=[a-zA-Z0-9-]+')
+
 
 def process_body(processed):
     """ Generate body-redacted.html. """
@@ -150,8 +160,46 @@ def process_body(processed):
 
         html = f"<html><body><pre>{text}</pre></body></html>"
 
+    # Scrub specific string values
+    for scrub in body_scrub:
+        if scrub in html:
+            html = html.replace(scrub, '')
+            logger.debug(f'body: scrubbed "{scrub}"')
+
+    # Update the charset since we have convert to utf-8
+    html = p_charset.sub("charset=utf-8", html)
+
     # Add the new body-redacted.html file
-    processed['files'].append(('body-redacted.html', html.encode('UTF-8')))
+    processed['files'].append(('body-redacted.html',
+                               redact(html).encode('UTF-8')))
+
+
+redact_replacement = '\u258A' * 10  # Replacement string: Left three quarters block
+
+
+redact_email = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
+
+
+redact_phone = re.compile(r'''
+    (\+\d{1,2}([ -]|%20)?)? # optional country code with separator
+    \(?\d{3}\)?             # area code
+    ([. -]|%20)             # separator
+    \d{3}                   # exchange
+    ([. -]|%20)             # separator
+    \d{4}                   # local
+''', re.VERBOSE)
+
+
+def redact(html):
+    """ Redact content from the body. """
+
+    # Remove email addresses
+    html = redact_email.sub(redact_replacement, html)
+
+    # Remove US phone numbers
+    html = redact_phone.sub(redact_replacement, html)
+
+    return html
 
 
 title_scrub = [
