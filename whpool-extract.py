@@ -204,6 +204,7 @@ def redact(html):
 
 title_scrub = [
     '[WH Pool] ',
+    '\n',
 ]
 
 
