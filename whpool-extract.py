@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, FileType
+from collections import namedtuple
 import csv
 from email.header import make_header, decode_header
 import logging
@@ -18,6 +19,9 @@ logger.setLevel(logging.INFO)
 
 HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
            'Comments']
+
+File = namedtuple('File', 'name, bytes')
+
 
 def get_args():
     """ Create parsers and return a namespace object. """
@@ -127,7 +131,7 @@ def process_files(processed, message):
 
         # Anything we want to save now has a filename and bytes to store
         if filename:
-            processed['files'].append((filename, bytes))
+            processed['files'].append(File(filename, bytes))
 
 body_scrub = [
     '''-- 
@@ -145,11 +149,11 @@ def process_body(processed):
 
     # Extract the body
     html, text = None, None
-    for filename, bytes in processed['files']:
-        if filename == 'body.html':
-            html = bytes.decode('UTF-8')
-        elif filename == 'body.txt':
-            text = bytes.decode('UTF-8')
+    for file in processed['files']:
+        if file.name == 'body.html':
+            html = file.bytes.decode('UTF-8')
+        elif file.name == 'body.txt':
+            text = file.bytes.decode('UTF-8')
 
     # Use the text version if HTML is not available
     if not html:
@@ -170,8 +174,8 @@ def process_body(processed):
     html = p_charset.sub("charset=utf-8", html)
 
     # Add the new body-redacted.html file
-    processed['files'].append(('body-redacted.html',
-                               redact(html).encode('UTF-8')))
+    processed['files'].append(File('body-redacted.html',
+                                   redact(html).encode('UTF-8')))
 
 
 redact_replacement = '\u258A' * 10  # Replacement string: Left three quarters block
