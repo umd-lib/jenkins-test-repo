@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-
-from argparse import ArgumentParser, FileType
+import argparse
 from collections import namedtuple
 import csv
 from email.header import make_header, decode_header
@@ -10,44 +8,14 @@ import os
 from pathlib import Path
 import re
 import sys
+from whpool.core.command import CommandResult
 
-# Extract pool reports (email) from mbox format file and create an output
-# format suitable for curatorial review.
-
-logger = logging.getLogger('whpool-extract')
-logger.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
            'Comments']
 
 File = namedtuple('File', 'name, bytes')
-
-
-def get_args():
-    """ Create parsers and return a namespace object. """
-    parser = ArgumentParser()
-
-    parser.add_argument(
-        '-i', '--input',
-        required=True,
-        help="Input mbox format email file",
-    )
-
-    parser.add_argument(
-        '-o', '--output',
-        required=True,
-        help="Output directory which must already exist; files and" +
-        "sub-directories will be created or overwritten as necessary.",
-    )
-
-    parser.add_argument(
-        "-v", "--verbosity",
-        type=int,
-        default=1,
-        choices=[0, 1, 2],
-        help="verbosity of logging output; default is 1")
-
-    return parser.parse_args()
 
 
 def process_message(id, message):
@@ -79,7 +47,7 @@ def process_message(id, message):
             processed['Reporter'] = process_reporter(value)
 
         elif header == 'Subject':
-             process_title(processed, value)
+            process_title(processed, value)
 
     # Process all parts and attachments
     process_files(processed, message)
@@ -133,11 +101,10 @@ def process_files(processed, message):
         if filename:
             processed['files'].append(File(filename, bytes))
 
+
 body_scrub = [
-    '''-- 
-To unsubscribe from this group and stop receiving emails from it, send an email to all+unsubscribe@whpoolreports.com.''',
-    '''-- <br />
-To unsubscribe from this group and stop receiving emails from it, send an email to <a href="mailto:all+unsubscribe@whpoolreports.com">all+unsubscribe@whpoolreports.com</a>.<br />''',
+    '''-- \nTo unsubscribe from this group and stop receiving emails from it, send an email to all+unsubscribe@whpoolreports.com.''',  # noqa
+    '''-- <br />\nTo unsubscribe from this group and stop receiving emails from it, send an email to <a href="mailto:all+unsubscribe@whpoolreports.com">all+unsubscribe@whpoolreports.com</a>.<br />''',  # noqa
 ]
 
 
@@ -307,10 +274,8 @@ def write_message(id, processed, csvwriter, outdir):
             outfile.write(bytes)
 
 
-def main():
+def run_command(args):
     """ Main processing loop. """
-
-    args = get_args()
 
     # Setup logging
     logging.basicConfig()
@@ -363,6 +328,4 @@ def main():
                 # Write out the message
                 write_message(id, processed, csvwriter, outdir)
 
-
-if __name__ == "__main__":
-    main()
+    return CommandResult(True, [])
