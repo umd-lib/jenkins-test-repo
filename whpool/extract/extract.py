@@ -1,6 +1,7 @@
 import argparse
 from collections import namedtuple
 import csv
+import _csv  # For mypy typing
 from email.header import make_header, decode_header
 import logging
 import mailbox
@@ -9,6 +10,7 @@ from pathlib import Path
 import re
 import sys
 from whpool.core.command import CommandResult
+from typing import Dict, Optional, Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +20,7 @@ HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
 File = namedtuple('File', 'name, bytes')
 
 
-def process_message(id, message):
+def process_message(id: str, message: mailbox.Message) -> Optional[Dict[str, Any]]:
     """ Process a single message and return as a dict. """
 
     processed = {
@@ -58,7 +60,7 @@ def process_message(id, message):
     return processed
 
 
-def process_files(processed, message):
+def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
     """ Process all parts and attachments. """
 
     processed['files'] = []
@@ -111,7 +113,7 @@ body_scrub = [
 p_charset = re.compile(r'charset=[a-zA-Z0-9-]+')
 
 
-def process_body(processed):
+def process_body(processed: Dict[str, Any]) -> None:
     """ Generate body-redacted.html. """
 
     # Extract the body
@@ -161,7 +163,7 @@ redact_phone = re.compile(r'''
 ''', re.VERBOSE)
 
 
-def redact(html):
+def redact(html: str) -> str:
     """ Redact content from the body. """
 
     # Remove email addresses
@@ -179,7 +181,7 @@ title_scrub = [
 ]
 
 
-def process_title(processed, value):
+def process_title(processed: Dict[str, Any], value: str) -> None:
     """ Build the Title field from the message Subject header. """
 
     logger.debug(f'title: Subject={value}')
@@ -214,7 +216,7 @@ reporter_extract = re.compile(r'''
 ''', re.VERBOSE)
 
 
-def process_reporter(value):
+def process_reporter(value: str) -> str:
     """ Build the Reporter field from the message From header. """
 
     logger.debug(f'reporter: From={value}')
@@ -238,7 +240,7 @@ def process_reporter(value):
     return value
 
 
-def write_message(id, processed, csvwriter, outdir):
+def write_message(id: str, processed: Dict[str, Any], csvwriter: '_csv._writer', outdir: Path) -> None:
     """ Write out a single processed message. """
 
     # Write metadata to the CSV file
@@ -274,7 +276,7 @@ def write_message(id, processed, csvwriter, outdir):
             outfile.write(bytes)
 
 
-def run_command(args):
+def run_command(args: argparse.Namespace) -> CommandResult:
     """ Main processing loop. """
 
     # Setup logging
