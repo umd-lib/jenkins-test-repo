@@ -20,6 +20,33 @@ HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
 File = namedtuple('File', 'name, bytes')
 
 
+class Redact:
+    REDACT_REPLACEMENT = '\u258A' * 10  # Replacement string: Left three quarters block
+
+    REDACT_EMAIL = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
+
+    REDACT_PHONE = re.compile(r'''
+        (\+\d{1,2}([ -]|%20)?)? # optional country code with separator
+        \(?\d{3}\)?             # area code
+        ([. -]|%20)             # separator
+        \d{3}                   # exchange
+        ([. -]|%20)             # separator
+        \d{4}                   # local
+    ''', re.VERBOSE)
+
+    @staticmethod
+    def redact(html: str) -> str:
+        """ Redact content from the body. """
+
+        # Remove email addresses
+        html = Redact.REDACT_EMAIL.sub(Redact.REDACT_REPLACEMENT, html)
+
+        # Remove US phone numbers
+        html = Redact.REDACT_PHONE.sub(Redact.REDACT_REPLACEMENT, html)
+
+        return html
+
+
 def process_message(id: str, message: mailbox.Message) -> Optional[Dict[str, Any]]:
     """ Process a single message and return as a dict. """
 
@@ -113,8 +140,13 @@ body_scrub = [
 p_charset = re.compile(r'charset=[a-zA-Z0-9-]+')
 
 
-def process_body(processed: Dict[str, Any]) -> None:
-    """ Generate body-redacted.html. """
+def create_canonical_body_html(processed: Dict[str, Any]) -> None:
+    # Populates the given "processed" object with two additional fields:
+    #   * canonical_body_html - representing with original HTML the body,
+    #                           or the HTML-ized version of the text.
+    #   * processed_body_html - Initially the same as "canonical_body_html"
+    #                           but changed into the final HTML by the
+    #                           various filters
 
     # Extract the body
     html, text = None, None
@@ -133,6 +165,16 @@ def process_body(processed: Dict[str, Any]) -> None:
 
         html = f"<html><body><pre>{text}</pre></body></html>"
 
+    processed['canonical_body_html'] = html
+    processed['processed_body_html'] = html
+
+
+def process_body(processed: Dict[str, Any]) -> None:
+    """ Generate body-redacted.html. """
+    create_canonical_body_html(processed)
+
+    html = processed['processed_body_html']
+
     # Scrub specific string values
     for scrub in body_scrub:
         if scrub in html:
@@ -142,37 +184,13 @@ def process_body(processed: Dict[str, Any]) -> None:
     # Update the charset since we have convert to utf-8
     html = p_charset.sub("charset=utf-8", html)
 
+    processed['processed_body_html'] = html
+
+    processed['processed_body_html'] = Redact.redact(processed['processed_body_html'])
+
     # Add the new body-redacted.html file
     processed['files'].append(File('body-redacted.html',
-                                   redact(html).encode('UTF-8')))
-
-
-redact_replacement = '\u258A' * 10  # Replacement string: Left three quarters block
-
-
-redact_email = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
-
-
-redact_phone = re.compile(r'''
-    (\+\d{1,2}([ -]|%20)?)? # optional country code with separator
-    \(?\d{3}\)?             # area code
-    ([. -]|%20)             # separator
-    \d{3}                   # exchange
-    ([. -]|%20)             # separator
-    \d{4}                   # local
-''', re.VERBOSE)
-
-
-def redact(html: str) -> str:
-    """ Redact content from the body. """
-
-    # Remove email addresses
-    html = redact_email.sub(redact_replacement, html)
-
-    # Remove US phone numbers
-    html = redact_phone.sub(redact_replacement, html)
-
-    return html
+                                   processed['processed_body_html'].encode('UTF-8')))
 
 
 title_scrub = [
