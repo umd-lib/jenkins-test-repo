@@ -15,7 +15,7 @@ box = mailbox.mbox(INFILE)
 stats = {'messages': 0,
          'attachment_types': {},
          'headers': set(),
-        }
+         }
 messages = []
 
 # Iterate over each message
@@ -24,9 +24,9 @@ for n, obj in box.iteritems():
     stats['messages'] += 1
 
     message = {'n': n,
-              'headers': {},
-              'body': {}
-             }
+               'headers': {},
+               'body': {}
+               }
 
     # Iterate over each message header
     for header, value in obj.items():

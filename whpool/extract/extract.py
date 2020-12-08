@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-
-from argparse import ArgumentParser, FileType
+import argparse
 from collections import namedtuple
 import csv
+import _csv  # For mypy typing
 from email.header import make_header, decode_header
 import logging
 import mailbox
@@ -10,12 +9,10 @@ import os
 from pathlib import Path
 import re
 import sys
+from whpool.core.command import CommandResult
+from typing import Dict, Optional, Any
 
-# Extract pool reports (email) from mbox format file and create an output
-# format suitable for curatorial review.
-
-logger = logging.getLogger('whpool-extract')
-logger.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
            'Comments']
@@ -23,34 +20,34 @@ HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
 File = namedtuple('File', 'name, bytes')
 
 
-def get_args():
-    """ Create parsers and return a namespace object. """
-    parser = ArgumentParser()
+class Redact:
+    REDACT_REPLACEMENT = '\u258A' * 10  # Replacement string: Left three quarters block
 
-    parser.add_argument(
-        '-i', '--input',
-        required=True,
-        help="Input mbox format email file",
-    )
+    REDACT_EMAIL = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
 
-    parser.add_argument(
-        '-o', '--output',
-        required=True,
-        help="Output directory which must already exist; files and" +
-        "sub-directories will be created or overwritten as necessary.",
-    )
+    REDACT_PHONE = re.compile(r'''
+        (\+\d{1,2}([ -]|%20)?)? # optional country code with separator
+        \(?\d{3}\)?             # area code
+        ([. -]|%20)             # separator
+        \d{3}                   # exchange
+        ([. -]|%20)             # separator
+        \d{4}                   # local
+    ''', re.VERBOSE)
 
-    parser.add_argument(
-        "-v", "--verbosity",
-        type=int,
-        default=1,
-        choices=[0, 1, 2],
-        help="verbosity of logging output; default is 1")
+    @staticmethod
+    def redact(html: str) -> str:
+        """ Redact content from the body. """
 
-    return parser.parse_args()
+        # Remove email addresses
+        html = Redact.REDACT_EMAIL.sub(Redact.REDACT_REPLACEMENT, html)
+
+        # Remove US phone numbers
+        html = Redact.REDACT_PHONE.sub(Redact.REDACT_REPLACEMENT, html)
+
+        return html
 
 
-def process_message(id, message):
+def process_message(id: str, message: mailbox.Message) -> Optional[Dict[str, Any]]:
     """ Process a single message and return as a dict. """
 
     processed = {
@@ -79,7 +76,7 @@ def process_message(id, message):
             processed['Reporter'] = process_reporter(value)
 
         elif header == 'Subject':
-             process_title(processed, value)
+            process_title(processed, value)
 
     # Process all parts and attachments
     process_files(processed, message)
@@ -90,7 +87,7 @@ def process_message(id, message):
     return processed
 
 
-def process_files(processed, message):
+def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
     """ Process all parts and attachments. """
 
     processed['files'] = []
@@ -133,19 +130,23 @@ def process_files(processed, message):
         if filename:
             processed['files'].append(File(filename, bytes))
 
+
 body_scrub = [
-    '''-- 
-To unsubscribe from this group and stop receiving emails from it, send an email to all+unsubscribe@whpoolreports.com.''',
-    '''-- <br />
-To unsubscribe from this group and stop receiving emails from it, send an email to <a href="mailto:all+unsubscribe@whpoolreports.com">all+unsubscribe@whpoolreports.com</a>.<br />''',
+    '''-- \nTo unsubscribe from this group and stop receiving emails from it, send an email to all+unsubscribe@whpoolreports.com.''',  # noqa
+    '''-- <br />\nTo unsubscribe from this group and stop receiving emails from it, send an email to <a href="mailto:all+unsubscribe@whpoolreports.com">all+unsubscribe@whpoolreports.com</a>.<br />''',  # noqa
 ]
 
 
 p_charset = re.compile(r'charset=[a-zA-Z0-9-]+')
 
 
-def process_body(processed):
-    """ Generate body-redacted.html. """
+def create_canonical_body_html(processed: Dict[str, Any]) -> None:
+    # Populates the given "processed" object with two additional fields:
+    #   * canonical_body_html - representing with original HTML the body,
+    #                           or the HTML-ized version of the text.
+    #   * processed_body_html - Initially the same as "canonical_body_html"
+    #                           but changed into the final HTML by the
+    #                           various filters
 
     # Extract the body
     html, text = None, None
@@ -164,6 +165,16 @@ def process_body(processed):
 
         html = f"<html><body><pre>{text}</pre></body></html>"
 
+    processed['canonical_body_html'] = html
+    processed['processed_body_html'] = html
+
+
+def process_body(processed: Dict[str, Any]) -> None:
+    """ Generate body-redacted.html. """
+    create_canonical_body_html(processed)
+
+    html = processed['processed_body_html']
+
     # Scrub specific string values
     for scrub in body_scrub:
         if scrub in html:
@@ -173,37 +184,13 @@ def process_body(processed):
     # Update the charset since we have convert to utf-8
     html = p_charset.sub("charset=utf-8", html)
 
+    processed['processed_body_html'] = html
+
+    processed['processed_body_html'] = Redact.redact(processed['processed_body_html'])
+
     # Add the new body-redacted.html file
     processed['files'].append(File('body-redacted.html',
-                                   redact(html).encode('UTF-8')))
-
-
-redact_replacement = '\u258A' * 10  # Replacement string: Left three quarters block
-
-
-redact_email = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
-
-
-redact_phone = re.compile(r'''
-    (\+\d{1,2}([ -]|%20)?)? # optional country code with separator
-    \(?\d{3}\)?             # area code
-    ([. -]|%20)             # separator
-    \d{3}                   # exchange
-    ([. -]|%20)             # separator
-    \d{4}                   # local
-''', re.VERBOSE)
-
-
-def redact(html):
-    """ Redact content from the body. """
-
-    # Remove email addresses
-    html = redact_email.sub(redact_replacement, html)
-
-    # Remove US phone numbers
-    html = redact_phone.sub(redact_replacement, html)
-
-    return html
+                                   processed['processed_body_html'].encode('UTF-8')))
 
 
 title_scrub = [
@@ -212,7 +199,7 @@ title_scrub = [
 ]
 
 
-def process_title(processed, value):
+def process_title(processed: Dict[str, Any], value: str) -> None:
     """ Build the Title field from the message Subject header. """
 
     logger.debug(f'title: Subject={value}')
@@ -247,7 +234,7 @@ reporter_extract = re.compile(r'''
 ''', re.VERBOSE)
 
 
-def process_reporter(value):
+def process_reporter(value: str) -> str:
     """ Build the Reporter field from the message From header. """
 
     logger.debug(f'reporter: From={value}')
@@ -271,7 +258,7 @@ def process_reporter(value):
     return value
 
 
-def write_message(id, processed, csvwriter, outdir):
+def write_message(id: str, processed: Dict[str, Any], csvwriter: '_csv._writer', outdir: Path) -> None:
     """ Write out a single processed message. """
 
     # Write metadata to the CSV file
@@ -307,10 +294,8 @@ def write_message(id, processed, csvwriter, outdir):
             outfile.write(bytes)
 
 
-def main():
+def run_command(args: argparse.Namespace) -> CommandResult:
     """ Main processing loop. """
-
-    args = get_args()
 
     # Setup logging
     logging.basicConfig()
@@ -363,6 +348,4 @@ def main():
                 # Write out the message
                 write_message(id, processed, csvwriter, outdir)
 
-
-if __name__ == "__main__":
-    main()
+    return CommandResult(True, [])
