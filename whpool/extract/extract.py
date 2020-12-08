@@ -47,6 +47,48 @@ class Redact:
         return html
 
 
+class PoolReport:
+    # https://docs.python.org/3/library/re.html
+    # r'\b...\b' is for matching "whole words"
+    NONPOOL_REPORT_MARKERS = [
+        re.compile('[Dd]ear [Cc]olleagues'),
+        re.compile('[Hh]ello [Cc]olleagues'),
+        re.compile('Colleagues'),
+        re.compile('OFF RECORD', re.IGNORECASE),
+        re.compile('off the record', re.IGNORECASE),
+        re.compile(r'\bFPPO\b'),
+        re.compile('non-reportable', re.IGNORECASE),
+        re.compile(r'\breportable\b', re.IGNORECASE)
+    ]
+
+    @staticmethod
+    def is_pool_report(html: str) -> bool:
+        '''
+        Returns True if the given HTML appears to be pool report, False
+        otherwise.
+        '''
+
+        for marker in PoolReport.NONPOOL_REPORT_MARKERS:
+            if marker.search(html):
+                return False
+
+        return True
+
+    @staticmethod
+    def process_pool_report(processed: Dict[str, Any]) -> None:
+        '''
+        Sets the "PoolReport" entry in the given "processed" dictionary to
+        "false" if the message is not a pool report.
+        '''
+        title = processed['Title']
+        body = processed['processed_body_html']
+
+        if not (PoolReport.is_pool_report(title) and PoolReport.is_pool_report(body)):
+            processed['PoolReport'] = 'false'
+
+        logger.debug(f"PoolReport={processed['PoolReport']}")
+
+
 def process_message(id: str, message: mailbox.Message) -> Optional[Dict[str, Any]]:
     """ Process a single message and return as a dict. """
 
@@ -83,6 +125,9 @@ def process_message(id: str, message: mailbox.Message) -> Optional[Dict[str, Any
 
     # Process the body content
     process_body(processed)
+
+    # Determine whether message is a pool report
+    PoolReport.process_pool_report(processed)
 
     return processed
 
@@ -210,9 +255,6 @@ def process_title(processed: Dict[str, Any], value: str) -> None:
             logger.debug(f'title: scrubbed "{scrub}": {value}')
 
     processed['Title'] = value
-
-    if 'reportable' in value.lower():
-        processed['PoolReport'] = 'false'
 
 
 reporter_scrub = [
