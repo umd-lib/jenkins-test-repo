@@ -17,17 +17,21 @@ logger = logging.getLogger(__name__)
 HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
            'Comments']
 
+OUTPUT_ATTACHMENTS_SUBDIR = "attachments/"
+
 
 class MessageFile:
     '''Value class for holding information about files associated with a
        message.'''
-    def __init__(self, filename: str, bytes: Optional[Any]):
+    def __init__(self, filename: str, bytes: Optional[Any], output_subdir: str = ''):
         self.filename = filename
         self.bytes = bytes
+        self.output_subdir = output_subdir
 
     def __str__(self) -> str:
         str = f"MessageFile@{id(self)}['"
         str = str + f", filename={self.filename}"
+        str = str + f", output_subdir={self.output_subdir}"
         str = str + "]"
 
         return str
@@ -158,6 +162,8 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
         logger.debug(f'attachment: {content_type=}')
         logger.debug(f'attachment: {filename=}')
 
+        output_subdir = OUTPUT_ATTACHMENTS_SUBDIR
+
         # Assert that this won't happen
         if filename in ('body.html', 'body.txt', 'body-redacted.html'):
             m = f'filename conflict: {filename}'
@@ -178,15 +184,17 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
                 # Likely a body part
                 if content_type == 'text/plain':
                     filename = 'body.txt'
+                    output_subdir = ''
                 else:
                     filename = 'body.html'
+                    output_subdir = ''
 
         elif filename:
             bytes = part.get_payload(decode=True)
 
         # Anything we want to save now has a filename and bytes to store
         if filename:
-            processed['files'].append(MessageFile(filename, bytes))
+            processed['files'].append(MessageFile(filename, bytes, output_subdir))
 
 
 body_scrub = [
@@ -347,8 +355,15 @@ def write_message(id: str, processed: Dict[str, Any], csvwriter: '_csv._writer',
     for extract_file in processed['files']:
         filename = extract_file.filename
         bytes = extract_file.bytes
-        logger.debug(f'Creating {filename=}, size={len(bytes)}')
-        with open(mdir / filename, 'wb') as outfile:
+        output_subdir = extract_file.output_subdir
+
+        logger.debug(f'Creating filename={filename}, size={len(bytes)}, output_subdir={output_subdir}')
+        out_dir = mdir / output_subdir
+        if not out_dir.is_dir():
+            # Make sure subdirectory exists
+            os.mkdir(out_dir)
+
+        with open(out_dir / filename, 'wb') as outfile:
             outfile.write(bytes)
 
 
