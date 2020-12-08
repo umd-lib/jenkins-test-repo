@@ -17,7 +17,20 @@ logger = logging.getLogger(__name__)
 HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
            'Comments']
 
-File = namedtuple('File', 'name, bytes')
+
+class MessageFile:
+    '''Value class for holding information about files associated with a
+       message.'''
+    def __init__(self, filename: str, bytes: Optional[Any]):
+        self.filename = filename
+        self.bytes = bytes
+
+    def __str__(self) -> str:
+        str = f"MessageFile@{id(self)}['"
+        str = str + f", filename={self.filename}"
+        str = str + "]"
+
+        return str
 
 
 class Redact:
@@ -173,7 +186,7 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
 
         # Anything we want to save now has a filename and bytes to store
         if filename:
-            processed['files'].append(File(filename, bytes))
+            processed['files'].append(MessageFile(filename, bytes))
 
 
 body_scrub = [
@@ -196,9 +209,9 @@ def create_canonical_body_html(processed: Dict[str, Any]) -> None:
     # Extract the body
     html, text = None, None
     for file in processed['files']:
-        if file.name == 'body.html':
+        if file.filename == 'body.html':
             html = file.bytes.decode('UTF-8')
-        elif file.name == 'body.txt':
+        elif file.filename == 'body.txt':
             text = file.bytes.decode('UTF-8')
 
     # Use the text version if HTML is not available
@@ -234,8 +247,8 @@ def process_body(processed: Dict[str, Any]) -> None:
     processed['processed_body_html'] = Redact.redact(processed['processed_body_html'])
 
     # Add the new body-redacted.html file
-    processed['files'].append(File('body-redacted.html',
-                                   processed['processed_body_html'].encode('UTF-8')))
+    processed['files'].append(MessageFile('body-redacted.html',
+                                          processed['processed_body_html'].encode('UTF-8')))
 
 
 title_scrub = [
@@ -330,7 +343,10 @@ def write_message(id: str, processed: Dict[str, Any], csvwriter: '_csv._writer',
             logger.debug(f'created {mdir}')
 
     # Create the files
-    for filename, bytes in processed['files']:
+
+    for extract_file in processed['files']:
+        filename = extract_file.filename
+        bytes = extract_file.bytes
         logger.debug(f'Creating {filename=}, size={len(bytes)}')
         with open(mdir / filename, 'wb') as outfile:
             outfile.write(bytes)
