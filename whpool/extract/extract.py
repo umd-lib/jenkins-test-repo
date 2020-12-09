@@ -17,7 +17,42 @@ logger = logging.getLogger(__name__)
 HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
            'Comments']
 
-File = namedtuple('File', 'name, bytes')
+OUTPUT_ATTACHMENTS_SUBDIR = "attachments/"
+
+
+class MessageFile:
+    """
+    Value class for holding information about files associated with a message.
+
+    Attributes
+    ----------
+    filename: str
+        The filename from the message
+    bytes: str
+         A string containing the contents of the message
+    output_subdir: str
+        When writing to output, the subdirectory to output to. Default
+        is '', which writes to the message folder
+    content_id: str
+        The content id associated with the file. Defaults to '', which
+        indicates no content id. Typically used for matching attachments to
+        in-line image links in the message.
+    """
+    def __init__(self, filename: str, bytes: Optional[Any],
+                 output_subdir: str = '', content_id: str = ''):
+        self.filename = filename
+        self.bytes = bytes
+        self.output_subdir = output_subdir
+        self.content_id = content_id
+
+    def __str__(self) -> str:
+        str = f"MessageFile@{id(self)}['"
+        str = str + f", filename={self.filename}"
+        str = str + f", output_subdir={self.output_subdir}"
+        str = str + f", content_id={self.content_id}"
+        str = str + "]"
+
+        return str
 
 
 class Redact:
@@ -89,6 +124,32 @@ class PoolReport:
         logger.debug(f"PoolReport={processed['PoolReport']}")
 
 
+def process_attachments(processed: Dict[str, Any]) -> None:
+    """
+    Updates processed['processed_body_html'], replacing
+    links to attachments (assumed to have the form "cid:<content id>")
+    with a link to the local copy of the file.
+    """
+    for file in processed['files']:
+        if file.content_id:
+            content_id = file.content_id
+            filename = file.filename
+            output_subdir = file.output_subdir
+
+            str_to_replace = f"cid:{content_id}"
+
+            path = Path(filename)
+            if output_subdir:
+                path = Path(output_subdir) / filename
+            replacement_str = str(path)
+
+            body = processed['processed_body_html']
+            body = body.replace(str_to_replace, replacement_str)
+
+            logger.debug(f"Replaced {str_to_replace} with {replacement_str}")
+            processed['processed_body_html'] = body
+
+
 def process_message(id: str, message: mailbox.Message) -> Optional[Dict[str, Any]]:
     """ Process a single message and return as a dict. """
 
@@ -126,6 +187,9 @@ def process_message(id: str, message: mailbox.Message) -> Optional[Dict[str, Any
     # Process the body content
     process_body(processed)
 
+    # Replace <img> content ids with links to attachments
+    process_attachments(processed)
+
     # Determine whether message is a pool report
     PoolReport.process_pool_report(processed)
 
@@ -145,6 +209,8 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
         logger.debug(f'attachment: {content_type=}')
         logger.debug(f'attachment: {filename=}')
 
+        output_subdir = OUTPUT_ATTACHMENTS_SUBDIR
+
         # Assert that this won't happen
         if filename in ('body.html', 'body.txt', 'body-redacted.html'):
             m = f'filename conflict: {filename}'
@@ -152,6 +218,8 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
             raise Exception(m)
 
         bytes = None
+        content_id = ''
+
         if content_type in ('text/plain', 'text/html'):
             # Decode and convert back to UTF-8 bytes
             bytes = part.get_payload(decode=True)
@@ -165,15 +233,21 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
                 # Likely a body part
                 if content_type == 'text/plain':
                     filename = 'body.txt'
+                    output_subdir = ''
                 else:
                     filename = 'body.html'
+                    output_subdir = ''
 
         elif filename:
             bytes = part.get_payload(decode=True)
+            content_id = part['Content-ID']
+            if content_id:
+                # Strip off starting "<" and ending ">"
+                content_id = content_id.replace("<", "").replace(">", "")
 
         # Anything we want to save now has a filename and bytes to store
         if filename:
-            processed['files'].append(File(filename, bytes))
+            processed['files'].append(MessageFile(filename, bytes, output_subdir, content_id))
 
 
 body_scrub = [
@@ -196,9 +270,9 @@ def create_canonical_body_html(processed: Dict[str, Any]) -> None:
     # Extract the body
     html, text = None, None
     for file in processed['files']:
-        if file.name == 'body.html':
+        if file.filename == 'body.html':
             html = file.bytes.decode('UTF-8')
-        elif file.name == 'body.txt':
+        elif file.filename == 'body.txt':
             text = file.bytes.decode('UTF-8')
 
     # Use the text version if HTML is not available
@@ -230,12 +304,6 @@ def process_body(processed: Dict[str, Any]) -> None:
     html = p_charset.sub("charset=utf-8", html)
 
     processed['processed_body_html'] = html
-
-    processed['processed_body_html'] = Redact.redact(processed['processed_body_html'])
-
-    # Add the new body-redacted.html file
-    processed['files'].append(File('body-redacted.html',
-                                   processed['processed_body_html'].encode('UTF-8')))
 
 
 title_scrub = [
@@ -315,6 +383,15 @@ def write_message(id: str, processed: Dict[str, Any], csvwriter: '_csv._writer',
          ]
     )
 
+    # Add the "processed" HTML to the "processed" files list for output
+    processed['files'].append(MessageFile('body-processed.html', processed['processed_body_html'].encode('UTF-8')))
+
+    # Redact and add the "body-redacted.html" to the "processed" files list
+    # for output
+    processed['processed_body_redacted_html'] = Redact.redact(processed['processed_body_html'])
+    processed['files'].append(MessageFile('body-processed-redacted.html',
+                                          processed['processed_body_redacted_html'].encode('UTF-8')))
+
     # Create the directory for storing per message files
     mdir = outdir / f'{processed["id"]:03d}'
 
@@ -330,9 +407,19 @@ def write_message(id: str, processed: Dict[str, Any], csvwriter: '_csv._writer',
             logger.debug(f'created {mdir}')
 
     # Create the files
-    for filename, bytes in processed['files']:
-        logger.debug(f'Creating {filename=}, size={len(bytes)}')
-        with open(mdir / filename, 'wb') as outfile:
+
+    for extract_file in processed['files']:
+        filename = extract_file.filename
+        bytes = extract_file.bytes
+        output_subdir = extract_file.output_subdir
+
+        logger.debug(f'Creating filename={filename}, size={len(bytes)}, output_subdir={output_subdir}')
+        out_dir = mdir / output_subdir
+        if not out_dir.is_dir():
+            # Make sure subdirectory exists
+            os.mkdir(out_dir)
+
+        with open(out_dir / filename, 'wb') as outfile:
             outfile.write(bytes)
 
 
