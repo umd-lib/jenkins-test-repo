@@ -34,12 +34,6 @@ def main() -> None:
     )
 
     parser.add_argument(
-        '-v', '--verbose',
-        help='increase the verbosity of the status output',
-        action='store_true'
-    )
-
-    parser.add_argument(
         '-q', '--quiet',
         help='decrease the verbosity of the status output',
         action='store_true'
