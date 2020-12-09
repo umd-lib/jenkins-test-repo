@@ -396,9 +396,11 @@ def run_command(args: argparse.Namespace) -> CommandResult:
     logging.basicConfig()
 
     if args.verbosity == 0:
-        logger.setLevel(logging.WARN)
+        logging.getLogger("whpool").setLevel(logging.WARN)
+    elif args.verbosity == 1:
+        logging.getLogger("whpool").setLevel(logging.INFO)
     elif args.verbosity == 2:
-        logger.setLevel(logging.DEBUG)
+        logging.getLogger("whpool").setLevel(logging.DEBUG)
 
     logger.debug(f'{args.input=}')
     logger.debug(f'{args.output=}')
