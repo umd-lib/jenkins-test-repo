@@ -91,8 +91,13 @@ class ExternalImagesFactory:
 
             if response.ok:
                 logger.debug(f"Successfully Retrieved '{src}'.")
-                content_type = response.headers['Content-Type']
-                logger.debug(f"Content-Type={content_type}")
+
+                content_type = ""
+                try:
+                    content_type = response.headers['Content-Type']
+                    logger.debug(f"Content-Type={content_type}")
+                except KeyError:
+                    logger.warn(f"Response for '{src}' did not contain a Content-Type header")
 
                 filename = ExternalImagesFactory.create_filename(image_index, num_images, content_type)
                 logger.debug(f"Storing as {filename}")
@@ -144,7 +149,12 @@ def retrieve_external_images(box: Mailbox[mboxMessage]) -> ExternalImages:
                 soup = BeautifulSoup(bytes, 'html.parser')
                 img_tags = soup.find_all('img')
                 for tag in img_tags:
-                    src = tag['src']
+                    try:
+                        src = tag['src']
+                    except KeyError:
+                        logger.warn(f"In message {msg_id} could not find 'src' attribute in {tag}")
+                        continue
+
                     if src.lower().startswith("http"):
                         logger.debug(f'Storing "img" tag for further processing, src={src}')
                         # Using HTML "escape" on the src attribute, because
