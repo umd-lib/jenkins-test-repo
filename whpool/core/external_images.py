@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class ExternalImages:
     def __init__(self,
                  external_image_srcs_set: Set[str],  # The Set of all srcs (including non-retrievable srcs)
-                 message_ids_to_srcs: Dict[str, Set[str]],  # Mapping of message ids to a set of srcs
+                 message_ids_to_srcs: Dict[str, Set[str]],  # Mapping of message ids to a set of (retrieved) srcs
                  external_image_files: Dict[str, ExternalImageFile]  # Mapping of src to ExternalImageFile
                  ):
         self.external_image_srcs_set = external_image_srcs_set
