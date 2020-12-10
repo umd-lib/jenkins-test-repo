@@ -20,19 +20,19 @@ logger = logging.getLogger(__name__)
 class ExternalImages:
     def __init__(self,
                  external_image_srcs_set: Set[str],  # The Set of all srcs (including non-retrievable srcs)
-                 message_ids_to_srcs: Dict[str, List[str]],  # Mapping of message ids to list of srcs
+                 message_ids_to_srcs: Dict[str, Set[str]],  # Mapping of message ids to a set of srcs
                  external_image_files: Dict[str, ExternalImageFile]  # Mapping of src to ExternalImageFile
                  ):
         self.external_image_srcs_set = external_image_srcs_set
         self.message_ids_to_srcs = message_ids_to_srcs
         self.external_image_files = external_image_files
 
-    def srcs(self, msg_id: str) -> List[str]:
+    def srcs(self, msg_id: str) -> Set[str]:
         '''
         Returns the list of "src" entries for the given message id, or an
         empty list if message id has no files.
         '''
-        return self.message_ids_to_srcs.get(msg_id, [])
+        return self.message_ids_to_srcs.get(msg_id, set())
 
     def get_file(self, src: str) -> ExternalImageFile:
         '''
@@ -55,7 +55,7 @@ class ExternalImagesFactory:
         self.external_image_srcs_set: Set[str] = set()
 
         # Dictonary of message ids to images "srcs" it contains
-        self.message_ids_to_srcs: Dict[str, List[str]] = defaultdict(list)
+        self.message_ids_to_srcs: Dict[str, Set[str]] = defaultdict(set)
 
         # List of failed retrievals
         self.failed_src_retrievals: List[str] = []
@@ -78,7 +78,7 @@ class ExternalImagesFactory:
         self.external_image_srcs_set.add(src)
 
         srcs_list = self.message_ids_to_srcs[message_id]
-        srcs_list.append(src)
+        srcs_list.add(src)
 
     def retrieve(self) -> None:
         # Retrieve images
@@ -116,10 +116,10 @@ class ExternalImagesFactory:
         for msg_id in self.message_ids_to_srcs:
             srcs = self.message_ids_to_srcs[msg_id]
 
-            temp = []
+            temp = set()
             for src in srcs:
                 if src not in self.failed_src_retrievals:
-                    temp.append(src)
+                    temp.add(src)
                 else:
                     logger.debug(f"Removing {src} from message {msg_id} as it could not be retrieved.")
 
