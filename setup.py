@@ -71,10 +71,8 @@ setup(
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        # 'python-dotenv',
-        # 'requests',
-        # 'invoke',
-        # 'pyyaml'
+        'beautifulsoup4',
+        'requests'
     ],
     python_requires='>=3.9',
 

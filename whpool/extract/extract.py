@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 import re
 import sys
+from whpool.core.external_images import ExternalImages
+from whpool.core.external_images import retrieve_external_images
 from whpool.core.message_file import MessageFile
 from whpool.core.command import CommandResult
 from typing import Dict, Optional, Any
@@ -19,6 +21,8 @@ HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
            'Comments']
 
 OUTPUT_ATTACHMENTS_SUBDIR = "attachments/"
+
+EXTERNAL_FILES_SUBDIR = "external_files/"
 
 
 class Redact:
@@ -116,7 +120,37 @@ def process_attachments(processed: Dict[str, Any]) -> None:
             processed['processed_body_html'] = body
 
 
-def process_message(id: str, message: mailbox.Message) -> Optional[Dict[str, Any]]:
+def process_external_images(processed: Dict[str, Any], external_images: ExternalImages) -> None:
+    """
+    Updates processed['processed_body_html'], replacing
+    links to external images with a link to a local copy of the file.
+    """
+    msg_id = processed['id']
+
+    output_subdir = EXTERNAL_FILES_SUBDIR
+
+    for src in external_images.srcs(msg_id):
+        filename = external_images.get_file(src).filename
+
+        str_to_replace = src
+
+        path = Path(filename)
+        if output_subdir:
+            path = Path(output_subdir) / filename
+        replacement_str = str(path)
+
+        body = processed['processed_body_html']
+
+        if str_to_replace in body:
+            body = body.replace(str_to_replace, replacement_str)
+
+            logger.debug(f"Replaced '{str_to_replace}' with '{replacement_str}'")
+            processed['processed_body_html'] = body
+        else:
+            logger.warn(f"Expected '{str_to_replace}' in message {msg_id}, but it was not found.")
+
+
+def process_message(id: str, message: mailbox.Message, external_images: ExternalImages) -> Optional[Dict[str, Any]]:
     """ Process a single message and return as a dict. """
 
     processed = {
@@ -155,6 +189,9 @@ def process_message(id: str, message: mailbox.Message) -> Optional[Dict[str, Any
 
     # Replace <img> content ids with links to attachments
     process_attachments(processed)
+
+    # Replace external image links with links to local copies
+    process_external_images(processed, external_images)
 
     # Determine whether message is a pool report
     PoolReport.process_pool_report(processed)
@@ -334,7 +371,9 @@ def process_reporter(value: str) -> str:
     return value
 
 
-def write_message(id: str, processed: Dict[str, Any], csvwriter: '_csv._writer', outdir: Path) -> None:
+def write_message(
+    id: str, processed: Dict[str, Any], csvwriter: '_csv._writer',
+        outdir: Path, external_images: ExternalImages) -> None:
     """ Write out a single processed message. """
 
     # Write metadata to the CSV file
@@ -388,6 +427,23 @@ def write_message(id: str, processed: Dict[str, Any], csvwriter: '_csv._writer',
         with open(out_dir / filename, 'wb') as outfile:
             outfile.write(bytes)
 
+    # Write the external files
+    for src in external_images.srcs(id):
+        external_image_file = external_images.get_file(src)
+        filename = external_image_file.filename
+        bytes = external_image_file.bytes
+        output_subdir = EXTERNAL_FILES_SUBDIR
+
+        logger.debug(f'Creating external file: filename={filename}, size={len(bytes)}, output_subdir={output_subdir}')
+
+        out_dir = mdir / output_subdir
+        if not out_dir.is_dir():
+            # Make sure subdirectory exists
+            os.mkdir(out_dir)
+
+        with open(out_dir / filename, 'wb') as outfile:
+            outfile.write(bytes)
+
 
 def run_command(args: argparse.Namespace) -> CommandResult:
     """ Main processing loop. """
@@ -424,6 +480,9 @@ def run_command(args: argparse.Namespace) -> CommandResult:
     # Read the mbox file (slurp all into memory)
     box = mailbox.mbox(args.input)
 
+    # Retrieve external images
+    external_images = retrieve_external_images(box)
+
     # Open the output CSV for writing
     with open(outdir/'whpool.csv', 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
@@ -434,15 +493,15 @@ def run_command(args: argparse.Namespace) -> CommandResult:
         # Iterate over messages in the mbox file
         for id, message in box.iteritems():
 
-            logger.info(f'Processing message {id}')
+            logger.debug(f'Processing message {id}')
 
             # Process a single message
-            processed = process_message(id, message)
+            processed = process_message(id, message, external_images)
 
             if processed:
-                logger.info(f'Writing message {id}')
+                logger.debug(f'Writing message {id}')
 
                 # Write out the message
-                write_message(id, processed, csvwriter, outdir)
+                write_message(id, processed, csvwriter, outdir, external_images)
 
     return CommandResult(True, [])
