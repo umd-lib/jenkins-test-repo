@@ -43,7 +43,7 @@ def configure_cli(subparsers) -> None:  # type: ignore
     parser.add_argument(
         '-o', '--output',
         required=True,
-        help="Output directory which must already exist; files and" +
+        help="Output directory which must already exist; files and " +
         "sub-directories will be created or overwritten as necessary.",
     )
 
