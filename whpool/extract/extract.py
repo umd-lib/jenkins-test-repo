@@ -24,6 +24,52 @@ OUTPUT_ATTACHMENTS_SUBDIR = "attachments/"
 
 EXTERNAL_FILES_SUBDIR = "external_files/"
 
+REDACT_ADDRESSES = [
+    "1025 Connecticut Ave. NW, Suite 800 | Washington, D.C. 20036",
+
+    "1630 Connecticut Avenue NW, 7th Floor, Washington, DC 20009",
+
+    "1627 I Street NW",
+    "Washington, DC 20006",
+
+    "1920 L Street NW, Suite 200",
+    "Washington DC 20036",
+
+
+    "2020 Technology Parkway, Suite 300, Mechanicsburg, PA 17050",
+
+    r"214&nbsp;Massachusetts&nbsp;Avenue,&nbsp;NE",
+    r"Washington,&nbsp;DC&nbsp;20002",
+
+    "319 Main Street",
+    "Hyannis, MA 02601",
+
+    "3600 New York Ave NE | Washington DC, 20002",
+
+    "424 W. 1st St. Duluth, MN 55802",
+
+    "51 Astor Place, 9th Floor, New York, NY 10003",
+
+    "529 14th Street NW, Suite 960-A",
+    "Washington, D.C. 20045",
+
+    "529 14th Street NW Suite 994",
+    "Washington, DC 20045",
+
+    "600 New Hampshire Ave. NW",
+    "8th Floor",
+    "Washington DC 20037-2403",
+
+    "6752 Cincinnati-Dayton Rd. Suite 205, Liberty Twp., OH 45044",
+
+    "75 N. Washington St.",
+    "Wilkes-Barre, PA 18711",
+
+    "900 17th St NW, Suite 250",
+    "Washington, DC 20006",
+
+]
+
 
 class Redact:
     REDACT_REPLACEMENT = '\u258A' * 10  # Replacement string: Left three quarters block
@@ -48,6 +94,19 @@ class Redact:
 
         # Remove US phone numbers
         html = Redact.REDACT_PHONE.sub(Redact.REDACT_REPLACEMENT, html)
+
+        # Remove physical addresses
+        html = Redact.physical_addresses(html)
+
+        return html
+
+    @staticmethod
+    def physical_addresses(html: str) -> str:
+        # Redact addresses from a hard-coded list
+        for address in REDACT_ADDRESSES:
+            if address in html:
+                logger.debug(f"Redacting {address}")
+                html = html.replace(address, Redact.REDACT_REPLACEMENT)
 
         return html
 
