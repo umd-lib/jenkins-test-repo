@@ -1,24 +1,18 @@
-import argparse
-from collections import namedtuple
-import csv
-import _csv  # For mypy typing
-from email.header import make_header, decode_header
 import logging
 import mailbox
 import os
-from pathlib import Path
 import re
-import sys
-from whpool.core.external_images import ExternalImages
-from whpool.core.external_images import retrieve_external_images
-from whpool.core.message_file import MessageFile
-from whpool.core.command import CommandResult
+from csv import DictWriter
+
+from email.header import make_header, decode_header
+from pathlib import Path
 from typing import Dict, Optional, Any
+from whpool.core.external_images import ExternalImages
+from whpool.core.message_file import MessageFile
 
 logger = logging.getLogger(__name__)
 
-HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish',
-           'Comments']
+HEADERS = ['id', 'Date', 'Reporter', 'Title', 'PoolReport', 'Publish', 'Comments']
 
 OUTPUT_ATTACHMENTS_SUBDIR = "attachments/"
 
@@ -127,10 +121,10 @@ class PoolReport:
 
     @staticmethod
     def is_pool_report(html: str) -> bool:
-        '''
+        """
         Returns True if the given HTML appears to be pool report, False
         otherwise.
-        '''
+        """
 
         for marker in PoolReport.NONPOOL_REPORT_MARKERS:
             if marker.search(html):
@@ -140,10 +134,10 @@ class PoolReport:
 
     @staticmethod
     def process_pool_report(processed: Dict[str, Any]) -> None:
-        '''
+        """
         Sets the "PoolReport" entry in the given "processed" dictionary to
         "false" if the message is not a pool report.
-        '''
+        """
         title = processed['Title']
         body = processed['processed_body_html']
 
@@ -206,14 +200,14 @@ def process_external_images(processed: Dict[str, Any], external_images: External
             logger.debug(f"Replaced '{str_to_replace}' with '{replacement_str}'")
             processed['processed_body_html'] = body
         else:
-            logger.warn(f"Expected '{str_to_replace}' in message {msg_id}, but it was not found.")
+            logger.warning(f"Expected '{str_to_replace}' in message {msg_id}, but it was not found.")
 
 
-def process_message(id: str, message: mailbox.Message, external_images: ExternalImages) -> Optional[Dict[str, Any]]:
+def process_message(msg_id: str, message: mailbox.Message, external_images: ExternalImages) -> Optional[Dict[str, Any]]:
     """ Process a single message and return as a dict. """
 
     processed = {
-        'id': id,
+        'id': msg_id,
         'PoolReport': 'true',
         'Publish': 'false',
         'Comments': '',
@@ -279,17 +273,17 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
             logger.error(m)
             raise Exception(m)
 
-        bytes = None
+        content = None
         content_id = ''
 
         if content_type in ('text/plain', 'text/html'):
             # Decode and convert back to UTF-8 bytes
-            bytes = part.get_payload(decode=True)
+            content = part.get_payload(decode=True)
             charset = part.get_content_charset()
             if charset is None:
                 charset = 'UTF-8'
-            string = bytes.decode(charset)
-            bytes = string.encode('UTF-8')
+            string = content.decode(charset)
+            content = string.encode('UTF-8')
 
             if not filename:
                 # Likely a body part
@@ -301,7 +295,7 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
                     output_subdir = ''
 
         elif filename:
-            bytes = part.get_payload(decode=True)
+            content = part.get_payload(decode=True)
             content_id = part['Content-ID']
             if content_id:
                 # Strip off starting "<" and ending ">"
@@ -309,7 +303,7 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
 
         # Anything we want to save now has a filename and bytes to store
         if filename:
-            processed['files'].append(MessageFile(filename, bytes, output_subdir, content_id))
+            processed['files'].append(MessageFile(filename, content, output_subdir, content_id))
 
 
 body_scrub = [
@@ -431,21 +425,12 @@ def process_reporter(value: str) -> str:
 
 
 def write_message(
-    id: str, processed: Dict[str, Any], csvwriter: '_csv._writer',
-        outdir: Path, external_images: ExternalImages) -> None:
+    msg_id: str, processed: Dict[str, Any], writer: DictWriter,
+        output_dir: Path, external_images: ExternalImages) -> None:
     """ Write out a single processed message. """
 
     # Write metadata to the CSV file
-    csvwriter.writerow(
-        [processed['id'],
-         processed['Date'],
-         processed['Reporter'],
-         processed['Title'],
-         processed['PoolReport'],
-         processed['Publish'],
-         processed['Comments'],
-         ]
-    )
+    writer.writerow(processed)
 
     # Add the "processed" HTML to the "processed" files list for output
     processed['files'].append(MessageFile('body-processed.html', processed['processed_body_html'].encode('UTF-8')))
@@ -457,110 +442,50 @@ def write_message(
                                           processed['processed_body_redacted_html'].encode('UTF-8')))
 
     # Create the directory for storing per message files
-    mdir = outdir / f'{processed["id"]:03d}'
+    message_dir = output_dir / f'{processed["id"]:03d}'
 
-    logger.debug(f'message directory: {mdir}')
+    logger.debug(f'message directory: {message_dir}')
 
-    if not mdir.is_dir():
+    if not message_dir.is_dir():
         try:
-            os.mkdir(mdir)
+            os.mkdir(message_dir)
         except OSError as e:
-            logger.error(f'Error creating {mdir}: {e}')
+            logger.error(f'Error creating {message_dir}: {e}')
             return
         else:
-            logger.debug(f'created {mdir}')
+            logger.debug(f'created {message_dir}')
 
     # Create the files
 
     for extract_file in processed['files']:
         filename = extract_file.filename
-        bytes = extract_file.bytes
+        extracted_bytes = extract_file.bytes
         output_subdir = extract_file.output_subdir
 
-        logger.debug(f'Creating filename={filename}, size={len(bytes)}, output_subdir={output_subdir}')
-        out_dir = mdir / output_subdir
+        logger.debug(f'Creating filename={filename}, size={len(extracted_bytes)}, output_subdir={output_subdir}')
+        out_dir = message_dir / output_subdir
         if not out_dir.is_dir():
             # Make sure subdirectory exists
             os.mkdir(out_dir)
 
         with open(out_dir / filename, 'wb') as outfile:
-            outfile.write(bytes)
+            outfile.write(extracted_bytes)
 
     # Write the external files
-    for src in external_images.srcs(id):
+    for src in external_images.srcs(msg_id):
         external_image_file = external_images.get_file(src)
         filename = external_image_file.filename
-        bytes = external_image_file.bytes
+        extracted_bytes = external_image_file.bytes
         output_subdir = EXTERNAL_FILES_SUBDIR
 
-        logger.debug(f'Creating external file: filename={filename}, size={len(bytes)}, output_subdir={output_subdir}')
+        logger.debug(
+            f'Creating external file: filename={filename}, size={len(extracted_bytes)}, output_subdir={output_subdir}'
+        )
 
-        out_dir = mdir / output_subdir
+        out_dir = message_dir / output_subdir
         if not out_dir.is_dir():
             # Make sure subdirectory exists
             os.mkdir(out_dir)
 
         with open(out_dir / filename, 'wb') as outfile:
-            outfile.write(bytes)
-
-
-def run_command(args: argparse.Namespace) -> CommandResult:
-    """ Main processing loop. """
-
-    # Setup logging
-    logging.basicConfig()
-
-    if args.verbosity == 0:
-        logging.getLogger("whpool").setLevel(logging.WARN)
-    elif args.verbosity == 1:
-        logging.getLogger("whpool").setLevel(logging.INFO)
-    elif args.verbosity == 2:
-        logging.getLogger("whpool").setLevel(logging.DEBUG)
-
-    logger.debug(f'{args.input=}')
-    logger.debug(f'{args.output=}')
-    logger.debug(f'{args.verbosity=}')
-
-    # Ensure the output directory exists and is writable
-    outdir = Path(args.output)
-
-    if not outdir.exists():
-        logger.error(f'Output "{outdir}" does not exist')
-        sys.exit(1)
-
-    if not outdir.is_dir():
-        logger.error(f'Output "{outdir}" is not a directory')
-        sys.exit(1)
-
-    if not os.access(outdir, os.W_OK):
-        logger.error(f'Output directory {outdir} is not writable')
-        sys.exit(1)
-
-    # Read the mbox file (slurp all into memory)
-    box = mailbox.mbox(args.input)
-
-    # Retrieve external images
-    external_images = retrieve_external_images(box)
-
-    # Open the output CSV for writing
-    with open(outdir/'whpool.csv', 'w') as csvfile:
-        csvwriter = csv.writer(csvfile)
-
-        # Add the headers
-        csvwriter.writerow(HEADERS)
-
-        # Iterate over messages in the mbox file
-        for id, message in box.iteritems():
-
-            logger.debug(f'Processing message {id}')
-
-            # Process a single message
-            processed = process_message(id, message, external_images)
-
-            if processed:
-                logger.debug(f'Writing message {id}')
-
-                # Write out the message
-                write_message(id, processed, csvwriter, outdir, external_images)
-
-    return CommandResult(True, [])
+            outfile.write(extracted_bytes)
