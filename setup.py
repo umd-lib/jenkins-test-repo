@@ -73,6 +73,7 @@ setup(
     install_requires=[
         'beautifulsoup4',
         'click',
+        'html_sanitizer',
         'requests'
     ],
     python_requires='>=3.9',
