@@ -72,6 +72,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'beautifulsoup4',
+        'click',
         'requests'
     ],
     python_requires='>=3.9',
