@@ -5,19 +5,19 @@ import re
 from csv import DictReader, DictWriter
 from distutils.util import strtobool
 from email.utils import parsedate_to_datetime
-from html_sanitizer import Sanitizer
+from html_sanitizer import Sanitizer  # type: ignore
 from pathlib import Path
-from typing import TextIO
+from typing import Dict, TextIO
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def is_pool_report(row):
+def is_pool_report(row: Dict[str, str]) -> bool:
     return bool(strtobool(row['PoolReport']))
 
 
-def is_publishable(row):
+def is_publishable(row: Dict[str, str]) -> bool:
     return bool(strtobool(row['Publish']))
 
 
