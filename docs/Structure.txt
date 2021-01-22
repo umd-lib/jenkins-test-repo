@@ -1,0 +1,74 @@
+@startuml
+object dc {
+    type: ldp:Container
+}
+
+object "2021" as year {
+    type: ldp:Container
+}
+
+object "1" as collection {
+    type: pcdm:Collection
+    title: WHCA Pool Reports
+}
+note top : Collection
+
+diamond pairtree
+note top : Pairtree Path
+
+object "{uuid}" as item {
+    type: pcdm:Object
+}
+note top : Item
+
+object m {
+    type: ldp:Container
+}
+note left : Members
+
+object x {
+    type: ldp:Container
+}
+note right : Proxies
+
+object "{slug}" as member {
+    type: pcdm:Object
+}
+
+object "{slug}" as proxy {
+    type: ore:Proxy
+}
+
+object a {
+    type: ldp:Container
+}
+note left : Annotations
+
+object "{slug}" as annotation {
+    type: oa:Annotation
+}
+
+object f {
+    type: ldp:Container
+}
+note right : Files
+
+object "{slug}" as file {
+    type: pcdm:File
+}
+note right : Binary
+
+dc *- year
+year *- collection
+collection *- pairtree
+pairtree - item
+item *-- m
+item *-- x
+m *-- "1..*" member
+x *-- "1..*" proxy
+member *-- "0..1" a
+a *-- "1..*" annotation
+member *-- f
+f *-- "1..*" file
+
+@enduml

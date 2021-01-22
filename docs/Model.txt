@@ -1,0 +1,33 @@
+@startuml
+object PoolReport {
+    title: {email subject header}
+}
+object Body {
+    title: Body
+}
+object Attachment {
+    title: Attachment {n}
+}
+object HTMLFile {
+    mimetype : text/html
+}
+object File
+object Annotation {
+    motivation: painting
+}
+object TextualBody {
+    mimetype: text/plain
+    value: {text content of the HTMLFile}
+}
+
+PoolReport *---> Body : hasMember
+PoolReport *---> "n = 0..*" Attachment : hasMember
+
+Body *--> HTMLFile : hasFile
+Attachment *--> File : hasFile
+
+Body <-o Annotation : hasTarget
+Annotation *--> TextualBody : hasBody
+
+HTMLFile <. TextualBody
+@enduml
