@@ -16,6 +16,10 @@ def is_pool_report(row):
     return bool(strtobool(row['PoolReport']))
 
 
+def is_publishable(row):
+    return bool(strtobool(row['Publish']))
+
+
 @click.command(help='Convert extracted pool reports metadata and files into an import package.')
 @click.option(
     '--input-dir', '-I', 'base_dirname',
@@ -41,7 +45,7 @@ def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> Non
         csv_input = DictReader(input_file)
         csv_output = DictWriter(output_file, columns)
         csv_output.writeheader()
-        for row in filter(is_pool_report, csv_input):
+        for row in filter(is_publishable, csv_input):
             dir_name = format(int(row['id']), '03d')
             logger.info(f'Processing {dir_name}')
             files = []
