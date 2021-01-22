@@ -5,6 +5,7 @@ import re
 from csv import DictReader, DictWriter
 from distutils.util import strtobool
 from email.utils import parsedate_to_datetime
+from html_sanitizer import Sanitizer
 from pathlib import Path
 from typing import TextIO
 
@@ -41,6 +42,7 @@ def is_publishable(row):
 def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> None:
     columns = ['Identifier', 'Title', 'Date', 'Creator', 'Object Type', 'Rights Statement', 'FILES']
     base_path = Path(base_dirname)
+    sanitizer = Sanitizer()
     with open(base_path/'whpool.csv', mode='r') as input_file:
         csv_input = DictReader(input_file)
         csv_output = DictWriter(output_file, columns)
@@ -52,7 +54,13 @@ def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> Non
             item_path = base_path/dir_name
             body_path = item_path/'body-processed-redacted.html'
             if body_path.is_file():
-                files.append(body_path)
+                # create a sanitized version of the HTML
+                sanitized_path = item_path/f'body-{dir_name}.html'
+                with body_path.open() as body_file:
+                    html = body_file.read()
+                with sanitized_path.open(mode='w') as sanitized_file:
+                    sanitized_file.write(sanitizer.sanitize(html))
+                files.append(sanitized_path)
             attachments_dir = item_path/'attachments'
             if attachments_dir.is_dir():
                 files.extend(attachments_dir.iterdir())
