@@ -23,19 +23,21 @@ attachments in sub-directories.
 ### Extract Usage
 
 ```
-> whpool extract --help
-usage: whpool extract [-h] -i INPUT -o OUTPUT [-v {0,1,2}]
+$ whpool extract --help
 
-Extracts files from mbox
+Usage: whpool extract [OPTIONS]
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -i INPUT, --input INPUT
-                        Input mbox format email file
-  -o OUTPUT, --output OUTPUT
-                        Output directory which must already exist; files and sub-directories will be created or overwritten as necessary.
-  -v {0,1,2}, --verbosity {0,1,2}
-                        verbosity of logging output; default is 1
+  Extract pool report emails from mbox format file and create an output
+  format suitable for curatorial review.
+
+Options:
+  -i, --input FILE        Input mbox format email file.  [required]
+  -o, --output DIRECTORY  Output directory which must already exist; files and
+                          sub-directories will be created or overwritten as
+                          necessary.  [required]
+
+  -v, --verbose           Produce verbose logging output.
+  --help                  Show this message and exit.
 ```
 
 Extract processing rules are described in
@@ -83,5 +85,57 @@ The output directory will contain:
       associated with that message (so a subfolder may have non-consecutive
       numbers, or not begin with “0”).
 
-----
+## Convert
+
+Converts the directory structure created by [extract](#extract) to a format
+suitable for use with the [Plastron] import command.
+
+### Convert Usage
+
+```
+$ whpool convert --help
+
+Usage: whpool convert [OPTIONS]
+
+  Convert extracted pool reports metadata and files into an import package.
+
+Options:
+  -I, --input-dir DIRECTORY  Location of metadata and binaries to convert to
+                             an import package.  [required]
+
+  -o, --output FILENAME      Output CSV file; use "-" for STDOUT.  [required]
+  -b, --base-id TEXT         String to prepend to the item id; it will be
+                             followed by a "_".  [required]
+
+  --help                     Show this message and exit.
+```
+
+Convert expects there to be a `whpool.csv` metadata file in the `input-dir`. It
+reads this file, and writes an output CSV file based on the UMD standard item
+metadata model.
+
+Column mappings:
+
+| Extracted | Converted        | Notes |
+|-----------|------------------|-------|
+| id        | Identifier       | prepended with the `--base-id` argument plus "_" |
+| Reporter  | Creator          | |
+| Title     | Title            | |
+| Date      | Date             | converted to ISO 8601 format |
+| --        | Object Type      | `http://vocab.lib.umd.edu/form#pool_reports` 
+| --        | Rights Statement | `http://vocab.lib.umd.edu/rightsStatement#InC-NC` |
+
+The `body-processed-redacted.html` file is further sanitized using
+[HTML Sanitizer], and written to the file `body-{id}.html` in the same directory
+as the `body-processed-redacted.html`.
+
+The sanitized HTML, plus any files in the `attachments` subdirectory, are added
+to the `FILES` column of the output CSV file.
+
+# Full-Text Indexing
+
+See [docs/FullTextIndexing.md](docs/FullTextIndexing.md)
+
 [extract_rules]: docs/ExtractProcessingRules.md
+[Plastron]: https://github.com/umd-lib/plastron
+[HTML Sanitizer]: https://pypi.org/project/html-sanitizer/
