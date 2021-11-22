@@ -1,6 +1,3 @@
-from typing import Any, IO, Optional
-
-
 class ExternalImageFile:
     """
     Value class for holding information about external images associated with

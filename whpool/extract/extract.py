@@ -3,10 +3,10 @@ import mailbox
 import os
 import re
 from csv import DictWriter
-
-from email.header import make_header, decode_header
+from email.header import decode_header, make_header
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
+
 from whpool.core.external_images import ExternalFileError, ExternalImages
 from whpool.core.message_file import MessageFile
 

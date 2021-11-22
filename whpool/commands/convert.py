@@ -1,13 +1,13 @@
-import click
 import logging
 import re
-
 from csv import DictReader, DictWriter
 from distutils.util import strtobool
 from email.utils import parsedate_to_datetime
-from html_sanitizer import Sanitizer  # type: ignore
 from pathlib import Path
 from typing import Dict, TextIO
+
+import click
+from html_sanitizer import Sanitizer  # type: ignore
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
