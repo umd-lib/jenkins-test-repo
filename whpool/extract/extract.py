@@ -429,7 +429,7 @@ def process_reporter(value: str) -> str:
 
 
 def write_message(
-    msg_id: str, processed: Dict[str, Any], writer: DictWriter,
+    msg_id: str, processed: Dict[str, Any], writer: DictWriter,  # type: ignore
         output_dir: Path, external_images: ExternalImages) -> None:
     """ Write out a single processed message. """
 
