@@ -17,6 +17,10 @@ import requests
 logger = logging.getLogger(__name__)
 
 
+class ExternalFileError(Exception):
+    pass
+
+
 class ExternalImages:
     def __init__(self,
                  external_image_srcs_set: Set[str],  # The Set of all srcs (including non-retrievable srcs)
@@ -38,7 +42,10 @@ class ExternalImages:
         '''
         Returns the ExternalImageFile associated with the given src
         '''
-        return self.external_image_files[src]
+        try:
+            return self.external_image_files[src]
+        except KeyError:
+            raise ExternalFileError
 
 
 class ExternalImagesFactory:
@@ -87,7 +94,12 @@ class ExternalImagesFactory:
             logger.debug(f"Retrieving '{src}'")
             src = src
 
-            response = requests.get(src, stream=True)
+            try:
+                response = requests.get(src, stream=True)
+            except requests.ConnectionError as e:
+                logger.warning(f"FAILED to retrieve '{src}'. Connection error: {e}")
+                self.failed_src_retrievals.append(src)
+                return
 
             if response.ok:
                 logger.debug(f"Successfully Retrieved '{src}'.")
