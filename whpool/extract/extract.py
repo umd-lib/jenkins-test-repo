@@ -236,7 +236,7 @@ def process_message(msg_id: str, message: mailbox.Message, external_images: Exte
             processed['Reporter'] = process_reporter(value)
 
         elif header == 'Subject':
-            process_title(processed, value)
+            processed['Title'] = process_title(value)
 
     # Process all parts and attachments
     process_files(processed, message)
@@ -372,9 +372,10 @@ title_scrub = [
 ]
 
 
-def process_title(processed: Dict[str, Any], value: str) -> None:
-    """ Build the Title field from the message Subject header. """
-
+def process_title(value: str) -> str:
+    """
+    Build the Title field from the message Subject header.
+    """
     logger.debug(f'title: Subject={value}')
 
     for scrub in title_scrub:
@@ -382,7 +383,10 @@ def process_title(processed: Dict[str, Any], value: str) -> None:
             value = value.replace(scrub, '')
             logger.debug(f'title: scrubbed "{scrub}": {value}')
 
-    processed['Title'] = value
+    # escape any backslashes and pipe characters
+    value = re.sub(r'([\\|])', r'\\\1', value)
+
+    return value
 
 
 reporter_scrub = [
