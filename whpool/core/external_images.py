@@ -1,20 +1,20 @@
-
 import html
 import logging
 import math
-
 from collections import defaultdict
-from itertools import filterfalse
 from mailbox import Mailbox, mboxMessage
-from whpool.core.message_file import MessageFile
-from whpool.core.external_image_file import ExternalImageFile
 from typing import Dict, List, Set
 
+import requests
 from bs4 import BeautifulSoup  # type: ignore
 
-import requests
+from whpool.core.external_image_file import ExternalImageFile
 
 logger = logging.getLogger(__name__)
+
+
+class ExternalFileError(Exception):
+    pass
 
 
 class ExternalImages:
@@ -28,17 +28,20 @@ class ExternalImages:
         self.external_image_files = external_image_files
 
     def srcs(self, msg_id: str) -> Set[str]:
-        '''
+        """
         Returns the list of "src" entries for the given message id, or an
         empty list if message id has no files.
-        '''
+        """
         return self.message_ids_to_srcs.get(msg_id, set())
 
     def get_file(self, src: str) -> ExternalImageFile:
-        '''
+        """
         Returns the ExternalImageFile associated with the given src
-        '''
-        return self.external_image_files[src]
+        """
+        try:
+            return self.external_image_files[src]
+        except KeyError:
+            raise ExternalFileError
 
 
 class ExternalImagesFactory:
@@ -54,7 +57,7 @@ class ExternalImagesFactory:
         # Set of unique "src" fields from all image tags
         self.external_image_srcs_set: Set[str] = set()
 
-        # Dictonary of message ids to images "srcs" it contains
+        # Dictionary of message ids to images "srcs" it contains
         self.message_ids_to_srcs: Dict[str, Set[str]] = defaultdict(set)
 
         # List of failed retrievals
@@ -87,7 +90,12 @@ class ExternalImagesFactory:
             logger.debug(f"Retrieving '{src}'")
             src = src
 
-            response = requests.get(src, stream=True)
+            try:
+                response = requests.get(src, stream=True)
+            except requests.ConnectionError as e:
+                logger.warning(f"FAILED to retrieve '{src}'. Connection error: {e}")
+                self.failed_src_retrievals.append(src)
+                return
 
             if response.ok:
                 logger.debug(f"Successfully Retrieved '{src}'.")
@@ -97,16 +105,16 @@ class ExternalImagesFactory:
                     content_type = response.headers['Content-Type']
                     logger.debug(f"Content-Type={content_type}")
                 except KeyError:
-                    logger.warn(f"Response for '{src}' did not contain a Content-Type header")
+                    logger.warning(f"Response for '{src}' did not contain a Content-Type header")
 
                 filename = ExternalImagesFactory.create_filename(image_index, num_images, content_type)
                 logger.debug(f"Storing as {filename}")
 
-                bytes = response.raw.data
-                external_image_file = ExternalImageFile(src, filename, bytes)
+                bytes_data = response.raw.data
+                external_image_file = ExternalImageFile(src, filename, bytes_data)
                 self.external_image_files[src] = external_image_file
             else:
-                logger.warn(f"FAILED to retrieve '{src}'. response={response}")
+                logger.warning(f"FAILED to retrieve '{src}'. response={response}")
                 self.failed_src_retrievals.append(src)
 
     def remove_failures(self) -> None:
@@ -134,25 +142,24 @@ class ExternalImagesFactory:
 def retrieve_external_images(box: Mailbox[mboxMessage]) -> ExternalImages:
     logger.debug("Retrieving external images")
 
-    externalImagesFactory = ExternalImagesFactory()
+    external_images_factory = ExternalImagesFactory()
 
     for msg_id, message in box.iteritems():
         logger.debug(f'Processing message {msg_id} for external images')
 
         for part in message.walk():
             content_type = part.get_content_type()
-            filename = part.get_filename()
 
             if content_type == 'text/html':
                 # Assume this is the message body
-                bytes = part.get_payload(decode=True)
-                soup = BeautifulSoup(bytes, 'html.parser')
+                bytes_data = part.get_payload(decode=True)
+                soup = BeautifulSoup(bytes_data, 'html.parser')
                 img_tags = soup.find_all('img')
                 for tag in img_tags:
                     try:
                         src = tag['src']
                     except KeyError:
-                        logger.warn(f"In message {msg_id} could not find 'src' attribute in {tag}")
+                        logger.warning(f"In message {msg_id} could not find 'src' attribute in {tag}")
                         continue
 
                     if src.lower().startswith("http"):
@@ -161,12 +168,12 @@ def retrieve_external_images(box: Mailbox[mboxMessage]) -> ExternalImages:
                         # Beautiful Soup decodes the string, and we need the
                         # "escaped" version for matching against the HTML file
                         escaped_src = html.escape(src)
-                        externalImagesFactory.add(msg_id, escaped_src)
+                        external_images_factory.add(msg_id, escaped_src)
                     elif src.lower().startswith("cid:"):
                         logger.debug(f'Skipping "img" tag -- starts with "cid:", src={src}."')
                     else:
-                        logger.warn(f'Skipping "img" tag in message {msg_id} -- unknown protocol, src={src}."')
+                        logger.warning(f'Skipping "img" tag in message {msg_id} -- unknown protocol, src={src}."')
 
-    external_images = externalImagesFactory.build()
+    external_images = external_images_factory.build()
 
     return external_images

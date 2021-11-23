@@ -3,11 +3,11 @@ import mailbox
 import os
 import re
 from csv import DictWriter
-
-from email.header import make_header, decode_header
+from email.header import decode_header, make_header
 from pathlib import Path
-from typing import Dict, Optional, Any
-from whpool.core.external_images import ExternalImages
+from typing import Any, Dict, Optional
+
+from whpool.core.external_images import ExternalFileError, ExternalImages
 from whpool.core.message_file import MessageFile
 
 logger = logging.getLogger(__name__)
@@ -183,7 +183,11 @@ def process_external_images(processed: Dict[str, Any], external_images: External
     output_subdir = EXTERNAL_FILES_SUBDIR
 
     for src in external_images.srcs(msg_id):
-        filename = external_images.get_file(src).filename
+        try:
+            filename = external_images.get_file(src).filename
+        except ExternalFileError:
+            logger.warning(f"Unable to retrieve external image {src} for message {msg_id}")
+            continue
 
         str_to_replace = src
 
@@ -473,7 +477,12 @@ def write_message(
 
     # Write the external files
     for src in external_images.srcs(msg_id):
-        external_image_file = external_images.get_file(src)
+        try:
+            external_image_file = external_images.get_file(src)
+        except ExternalFileError:
+            logger.warning(f'Skipping {src}, external file is not retrievable')
+            continue
+
         filename = external_image_file.filename
         extracted_bytes = external_image_file.bytes
         output_subdir = EXTERNAL_FILES_SUBDIR

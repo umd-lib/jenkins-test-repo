@@ -1,11 +1,12 @@
 import argparse
-import click
 import logging
 import pkgutil
 import sys
-
 from importlib import import_module
 from typing import List
+
+import click
+
 from whpool import VERSION, commands
 
 logger = logging.getLogger(__name__)

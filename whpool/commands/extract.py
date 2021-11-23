@@ -1,12 +1,12 @@
-import click
 import logging
 import mailbox
-
 from csv import DictWriter
 from pathlib import Path
+
+import click
+
 from whpool.core.external_images import retrieve_external_images
 from whpool.extract.extract import HEADERS, process_message, write_message
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
