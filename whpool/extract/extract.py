@@ -338,9 +338,9 @@ def create_canonical_body_html(processed: Dict[str, Any]) -> None:
     # Use the text version if HTML is not available
     if not html:
         if not text:
-            m = f'Unable to find message body: {processed["id"]}'
-            logger.error(m)
-            raise Exception(m)
+            m = f'Unable to find message body for message {processed["id"]}'
+            logger.warning(m)
+            text = ""
 
         html = f"<html><body><pre>{text}</pre></body></html>"
 
