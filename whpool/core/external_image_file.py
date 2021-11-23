@@ -9,19 +9,19 @@ class ExternalImageFile:
         The value from the "img" tag "src" field
     filename:
         A string containing the filename to use in storing the file
-    bytes: bytes
+    content: bytes
          A byte string containing the contents of the message
     """
-    def __init__(self, src: str, filename: str, bytes: bytes):
+    def __init__(self, src: str, filename: str, content: bytes):
         self.src = src
         self.filename = filename
-        self.bytes = bytes
+        self.content = content
 
     def __str__(self) -> str:
-        str = f"ExternalImageFile@{id(self)}['"
-        str = str + f", src={self.src},"
-        str = str + f", filename={self.filename},"
-        str = str + f", len(bytes)={len(self.bytes)},"
-        str = str + "]"
-
-        return str
+        return (
+            f"ExternalImageFile@{id(self)}['"
+            f", src={self.src},"
+            f", filename={self.filename},"
+            f", len(bytes)={len(self.content)},"
+            "]"
+        )

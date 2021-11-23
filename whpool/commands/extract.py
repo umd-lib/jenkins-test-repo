@@ -6,7 +6,7 @@ from pathlib import Path
 import click
 
 from whpool.core.external_images import retrieve_external_images
-from whpool.extract.extract import HEADERS, process_message, write_message
+from whpool.extract.extract import HEADERS, Message
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -63,15 +63,16 @@ def extract(input_filename: str, output_dirname: str, verbosity: int) -> None:
         csv_writer.writeheader()
 
         # Iterate over messages in the mbox file
-        for msg_id, message in box.iteritems():
+        for msg_id, msg in box.iteritems():
 
             logger.debug(f'Processing message {msg_id}')
 
             # Process a single message
-            processed = process_message(msg_id, message, external_images)
+            message = Message(msg_id, msg, external_images)
+            processed = message.process()
 
             if processed:
                 logger.debug(f'Writing message {msg_id}')
 
                 # Write out the message
-                write_message(msg_id, processed, csv_writer, output_path, external_images)
+                message.write(csv_writer, output_path)
