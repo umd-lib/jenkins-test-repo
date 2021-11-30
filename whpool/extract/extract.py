@@ -10,7 +10,6 @@ from typing import Any, Dict, Iterable, Optional, Sequence
 from whpool.core.external_image_file import ExternalImageFile
 from whpool.core.external_images import ExternalImages
 from whpool.core.message_file import MessageFile
-from whpool.core.redaction import redact
 
 logger = logging.getLogger(__name__)
 
@@ -121,13 +120,6 @@ class Message:
         # Add the "processed" HTML to the "processed" files list for output
         self.processed['files'].append(
             MessageFile('body-processed.html', self.processed['processed_body_html'].encode('UTF-8'))
-        )
-
-        # Redact and add the "body-redacted.html" to the "processed" files list
-        # for output
-        self.processed['processed_body_redacted_html'] = redact(self.processed['processed_body_html'])
-        self.processed['files'].append(
-            MessageFile('body-processed-redacted.html', self.processed['processed_body_redacted_html'].encode('UTF-8'))
         )
 
         # Create the directory for storing per message files

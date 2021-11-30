@@ -9,7 +9,7 @@ def test_rewrite_attachment_path():
 </div>
 </html>'''  # noqa
 
-    message_file = MessageFile(filename="Image.jpeg", content=[], output_subdir='attachments/',
+    message_file = MessageFile(filename="Image.jpeg", content=b'', output_subdir='attachments/',
                                content_id='165C3ED3-A279-423B-A81D-78E9AE3DE195')
 
     updated_body = rewrite_attachment_path(message_file, body)
