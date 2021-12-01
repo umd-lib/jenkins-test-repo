@@ -74,6 +74,7 @@ setup(
         'beautifulsoup4',
         'click',
         'html_sanitizer',
+        'PyYAML',
         'requests'
     ],
     python_requires='>=3.9',
