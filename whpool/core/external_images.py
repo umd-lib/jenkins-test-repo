@@ -27,21 +27,18 @@ class ExternalImages:
         self.message_ids_to_srcs = message_ids_to_srcs
         self.external_image_files = external_image_files
 
-    def srcs(self, msg_id: str) -> Set[str]:
+    def __getitem__(self, item: str) -> ExternalImageFile:
+        """
+        Returns the ExternalImageFile associated with a src string.
+        """
+        return self.external_image_files[item]
+
+    def __call__(self, msg_id: str) -> Set[str]:
         """
         Returns the list of "src" entries for the given message id, or an
         empty list if message id has no files.
         """
         return self.message_ids_to_srcs.get(msg_id, set())
-
-    def get_file(self, src: str) -> ExternalImageFile:
-        """
-        Returns the ExternalImageFile associated with the given src
-        """
-        try:
-            return self.external_image_files[src]
-        except KeyError:
-            raise ExternalFileError
 
 
 class ExternalImagesFactory:
@@ -95,7 +92,7 @@ class ExternalImagesFactory:
             except requests.ConnectionError as e:
                 logger.warning(f"FAILED to retrieve '{src}'. Connection error: {e}")
                 self.failed_src_retrievals.append(src)
-                return
+                continue
 
             if response.ok:
                 logger.debug(f"Successfully Retrieved '{src}'.")

@@ -85,10 +85,85 @@ The output directory will contain:
       associated with that message (so a subfolder may have non-consecutive
       numbers, or not begin with “0”).
 
+## Redact
+
+Redacts the text of the "body-processed.html" created by [extract](#extract).
+
+### Redact Usage
+
+```
+$ whpool redact --help
+
+Usage: whpool redact [OPTIONS] [DIRECTORIES]...
+
+  Redact strings or patterns in extracted message bodies in the given
+  directories.
+
+Options:
+  --strings-from-file FILENAME   File containing exact strings to redact, one
+                                 per line.
+  --patterns-from-file FILENAME  YAML file containing a map of labels to
+                                 regular expressions to redact.
+  -n, --dry-run                  Display the redacted text, but do not write
+                                 the output file.
+  --help                         Show this message and exit.
+```
+
+### Built-in Patterns
+
+Defined in [whpool.core.redaction.REDACT_PATTERNS](whpool/core/redaction.py):
+
+* Email address
+* North American phone number
+
+### Strings File Format
+
+The strings file contains exact strings that should be redacted. They are
+case-sensitive. Blank lines, or lines whose first non-whitespace character is
+a `#` are ignored.
+
+For example, given this strings file:
+
+```
+# strings file (this line is ignored)
+Foo
+
+# bar
+BAZ
+```
+
+the two strings that would be redacted are `Foo` and `BAZ`. `bar` is ignored
+because it is commented out with a `#`, as is the first line of the file.
+
+### Patterns File Format
+
+The patterns file is a YAML-formatted file containing regular expressions for
+finding text that should be redacted. The file contains a mapping of explanatory
+labels to regular expressions. The regular expressions are
+[compiled](https://docs.python.org/3.9/library/re.html#regular-expression-objects)
+to Python `Pattern` objects using the `re.VERBOSE` flag, so you can use YAML
+block scalars to spread out complicated expressions over multiple lines. For
+example:
+
+```yaml
+North American phone number: |-
+  (\+\d{1,2}([ -]|%20)?)? # optional country code with separator
+  \(?\d{3}\)?             # area code
+  ([. -]|%20)             # separator
+  \d{3}                   # exchange
+  ([. -]|%20)             # separator
+  \d{4}                   # local
+```
+
+(Note: This pattern is included in the [built-in patterns](#built-in-patterns),
+so there is no need to specify it in an external patterns file. It is simply
+presented here as an example of how such a pattern would be formatted.)
+
 ## Convert
 
-Converts the directory structure created by [extract](#extract) to a format
-suitable for use with the [Plastron] import command.
+Converts the directory structure created by [extract](#extract) and the body 
+text as processed by [redact](#redact) to a format suitable for use with the
+[Plastron] import command.
 
 ### Convert Usage
 

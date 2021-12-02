@@ -5,9 +5,10 @@ import re
 from csv import DictWriter
 from email.header import decode_header, make_header
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Iterable, Optional, Sequence
 
-from whpool.core.external_images import ExternalFileError, ExternalImages
+from whpool.core.external_image_file import ExternalImageFile
+from whpool.core.external_images import ExternalImages
 from whpool.core.message_file import MessageFile
 
 logger = logging.getLogger(__name__)
@@ -18,250 +19,175 @@ OUTPUT_ATTACHMENTS_SUBDIR = "attachments/"
 
 EXTERNAL_FILES_SUBDIR = "external_files/"
 
-REDACT_ADDRESSES = [
-    "1025 Connecticut Ave. NW, Suite 800 | Washington, D.C. 20036",
 
-    "1630 Connecticut Avenue NW, 7th Floor, Washington, DC 20009",
-
-    "1627 I Street NW",
-    "Washington, DC 20006",
-
-    "1920 L Street NW, Suite 200",
-    "Washington DC 20036",
-
-
-    "2020 Technology Parkway, Suite 300, Mechanicsburg, PA 17050",
-
-    r"214&nbsp;Massachusetts&nbsp;Avenue,&nbsp;NE",
-    r"Washington,&nbsp;DC&nbsp;20002",
-
-    "319 Main Street",
-    "Hyannis, MA 02601",
-
-    "3600 New York Ave NE | Washington DC, 20002",
-
-    "424 W. 1st St. Duluth, MN 55802",
-
-    "51 Astor Place, 9th Floor, New York, NY 10003",
-
-    "529 14th Street NW, Suite 960-A",
-    "Washington, D.C. 20045",
-
-    "529 14th Street NW Suite 994",
-    "Washington, DC 20045",
-
-    "600 New Hampshire Ave. NW",
-    "8th Floor",
-    "Washington DC 20037-2403",
-
-    "6752 Cincinnati-Dayton Rd. Suite 205, Liberty Twp., OH 45044",
-
-    "75 N. Washington St.",
-    "Wilkes-Barre, PA 18711",
-
-    "900 17th St NW, Suite 250",
-    "Washington, DC 20006",
-
+# https://docs.python.org/3/library/re.html
+# r'\b...\b' is for matching "whole words"
+NONPOOL_REPORT_MARKERS = [
+    re.compile('[Dd]ear [Cc]olleagues'),
+    re.compile('[Hh]ello [Cc]olleagues'),
+    re.compile('Colleagues'),
+    re.compile('OFF RECORD', re.IGNORECASE),
+    re.compile('off the record', re.IGNORECASE),
+    re.compile(r'\bFPPO\b'),
+    re.compile('non-reportable', re.IGNORECASE),
+    re.compile(r'\breportable\b', re.IGNORECASE)
 ]
 
 
-class Redact:
-    REDACT_REPLACEMENT = '\u258A' * 10  # Replacement string: Left three quarters block
+class Message:
+    def __init__(self, msg_id: str, message: mailbox.Message, external_images: ExternalImages) -> None:
+        self.msg_id = msg_id
+        self.message = message
+        self.external_images = set(external_images[src] for src in external_images(msg_id))
+        self.processed: Dict[str, Any] = {
+            'id': self.msg_id,
+            'Publish': 'false',
+            'Comments': '',
+        }
 
-    REDACT_EMAIL = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
-
-    REDACT_PHONE = re.compile(r'''
-        (\+\d{1,2}([ -]|%20)?)? # optional country code with separator
-        \(?\d{3}\)?             # area code
-        ([. -]|%20)             # separator
-        \d{3}                   # exchange
-        ([. -]|%20)             # separator
-        \d{4}                   # local
-    ''', re.VERBOSE)
-
-    @staticmethod
-    def redact(html: str) -> str:
-        """ Redact content from the body. """
-
-        # Remove email addresses
-        html = Redact.REDACT_EMAIL.sub(Redact.REDACT_REPLACEMENT, html)
-
-        # Remove US phone numbers
-        html = Redact.REDACT_PHONE.sub(Redact.REDACT_REPLACEMENT, html)
-
-        # Remove physical addresses
-        html = Redact.physical_addresses(html)
-
-        return html
-
-    @staticmethod
-    def physical_addresses(html: str) -> str:
-        # Redact addresses from a hard-coded list
-        for address in REDACT_ADDRESSES:
-            if address in html:
-                logger.debug(f"Redacting {address}")
-                html = html.replace(address, Redact.REDACT_REPLACEMENT)
-
-        return html
-
-
-class PoolReport:
-    # https://docs.python.org/3/library/re.html
-    # r'\b...\b' is for matching "whole words"
-    NONPOOL_REPORT_MARKERS = [
-        re.compile('[Dd]ear [Cc]olleagues'),
-        re.compile('[Hh]ello [Cc]olleagues'),
-        re.compile('Colleagues'),
-        re.compile('OFF RECORD', re.IGNORECASE),
-        re.compile('off the record', re.IGNORECASE),
-        re.compile(r'\bFPPO\b'),
-        re.compile('non-reportable', re.IGNORECASE),
-        re.compile(r'\breportable\b', re.IGNORECASE)
-    ]
-
-    @staticmethod
-    def is_pool_report(html: str) -> bool:
+    def process(self) -> Optional[Dict[str, Any]]:
         """
-        Returns True if the given HTML appears to be pool report, False
-        otherwise.
+        Process a single message and return as a dict.
         """
+        # Extract the headers
+        for header, value in self.message.items():
+            # Decode and convert to str
+            value = str(make_header(decode_header(value)))
 
-        for marker in PoolReport.NONPOOL_REPORT_MARKERS:
-            if marker.search(html):
-                return False
+            if header == 'Date':
+                self.processed['Date'] = value
+                logger.debug(f'date: {value}')
 
-        return True
+            elif header == 'From':
+                # For now, ignore the messages which were forwarded manually from
+                # lib-whpoolreports to lib-whpoolreports-service
+                if 'lib-whpoolreports' in value:
+                    return None
 
-    @staticmethod
-    def process_pool_report(processed: Dict[str, Any]) -> None:
-        """
-        Sets the "PoolReport" entry in the given "processed" dictionary to
-        "false" if the message is not a pool report.
-        """
-        title = processed['Title']
-        body = processed['processed_body_html']
+                self.processed['Reporter'] = process_reporter(value)
 
-        if not (PoolReport.is_pool_report(title) and PoolReport.is_pool_report(body)):
-            processed['PoolReport'] = 'false'
+            elif header == 'Subject':
+                self.processed['Title'] = scrub_title(value)
 
-        logger.debug(f"PoolReport={processed['PoolReport']}")
+        # Process all parts and attachments
+        self.processed['files'] = list(get_files(self.message))
 
+        # Process the body content
+        html = create_canonical_body_html(self.msg_id, self.processed['files'])
+        self.processed['canonical_body_html'] = html
+        self.processed['processed_body_html'] = scrub_body(html)
 
-def process_attachments(processed: Dict[str, Any]) -> None:
-    """
-    Updates processed['processed_body_html'], replacing
-    links to attachments (assumed to have the form "cid:<content id>")
-    with a link to the local copy of the file.
-    """
-    for file in processed['files']:
-        if file.content_id:
-            content_id = file.content_id
-            filename = file.filename
-            output_subdir = file.output_subdir
+        # Replace <img> content ids with links to attachments
+        # Updates processed['processed_body_html'], replacing
+        # links to attachments (assumed to have the form "cid:<content id>")
+        # with a link to the local copy of the file.
+        for file in filter(lambda f: f.content_id, self.processed['files']):
+            self.processed['processed_body_html'] = rewrite_attachment_path(file, self.processed['processed_body_html'])
 
-            str_to_replace = f"cid:{content_id}"
+        # Replace external image links with links to local copies
+        # Updates processed['processed_body_html'], replacing
+        # links to external images with a link to a local copy of the file.
+        output_subdir = EXTERNAL_FILES_SUBDIR
 
-            path = Path(filename)
-            if output_subdir:
-                path = Path(output_subdir) / filename
-            replacement_str = str(path)
+        for file in self.external_images:
+            self.processed['processed_body_html'] = rewrite_external_file_location(
+                file,
+                self.processed['processed_body_html'],
+                output_subdir
+            )
 
-            body = processed['processed_body_html']
-            body = body.replace(str_to_replace, replacement_str)
+        # Determine whether message is a pool report
+        # Sets the "PoolReport" entry in the given "processed" dictionary to
+        # false" if the message is not a pool report.
+        title = self.processed['Title']
+        body = self.processed['processed_body_html']
 
-            logger.debug(f"Replaced {str_to_replace} with {replacement_str}")
-            processed['processed_body_html'] = body
-
-
-def process_external_images(processed: Dict[str, Any], external_images: ExternalImages) -> None:
-    """
-    Updates processed['processed_body_html'], replacing
-    links to external images with a link to a local copy of the file.
-    """
-    msg_id = processed['id']
-
-    output_subdir = EXTERNAL_FILES_SUBDIR
-
-    for src in external_images.srcs(msg_id):
-        try:
-            filename = external_images.get_file(src).filename
-        except ExternalFileError:
-            logger.warning(f"Unable to retrieve external image {src} for message {msg_id}")
-            continue
-
-        str_to_replace = src
-
-        path = Path(filename)
-        if output_subdir:
-            path = Path(output_subdir) / filename
-        replacement_str = str(path)
-
-        body = processed['processed_body_html']
-
-        if str_to_replace in body:
-            body = body.replace(str_to_replace, replacement_str)
-
-            logger.debug(f"Replaced '{str_to_replace}' with '{replacement_str}'")
-            processed['processed_body_html'] = body
+        if is_pool_report(title) and is_pool_report(body):
+            self.processed['PoolReport'] = 'true'
         else:
-            logger.warning(f"Expected '{str_to_replace}' in message {msg_id}, but it was not found.")
+            self.processed['PoolReport'] = 'false'
+
+        logger.debug(f"PoolReport={self.processed['PoolReport']}")
+
+        return self.processed
+
+    def write(self, writer: 'DictWriter[str]', output_dir: Path) -> None:
+        """ Write out a single processed message. """
+
+        # Write metadata to the CSV file
+        writer.writerow(self.processed)
+
+        # Add the "processed" HTML to the "processed" files list for output
+        self.processed['files'].append(
+            MessageFile('body-processed.html', self.processed['processed_body_html'].encode('UTF-8'))
+        )
+
+        # Create the directory for storing per message files
+        message_dir = output_dir / f'{self.processed["id"]:03d}'
+
+        logger.debug(f'message directory: {message_dir}')
+
+        if not message_dir.is_dir():
+            try:
+                os.mkdir(message_dir)
+            except OSError as e:
+                logger.error(f'Error creating {message_dir}: {e}')
+                return
+            else:
+                logger.debug(f'created {message_dir}')
+
+        # Create the files
+
+        for extract_file in self.processed['files']:
+            filename = extract_file.filename
+            extracted_bytes = extract_file.content
+            output_subdir = extract_file.output_subdir
+
+            logger.debug(f'Creating filename={filename}, size={len(extracted_bytes)}, output_subdir={output_subdir}')
+            out_dir = message_dir / output_subdir
+            if not out_dir.is_dir():
+                # Make sure subdirectory exists
+                os.mkdir(out_dir)
+
+            with open(out_dir / filename, 'wb') as outfile:
+                outfile.write(extracted_bytes)
+
+        # Write the external files
+        for external_image_file in self.external_images:
+            filename = external_image_file.filename
+            extracted_bytes = external_image_file.content
+            output_subdir = EXTERNAL_FILES_SUBDIR
+
+            logger.debug(
+                f'Creating external file: filename={filename}, '
+                f'size={len(extracted_bytes)}, output_subdir={output_subdir}'
+            )
+
+            out_dir = message_dir / output_subdir
+            if not out_dir.is_dir():
+                # Make sure subdirectory exists
+                os.mkdir(out_dir)
+
+            with open(out_dir / filename, 'wb') as outfile:
+                outfile.write(extracted_bytes)
 
 
-def process_message(msg_id: str, message: mailbox.Message, external_images: ExternalImages) -> Optional[Dict[str, Any]]:
-    """ Process a single message and return as a dict. """
+def is_pool_report(html: str) -> bool:
+    """
+    Returns True if the given HTML appears to be pool report, False
+    otherwise.
+    """
+    for marker in NONPOOL_REPORT_MARKERS:
+        if marker.search(html):
+            return False
 
-    processed = {
-        'id': msg_id,
-        'PoolReport': 'true',
-        'Publish': 'false',
-        'Comments': '',
-    }
-
-    # Extract the headers
-    for header, value in message.items():
-
-        # Decode and convert to str
-        value = str(make_header(decode_header(value)))
-
-        if header == 'Date':
-            processed['Date'] = value
-            logger.debug(f'date: {value}')
-
-        elif header == 'From':
-            # For now, ignore the messages which were forwarded manually from
-            # lib-whpoolreports to lib-whpoolreports-service
-            if 'lib-whpoolreports' in value:
-                return None
-
-            processed['Reporter'] = process_reporter(value)
-
-        elif header == 'Subject':
-            processed['Title'] = process_title(value)
-
-    # Process all parts and attachments
-    process_files(processed, message)
-
-    # Process the body content
-    process_body(processed)
-
-    # Replace <img> content ids with links to attachments
-    process_attachments(processed)
-
-    # Replace external image links with links to local copies
-    process_external_images(processed, external_images)
-
-    # Determine whether message is a pool report
-    PoolReport.process_pool_report(processed)
-
-    return processed
+    return True
 
 
-def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
-    """ Process all parts and attachments. """
-
-    processed['files'] = []
-
-    # Iterate over each part of the message
+def get_files(message: mailbox.Message) -> Iterable[MessageFile]:
+    """
+    Iterate over each part of the message, and yield a MessageFile for each part.
+    """
     for part in message.walk():
         content_type = part.get_content_type()
         filename = part.get_filename()
@@ -306,8 +232,41 @@ def process_files(processed: Dict[str, Any], message: mailbox.Message) -> None:
                 content_id = content_id.replace("<", "").replace(">", "")
 
         # Anything we want to save now has a filename and bytes to store
-        if filename:
-            processed['files'].append(MessageFile(filename, content, output_subdir, content_id))
+        if filename and content:
+            yield MessageFile(filename, content, output_subdir, content_id)
+
+
+def rewrite_attachment_path(file: MessageFile, body: str) -> str:
+    content_id = file.content_id
+    filename = file.filename
+    output_subdir = file.output_subdir
+
+    str_to_replace = f"cid:{content_id}"
+
+    path = Path(filename)
+    if output_subdir:
+        path = Path(output_subdir) / filename
+    replacement_str = str(path)
+
+    body = body.replace(str_to_replace, replacement_str)
+
+    logger.debug(f"Replaced {str_to_replace} with {replacement_str}")
+
+    return body
+
+
+def rewrite_external_file_location(file: ExternalImageFile, body: str, output_subdir: Optional[str] = None) -> str:
+    path = Path(file.filename)
+    if output_subdir:
+        path = Path(output_subdir) / file.filename
+
+    if file.src in body:
+        logger.debug(f"Replacing '{file.src}' with '{path}'")
+        return body.replace(file.src, str(path))
+    else:
+        logger.warning(f"Expected to find '{file.src}' but it was not found.")
+        # return the body as-is
+        return body
 
 
 body_scrub = [
@@ -315,11 +274,10 @@ body_scrub = [
     '''-- <br />\nTo unsubscribe from this group and stop receiving emails from it, send an email to <a href="mailto:all+unsubscribe@whpoolreports.com">all+unsubscribe@whpoolreports.com</a>.<br />''',  # noqa
 ]
 
-
 p_charset = re.compile(r'charset=[a-zA-Z0-9-]+')
 
 
-def create_canonical_body_html(processed: Dict[str, Any]) -> None:
+def create_canonical_body_html(msg_id: str, files: Sequence[MessageFile]) -> str:
     # Populates the given "processed" object with two additional fields:
     #   * canonical_body_html - representing with original HTML the body,
     #                           or the HTML-ized version of the text.
@@ -329,31 +287,25 @@ def create_canonical_body_html(processed: Dict[str, Any]) -> None:
 
     # Extract the body
     html, text = None, None
-    for file in processed['files']:
+    for file in files:
         if file.filename == 'body.html':
-            html = file.bytes.decode('UTF-8')
+            html = file.content.decode('UTF-8')
         elif file.filename == 'body.txt':
-            text = file.bytes.decode('UTF-8')
+            text = file.content.decode('UTF-8')
 
     # Use the text version if HTML is not available
     if not html:
         if not text:
-            m = f'Unable to find message body for message {processed["id"]}'
+            m = f'Unable to find message body for message {msg_id}'
             logger.warning(m)
             text = ""
 
         html = f"<html><body><pre>{text}</pre></body></html>"
 
-    processed['canonical_body_html'] = html
-    processed['processed_body_html'] = html
+    return html
 
 
-def process_body(processed: Dict[str, Any]) -> None:
-    """ Generate body-redacted.html. """
-    create_canonical_body_html(processed)
-
-    html = processed['processed_body_html']
-
+def scrub_body(html: str) -> str:
     # Scrub specific string values
     for scrub in body_scrub:
         if scrub in html:
@@ -363,7 +315,7 @@ def process_body(processed: Dict[str, Any]) -> None:
     # Update the charset since we have convert to utf-8
     html = p_charset.sub("charset=utf-8", html)
 
-    processed['processed_body_html'] = html
+    return html
 
 
 title_scrub = [
@@ -372,7 +324,7 @@ title_scrub = [
 ]
 
 
-def process_title(value: str) -> str:
+def scrub_title(value: str) -> str:
     """
     Build the Title field from the message Subject header.
     """
@@ -430,75 +382,3 @@ def process_reporter(value: str) -> str:
         logger.debug(f'reporter: extracted: {value}')
 
     return value
-
-
-def write_message(
-    msg_id: str, processed: Dict[str, Any], writer: DictWriter,  # type: ignore
-        output_dir: Path, external_images: ExternalImages) -> None:
-    """ Write out a single processed message. """
-
-    # Write metadata to the CSV file
-    writer.writerow(processed)
-
-    # Add the "processed" HTML to the "processed" files list for output
-    processed['files'].append(MessageFile('body-processed.html', processed['processed_body_html'].encode('UTF-8')))
-
-    # Redact and add the "body-redacted.html" to the "processed" files list
-    # for output
-    processed['processed_body_redacted_html'] = Redact.redact(processed['processed_body_html'])
-    processed['files'].append(MessageFile('body-processed-redacted.html',
-                                          processed['processed_body_redacted_html'].encode('UTF-8')))
-
-    # Create the directory for storing per message files
-    message_dir = output_dir / f'{processed["id"]:03d}'
-
-    logger.debug(f'message directory: {message_dir}')
-
-    if not message_dir.is_dir():
-        try:
-            os.mkdir(message_dir)
-        except OSError as e:
-            logger.error(f'Error creating {message_dir}: {e}')
-            return
-        else:
-            logger.debug(f'created {message_dir}')
-
-    # Create the files
-
-    for extract_file in processed['files']:
-        filename = extract_file.filename
-        extracted_bytes = extract_file.bytes
-        output_subdir = extract_file.output_subdir
-
-        logger.debug(f'Creating filename={filename}, size={len(extracted_bytes)}, output_subdir={output_subdir}')
-        out_dir = message_dir / output_subdir
-        if not out_dir.is_dir():
-            # Make sure subdirectory exists
-            os.mkdir(out_dir)
-
-        with open(out_dir / filename, 'wb') as outfile:
-            outfile.write(extracted_bytes)
-
-    # Write the external files
-    for src in external_images.srcs(msg_id):
-        try:
-            external_image_file = external_images.get_file(src)
-        except ExternalFileError:
-            logger.warning(f'Skipping {src}, external file is not retrievable')
-            continue
-
-        filename = external_image_file.filename
-        extracted_bytes = external_image_file.bytes
-        output_subdir = EXTERNAL_FILES_SUBDIR
-
-        logger.debug(
-            f'Creating external file: filename={filename}, size={len(extracted_bytes)}, output_subdir={output_subdir}'
-        )
-
-        out_dir = message_dir / output_subdir
-        if not out_dir.is_dir():
-            # Make sure subdirectory exists
-            os.mkdir(out_dir)
-
-        with open(out_dir / filename, 'wb') as outfile:
-            outfile.write(extracted_bytes)

@@ -1,6 +1,6 @@
 import pytest
 
-from whpool.extract.extract import process_title
+from whpool.extract.extract import scrub_title
 
 
 @pytest.mark.parametrize(
@@ -12,4 +12,4 @@ from whpool.extract.extract import process_title
     ]
 )
 def test_process_title(subject, escaped):
-    assert process_title(subject) == escaped
+    assert scrub_title(subject) == escaped
