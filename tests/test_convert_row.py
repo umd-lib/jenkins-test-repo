@@ -17,7 +17,7 @@ def test_get_item_row():
     assert item_row['Date'] == '2021-07-07T15:23:51-04:00'
     assert item_row['Creator'] == 'Michael Shear'
     assert item_row['Title'] == 'Travel pool report  # 11 — conversation with mayor lightfoot'
-    assert item_row['Object Type'] == 'http://purl.org/dcmitype/Text'
+    assert item_row['Object Type'] == 'http://purl.org/dc/dcmitype/Text'
     assert item_row['Format'] == 'http://vocab.lib.umd.edu/form#pool_reports'
     assert item_row['Rights Statement'] == 'http://vocab.lib.umd.edu/rightsStatement#InC-NC'
     assert item_row['FILES'] == 'a.html;b.jpg'
