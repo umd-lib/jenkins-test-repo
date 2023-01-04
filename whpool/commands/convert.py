@@ -59,7 +59,7 @@ def get_item_row(identifier: str, row: Dict[str, str], files: List[str]) -> Dict
         'Date': timestamp,
         'Title': row['Title'],
         'Creator': row['Reporter'],
-        'Object Type': 'http://purl.org/dcmitype/Text',
+        'Object Type': 'http://purl.org/dc/dcmitype/Text',
         'Format': 'http://vocab.lib.umd.edu/form#pool_reports',
         'Rights Statement': 'http://vocab.lib.umd.edu/rightsStatement#InC-NC',
         'Identifier': identifier,
