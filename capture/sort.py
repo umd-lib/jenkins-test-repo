@@ -17,7 +17,11 @@ def main():
     print('Date              :', current_date)
 
     Capture.login(user, password)
-    Capture.sort_messages()
+    # Capture.sort_messages()
+
+    Capture.sort_with_uid()
+    Capture.remove_inbox_label()
+
     Capture.logout()
 
     stop_time = time.time()

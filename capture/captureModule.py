@@ -172,5 +172,68 @@ class Capture():
 
     def sort_with_uid():
         # WIP change to uid
-        # resp_code, mail_data = mailserver.uid('fetch', mail_id, '(RFC822)')
-        pass
+
+        resp_code, messages = mailserver.select(mailbox='INBOX', readonly=False)
+
+        uids = mailserver.uid('SEARCH', 'ALL')
+        print(uids)
+
+        uid_list = uids[1][0].split()
+        #print(uid_list)
+
+        for uid in uid_list:
+            resp, mail_data = mailserver.uid('FETCH', uid, '(RFC822)')
+            message = email.message_from_bytes(mail_data[0][1])
+            #print(uid, message['date'])
+
+            message_date = (message.get("Date"))[:-6]
+            date_in_utc_iso = datetime.strptime(message_date, '%a, %d %b %Y %H:%M:%S').isoformat() + 'Z'
+            message_year_month = str(date_in_utc_iso[:7])
+            #print(message_year_month)
+
+            folder_exists = (mailserver.list('"' + message_year_month + '"'))
+            #print(folder_exists)
+            #print(folder_exists == ('OK', [None]))
+            if folder_exists != ('OK', [None]):
+                print('The folder', message_year_month, 'exists.')
+            else:
+                mailserver.create(mailbox=message_year_month)
+                mailserver.subscribe(mailbox=message_year_month)
+                print('The folder', message_year_month, 'does not exist. Creating folder.')
+
+            print('Copying', uid, 'to', message_year_month, 'folder')
+            mailserver.uid('COPY', uid, message_year_month)
+
+        mailserver.close()
+
+
+
+
+    def remove_inbox_label():
+        # mailserver.uid('STORE', uid, '+FLAGS', '\\Deleted'))
+        # does not work with gmail
+        # mailserver.uid('STORE', uid, '+X-GM-LABELS', '\\Trash')
+        # deletes messages from all folders
+        # because gmail uses labels and folders interchangably
+        # removing the inbox label with a select, fetch, store in the yyyy-mm folder is the solution
+
+        # Hard Coded Value. Change after function refactoring.
+        mailbox_month = ('"2023-01"')
+
+        resp_code, messages = mailserver.select(mailbox=mailbox_month, readonly=False)
+
+        uids = mailserver.uid('SEARCH', 'ALL')
+        print(uids)
+
+        uid_list = uids[1][0].split()
+        #print(uid_list)
+
+        for uid in uid_list:
+            resp, mail_data = mailserver.uid('FETCH', uid, '(RFC822)')
+
+            print('Removing Inbox label from', uid, 'in', mailbox_month, 'folder')
+            resp_code, response = mailserver.uid('STORE', uid, '-X-GM-LABELS', '\\Inbox')  # Setting Remove Label Flag
+            print(f'Response Code For Deleted Flag: {resp_code}')
+            print(f'Response For Deleted Flag     : {response[0].decode() if response[0] else None}\n')
+
+        mailserver.close()
