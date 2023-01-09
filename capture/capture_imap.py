@@ -1,17 +1,13 @@
-import os
-import imaplib
-import mailbox
-import email
-# from email.header import decode_header
-# from email.message import EmailMessage
-import time
-from datetime import datetime
-import sys
-import logging
+"""IMAP connection handling."""
 
+import imaplib
+import time
+import sys
+# import logging
 
 
 def login(mailserver, user, password):
+    """Connect and log in to mail server."""
     start = time.time()
 
     try:
@@ -32,7 +28,9 @@ def login(mailserver, user, password):
     print(f'Response Code : {response_code}')
     print(f'Response      : {response[0].decode()}')
 
+
 def logout(mailserver):
+    """Log out of mail server."""
     print('\nLogging Out....')
     try:
         response_code, response = mailserver.logout()
