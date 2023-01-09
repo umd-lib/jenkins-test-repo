@@ -20,38 +20,32 @@ HOST = "imap.gmail.com"
 PORT = imaplib.IMAP4_SSL_PORT
 mailserver = imaplib.IMAP4_SSL(HOST, PORT)
 
+current_date = datetime.now()
+month, year = (current_date.month-1, current_date.year) if current_date.month != 1 else (12, current_date.year-1)
+PREVIOUS_MONTH = str(current_date.replace(month=month, year=year))[0:7]
 
-def check(previous_month, mailserver):
-    """Get message count for previos month."""
-    global directory_name
-    global directory_message_count
-    directory_name = previous_month
-    response_code, mail_count = mailserver.select(mailbox=directory_name, readonly=True)
-    print(f'Response Code For Select: {response_code}')
-    directory_message_count = {directory_name: mail_count[0].decode()}
-    print('Message count for', directory_name, ':', directory_message_count[directory_name])
+mbox_file_path = os.path.join('./', PREVIOUS_MONTH + '.mbox')
 
 
-def check_for_mbox_file(previous_month):
+def check_for_mbox_file():
     """Check if mbox file exists for prior month."""
-    global mbox_file_path
 
-    mbox_file_path = os.path.join('./', previous_month+'.mbox')
     print('Checking for mbox file:', mbox_file_path)
     is_file = os.path.isfile(mbox_file_path)
     print('mbox file exists:', is_file)
 
 
-def download_messages(previous_month):
+def download_messages():
     """Download messages for the previous month as an mbox file."""
-    folder = previous_month
+
+    folder = PREVIOUS_MONTH
     filename = mbox_file_path
     # factory = email.message_from_binary_file(folder, policy=email.policy.default)
     mbox = mailbox.mbox(filename, factory=None)
     mbox.lock()
     # Select a mailbox folder
     mailserver.select(f'"{folder}"', readonly=True)
-    print('\nFetching mailbox folder:', previous_month)
+    print('\nFetching mailbox folder:', PREVIOUS_MONTH)
     # Search for emails in the selected mailbox
     search_criteria = 'ALL'
     charset = None  # All
@@ -78,6 +72,14 @@ def download_messages(previous_month):
 
 def compare_message_counts():
     """Compare message counts of mailbox folder and downloaded mbox file."""
+
+    # Get message count for previous month
+    directory_name = PREVIOUS_MONTH
+    response_code, mail_count = mailserver.select(mailbox=directory_name, readonly=True)
+    print(f'Response Code For Select: {response_code}')
+    directory_message_count = {directory_name: mail_count[0].decode()}
+    print('Message count for', directory_name, ':', directory_message_count[directory_name])
+
     mbox = mailbox.mbox(mbox_file_path)
     mbox_message_count = {'messages': 0}
     for item in mbox.iteritems():
@@ -95,23 +97,19 @@ def compare_message_counts():
 
 def main():
     """Download an mbox file for the previous month."""
-    current_date = datetime.now()
-    month, year = (current_date.month-1, current_date.year) if current_date.month != 1 else (12, current_date.year-1)
-    previous_month = str(current_date.replace(month=month, year=year))[0:7]
-    mbox_file_path = os.path.join('./', previous_month+'.mbox')
 
     start_time = time.time()
     print('Date              :', current_date)
     login(mailserver, user, password)
-    check(previous_month, mailserver)
-    check_for_mbox_file(previous_month)
+
+    check_for_mbox_file()
 
     if os.path.exists(mbox_file_path):
         os.remove(mbox_file_path)
     else:
         pass
 
-    download_messages(previous_month)
+    download_messages()
 
     compare_message_counts()
 
@@ -120,8 +118,8 @@ def main():
     else:
         pass
 
-    if os.path.exists(mbox_file_path) and not os.path.exists('data_mbox/' + previous_month + '.mbox'):
-        os.replace(mbox_file_path, 'data_mbox/' + previous_month + '.mbox')
+    if os.path.exists(mbox_file_path) and not os.path.exists('data_mbox/' + PREVIOUS_MONTH + '.mbox'):
+        os.replace(mbox_file_path, 'data_mbox/' + PREVIOUS_MONTH + '.mbox')
     else:
         os.remove(mbox_file_path)
 

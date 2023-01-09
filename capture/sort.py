@@ -19,7 +19,7 @@ PORT = imaplib.IMAP4_SSL_PORT
 mailserver = imaplib.IMAP4_SSL(HOST, PORT)
 
 
-def sort_with_uid(mailserver):
+def sort_with_uid():
     """Copy messages to their respective yyyy-mm folders."""
 
     response_code = mailserver.select(mailbox='INBOX', readonly=False)
@@ -52,7 +52,7 @@ def sort_with_uid(mailserver):
     mailserver.close()
 
 
-def remove_inbox_label(mailserver):
+def remove_inbox_label():
     """Remove Inbox label.
     Normally we would run uid('STORE', uid, '+FLAGS', '\\Deleted')
     to remove messages in the Inbox, however this does not work
@@ -87,8 +87,8 @@ def main():
 
     login(mailserver, user, password)
 
-    sort_with_uid(mailserver)
-    remove_inbox_label(mailserver)
+    sort_with_uid()
+    remove_inbox_label()
 
     logout(mailserver)
 

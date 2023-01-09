@@ -8,6 +8,7 @@ import sys
 
 def login(mailserver, user, password):
     """Connect and log in to mail server."""
+
     start = time.time()
 
     try:
@@ -31,6 +32,7 @@ def login(mailserver, user, password):
 
 def logout(mailserver):
     """Log out of mail server."""
+
     print('\nLogging Out....')
     try:
         response_code, response = mailserver.logout()
