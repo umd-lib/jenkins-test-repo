@@ -10,7 +10,7 @@ import logging
 from dotenv import load_dotenv  # pip install python-dotenv
 from capture_imap import login, logout
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 load_dotenv()
 user = os.environ.get("user", "default")
@@ -30,9 +30,8 @@ mbox_file_path = os.path.join('./', PREVIOUS_MONTH + '.mbox')
 def check_for_mbox_file():
     """Check if mbox file exists for prior month."""
 
-    print('Checking for mbox file:', mbox_file_path)
+    logging.debug(f'Checking for mbox file: {mbox_file_path}')
     is_file = os.path.isfile(mbox_file_path)
-    print('mbox file exists:', is_file)
 
 
 def download_messages():
@@ -40,18 +39,18 @@ def download_messages():
 
     folder = PREVIOUS_MONTH
     filename = mbox_file_path
-    # factory = email.message_from_binary_file(folder, policy=email.policy.default)
+
     mbox = mailbox.mbox(filename, factory=None)
     mbox.lock()
     # Select a mailbox folder
     mailserver.select(f'"{folder}"', readonly=True)
-    print('\nFetching mailbox folder:', PREVIOUS_MONTH)
+    logging.info(f'Fetching mailbox folder: {PREVIOUS_MONTH}')
     # Search for emails in the selected mailbox
     search_criteria = 'ALL'
     charset = None  # All
     respose_code, message_numbers_raw = mailserver.search(charset, search_criteria)
-    print(f'Search response: {respose_code}')
-    # print(f'Message numbers: {message_numbers_raw}')
+    logging.info(f'Search response: {respose_code}')
+    logging.debug(f'Message numbers: {message_numbers_raw}')
     message_numbers = message_numbers_raw[0].split()
     for message_number in message_numbers:
         typ, data = mailserver.fetch(message_number, "RFC822")
@@ -76,30 +75,31 @@ def compare_message_counts():
     # Get message count for previous month
     directory_name = PREVIOUS_MONTH
     response_code, mail_count = mailserver.select(mailbox=directory_name, readonly=True)
-    print(f'Response Code For Select: {response_code}')
+    logging.info(f'Response Code For Select: {response_code}')
     directory_message_count = {directory_name: mail_count[0].decode()}
-    print('Message count for', directory_name, ':', directory_message_count[directory_name])
+    logging.info(f'Message count for {directory_name}: {directory_message_count[directory_name]}')
 
     mbox = mailbox.mbox(mbox_file_path)
     mbox_message_count = {'messages': 0}
     for item in mbox.iteritems():
         mbox_message_count['messages'] += 1
         message = {'i': item}
-        print(message)
-    print('\nComparing message counts...')
-    print('mbox total message count  :', mbox_message_count['messages'])
-    print('Folder total message count:', directory_message_count[directory_name])
+        logging.debug(f'{message}')
+    logging.info('Comparing message counts...')
+    logging.info(f'mbox total message count  : {mbox_message_count["messages"]}')
+    logging.info(f'Folder total message count: {directory_message_count[directory_name]}')
     mbox_messages = str(mbox_message_count['messages'])
     mailbox_messages = str(directory_message_count[directory_name])
     match = mbox_messages == mailbox_messages
-    print('Message count matches     :', match)
+    logging.info(f'Message count matches: {match}')
 
 
 def main():
     """Download an mbox file for the previous month."""
 
+    current_date = datetime.now()
     start_time = time.time()
-    print('Date              :', current_date)
+    logging.info(f'Date: {current_date}')
     login(mailserver, user, password)
 
     check_for_mbox_file()
@@ -126,7 +126,7 @@ def main():
     logout(mailserver)
 
     stop_time = time.time()
-    print('\nProcess time (secs):', round(stop_time - start_time, 2))
+    logging.info(f'Process time (secs): {round(stop_time - start_time, 2)}')
 
 
 if __name__ == '__main__':

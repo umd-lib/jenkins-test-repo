@@ -3,7 +3,7 @@
 import imaplib
 import time
 import sys
-# import logging
+import logging
 
 
 def login(mailserver, user, password):
@@ -14,30 +14,30 @@ def login(mailserver, user, password):
     try:
         mailserver
     except imaplib.IMAP4.error:
-        print('Failed to connect')
+        logging.warn('Failed to connect')
         mailserver = None
         sys.exit()
-    print(f'Connection Object : {mailserver}')
-    print(f'Time to Connect   : {time.time() - start:,.2f} Seconds')
-    print('\nLogging into mailbox...')
+    logging.info(f'Connection Object : {mailserver}')
+    logging.info(f'Time to Connect : {time.time() - start:,.2f} Seconds')
+    logging.info('Logging into mailbox...')
     try:
         response_code, response = mailserver.login(user, password)
     except imaplib.IMAP4.error:
-        print('Log in failed')
+        logging.warn('Log in failed')
         response_code, response = None, None
         sys.exit()
-    print(f'Response Code : {response_code}')
-    print(f'Response      : {response[0].decode()}')
+    logging.info(f'Response Code : {response_code}')
+    logging.info(f'Response : {response[0].decode()}')
 
 
 def logout(mailserver):
     """Log out of mail server."""
 
-    print('\nLogging Out....')
+    logging.info('Logging Out...')
     try:
         response_code, response = mailserver.logout()
     except imaplib.IMAP4.error:
-        print('Log out failed')
+        logging.warn('Log out failed')
         response_code, response = None, None
-    print(f'Response Code : {response_code}')
-    print(f'Response      : {response[0].decode()}')
+    logging.info(f'Response Code : {response_code}')
+    logging.info(f'Response : {response[0].decode()}')
