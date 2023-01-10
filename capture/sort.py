@@ -38,10 +38,9 @@ def sort_with_uid():
         response, mail_data = mailserver.uid('FETCH', uid, '(RFC822)')
         logging.debug(f'Response For Fetch: {response}')
         message = email.message_from_bytes(mail_data[0][1])
-        # logging.debug(f'{uid} {message['date']}')
         message_date = (message.get("Date"))[:-6]
-        date_in_utc_iso = datetime.strptime(message_date, '%a, %d %b %Y %H:%M:%S').isoformat() + 'Z'
-        message_year_month = str(date_in_utc_iso[:7])
+        date_in_utc_iso = email.utils.parsedate_to_datetime(message_date)
+        message_year_month = (str(date_in_utc_iso))[:7]
         logging.debug(f'{message_year_month}')
 
         folder_list.append(message_year_month)
