@@ -6,7 +6,7 @@ import imaplib
 import email
 from datetime import datetime
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # pip install python-dotenv
 from capture_imap import login, logout
 
 # store user and password in another file
@@ -21,6 +21,8 @@ mailserver = imaplib.IMAP4_SSL(HOST, PORT)
 
 def sort_with_uid():
     """Copy messages to their respective yyyy-mm folders."""
+
+    folder_list = []
 
     response_code = mailserver.select(mailbox='INBOX', readonly=False)
     print(f'Select Inbox response Code: {response_code}')
@@ -38,6 +40,9 @@ def sort_with_uid():
         date_in_utc_iso = datetime.strptime(message_date, '%a, %d %b %Y %H:%M:%S').isoformat() + 'Z'
         message_year_month = str(date_in_utc_iso[:7])
         # print(message_year_month)
+
+        folder_list.append(message_year_month)
+
         folder_exists = (mailserver.list('"' + message_year_month + '"'))
         # print(folder_exists)
         # print(folder_exists == ('OK', [None]))
@@ -51,8 +56,6 @@ def sort_with_uid():
         mailserver.uid('COPY', uid, message_year_month)
     mailserver.close()
 
-
-def remove_inbox_label():
     """Remove Inbox label.
     Normally we would run uid('STORE', uid, '+FLAGS', '\\Deleted')
     to remove messages in the Inbox, however this does not work
@@ -61,20 +64,20 @@ def remove_inbox_label():
     because it uses labels and folders interchangably.
     Thus, removing the inbox label in the yyyy-mm folder is the solution"""
 
-    # Hard Coded Value. Change after function refactoring.
-    mailbox_month = ('"2023-01"')
-    response_code = mailserver.select(mailbox=mailbox_month, readonly=False)
-    uids = mailserver.uid('SEARCH', 'ALL')
-    print(uids)
-    uid_list = uids[1][0].split()
-    # print(uid_list)
-    for uid in uid_list:
-        response = mailserver.uid('FETCH', uid, '(RFC822)')
-        print('Removing Inbox label from', uid, 'in', mailbox_month, 'folder')
-        response_code, response = mailserver.uid('STORE', uid, '-X-GM-LABELS', '\\Inbox')
-        print(f'Response Code For Deleted Flag: {response_code}')
-        print(f'Response For Deleted Flag     : {response[0].decode() if response[0] else None}\n')
-    mailserver.close()
+    folder_list = list(set(folder_list))
+
+    for folder in folder_list:
+        response_code = mailserver.select(mailbox=('"' + folder + '"'), readonly=False)
+        uids = mailserver.uid('SEARCH', 'ALL')
+        print(uids)
+        uid_list = uids[1][0].split()
+        for uid in uid_list:
+            response = mailserver.uid('FETCH', uid, '(RFC822)')
+            print('Removing Inbox label from', uid, 'in', folder, 'folder')
+            response_code, response = mailserver.uid('STORE', uid, '-X-GM-LABELS', '\\Inbox')
+            print(f'Response Code For Deleted Flag: {response_code}')
+            print(f'Response For Deleted Flag     : {response[0].decode() if response[0] else None}\n')
+        mailserver.close()
 
 
 def main():
@@ -88,7 +91,6 @@ def main():
     login(mailserver, user, password)
 
     sort_with_uid()
-    remove_inbox_label()
 
     logout(mailserver)
 

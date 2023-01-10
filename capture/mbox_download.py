@@ -7,7 +7,7 @@ import imaplib
 import mailbox
 import logging
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # pip install python-dotenv
 from capture_imap import login, logout
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
