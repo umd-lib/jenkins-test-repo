@@ -25,8 +25,9 @@ current_date = datetime.now()
 month, year = (current_date.month-1, current_date.year) if current_date.month != 1 else (12, current_date.year-1)
 PREVIOUS_MONTH = str(current_date.replace(month=month, year=year))[0:7]
 
-path = Path.cwd()
-mbox_file_path = path.joinpath('data_mbox', PREVIOUS_MONTH + '.mbox')
+path = Path.cwd() / 'data_mbox'
+path.mkdir(parents=True, exist_ok=True)
+mbox_file_path = path.joinpath(PREVIOUS_MONTH + '.mbox')
 
 
 def download_messages():
