@@ -8,6 +8,7 @@ import mailbox
 import logging
 
 from dotenv import load_dotenv  # pip install python-dotenv
+from pathlib import Path
 from capture_imap import login, logout
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
@@ -24,7 +25,10 @@ current_date = datetime.now()
 month, year = (current_date.month-1, current_date.year) if current_date.month != 1 else (12, current_date.year-1)
 PREVIOUS_MONTH = str(current_date.replace(month=month, year=year))[0:7]
 
-mbox_file_path = os.path.join('./', PREVIOUS_MONTH + '.mbox')
+#mbox_file_path = os.path.join('./', PREVIOUS_MONTH + '.mbox')
+
+path = Path.cwd()
+mbox_file_path = path.joinpath('data_mbox', PREVIOUS_MONTH + '.mbox')
 
 
 def check_for_mbox_file():
@@ -40,7 +44,8 @@ def download_messages():
     folder = PREVIOUS_MONTH
     filename = mbox_file_path
 
-    mbox = mailbox.mbox(filename, factory=None)
+    mbox = mailbox.mbox(filename, factory=None, create=True)
+    mbox.clear()
     mbox.lock()
     # Select a mailbox folder
     mailserver.select(f'"{folder}"', readonly=True)
@@ -104,24 +109,24 @@ def main():
 
     check_for_mbox_file()
 
-    if os.path.exists(mbox_file_path):
-        os.remove(mbox_file_path)
-    else:
-        pass
+    #if os.path.exists(mbox_file_path):
+    #    os.remove(mbox_file_path)
+    #else:
+    #    pass
 
     download_messages()
 
     compare_message_counts()
 
-    if not os.path.exists('data_mbox'):
-        os.mkdir('data_mbox')
-    else:
-        pass
+    #if not os.path.exists('data_mbox'):
+    #    os.mkdir('data_mbox')
+    #else:
+    #    pass
 
-    if os.path.exists(mbox_file_path) and not os.path.exists('data_mbox/' + PREVIOUS_MONTH + '.mbox'):
-        os.replace(mbox_file_path, 'data_mbox/' + PREVIOUS_MONTH + '.mbox')
-    else:
-        os.remove(mbox_file_path)
+    #if os.path.exists(mbox_file_path) and not os.path.exists('data_mbox/' + PREVIOUS_MONTH + '.mbox'):
+    #    os.replace(mbox_file_path, 'data_mbox/' + PREVIOUS_MONTH + '.mbox')
+    #else:
+    #    os.remove(mbox_file_path)
 
     logout(mailserver)
 
