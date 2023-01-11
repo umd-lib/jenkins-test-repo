@@ -6,9 +6,10 @@ from datetime import datetime
 import imaplib
 import mailbox
 import logging
+from pathlib import Path
 
 from dotenv import load_dotenv  # pip install python-dotenv
-from pathlib import Path
+
 from capture_imap import login, logout
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)

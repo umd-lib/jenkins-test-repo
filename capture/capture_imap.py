@@ -16,7 +16,7 @@ def login(mailserver, user, password):
     except imaplib.IMAP4.error:
         logging.warn('Failed to connect')
         mailserver = None
-        sys.exit()
+        sys.exit(2)
     logging.info(f'Connection Object : {mailserver}')
     logging.info(f'Time to Connect : {time.time() - start:,.2f} Seconds')
     logging.info('Logging into mailbox...')
@@ -25,7 +25,7 @@ def login(mailserver, user, password):
     except imaplib.IMAP4.error:
         logging.warn('Log in failed')
         response_code, response = None, None
-        sys.exit()
+        sys.exit(2)
     logging.info(f'Response Code : {response_code}')
     logging.info(f'Response : {response[0].decode()}')
 
