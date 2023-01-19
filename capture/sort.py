@@ -75,7 +75,7 @@ def sort_with_uid():
         uid_list = uids[1][0].split()
         for uid in uid_list:
             response = mailserver.uid('FETCH', uid, '(RFC822)')
-            logging.debug(f'Removing Inbox label from {uid} in {folder} folder')
+            logging.info(f'Removing Inbox label from {uid} in {folder} folder')
             response_code, response = mailserver.uid('STORE', uid, '-X-GM-LABELS', '\\Inbox')
             logging.debug(f'Response Code For Deleted Flag: {response_code}')
             logging.debug(f'Response For Deleted Flag     : {response[0].decode() if response[0] else None}')
