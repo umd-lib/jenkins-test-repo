@@ -22,11 +22,12 @@ HOST = "imap.gmail.com"
 PORT = imaplib.IMAP4_SSL_PORT
 mailserver = imaplib.IMAP4_SSL(HOST, PORT)
 
+# Create a folder list in order to remove Inbox flags
+folder_list = []
 
-def sort_with_uid():
+
+def sort_with_uid(folder_list):
     """Copy messages to their respective yyyy-mm folders."""
-
-    folder_list = []
 
     response_code = mailserver.select(mailbox='INBOX', readonly=False)
     logging.info(f'Select Inbox response Code: {response_code}')
@@ -58,7 +59,10 @@ def sort_with_uid():
         logging.info(f'Copying {uid} to {message_year_month} folder')
         mailserver.uid('COPY', uid, message_year_month)
     mailserver.close()
+    return folder_list
 
+
+def remove_inbox_flag(folder_list):
     """Remove Inbox label.
     Normally, using uid('STORE', uid, '+FLAGS', '\\Deleted')
     would remove messages in the Inbox, however this does not work
@@ -93,7 +97,8 @@ def main():
 
     login(mailserver, user, password)
 
-    sort_with_uid()
+    sort_with_uid(folder_list)
+    remove_inbox_flag(folder_list)
 
     logout(mailserver)
 
