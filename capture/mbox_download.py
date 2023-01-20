@@ -2,7 +2,7 @@
 
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import imaplib
 import mailbox
 import logging
@@ -22,9 +22,7 @@ HOST = "imap.gmail.com"
 PORT = imaplib.IMAP4_SSL_PORT
 mailserver = imaplib.IMAP4_SSL(HOST, PORT)
 
-current_date = datetime.now()
-month, year = (current_date.month-1, current_date.year) if current_date.month != 1 else (12, current_date.year-1)
-PREVIOUS_MONTH = str(current_date.replace(month=month, year=year))[0:7]
+PREVIOUS_MONTH = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
 
 path = Path.cwd() / 'data_mbox'
 path.mkdir(parents=True, exist_ok=True)
