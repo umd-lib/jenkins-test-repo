@@ -45,6 +45,7 @@ def sort_with_uid(folder_list):
         message_year_month = (str(date_in_utc_iso))[:7]
         logging.debug(f'{message_year_month}')
 
+        # Add folder to list in order to remove Inbox flags
         folder_list.append(message_year_month)
 
         folder_exists = (mailserver.list('"' + message_year_month + '"'))
