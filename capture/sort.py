@@ -48,6 +48,7 @@ def sort_with_uid():
 
         folder_exists = (mailserver.list('"' + message_year_month + '"'))
         logging.debug(f'{folder_exists}')
+        # If there is no folder, then IMAP will return the response code OK and a None value.
         if folder_exists != ('OK', [None]):
             logging.debug(f'The folder {message_year_month} exists.')
         else:
