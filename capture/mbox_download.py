@@ -48,7 +48,7 @@ def download_messages():
     logging.info(f'Search response: {respose_code}')
     logging.debug(f'Message numbers: {message_numbers_raw}')
     message_numbers = message_numbers_raw[0].split()
-    for message_number in message_numbers:
+    for n, message_number in enumerate(message_numbers):
         typ, data = mailserver.fetch(message_number, "RFC822")
         assert typ == "OK"
         for encoding in ["utf-8", "latin1"]:
@@ -60,6 +60,7 @@ def download_messages():
             text = data[0][1].decode("utf-8", "backslashreplace")
         text = text.strip().replace("\r", "")
         mbox.add(text.encode())
+        logging.info(f'Downloading message {n} of {len(message_numbers)}')
     mbox.flush()
     mbox.unlock()
     mailserver.close()
