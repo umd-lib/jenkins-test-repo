@@ -13,17 +13,15 @@ from capture_imap import MailServerHandler
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
-# store user and password in another file
+# get configs
 load_dotenv()
-user = os.environ.get("user", "default")
-password = os.environ.get("password", "default")
-
-host = "imap.gmail.com"
-port = imaplib.IMAP4_SSL_PORT
+user = os.getenv('user')
+password = os.getenv('password')
+host = os.getenv('host')
+port = os.getenv('port')
 
 # Create a folder list in order to remove Inbox flags
 folder_list = []
-#mailserver = None
 
 
 def sort_with_uid(mailserver, folder_list):

@@ -14,12 +14,12 @@ from capture_imap import MailServerHandler
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
+# get configs
 load_dotenv()
-user = os.environ.get("user", "default")
-password = os.environ.get("password", "default")
-
-host = "imap.gmail.com"
-port = imaplib.IMAP4_SSL_PORT
+user = os.getenv('user')
+password = os.getenv('password')
+host = os.getenv('host')
+port = os.getenv('port')
 
 PREVIOUS_MONTH = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
 
