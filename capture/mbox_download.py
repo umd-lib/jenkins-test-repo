@@ -10,7 +10,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv  # pip install python-dotenv
 
-from capture_imap import login, logout
+from capture_imap import MailServerHandler
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
@@ -18,9 +18,8 @@ load_dotenv()
 user = os.environ.get("user", "default")
 password = os.environ.get("password", "default")
 
-HOST = "imap.gmail.com"
-PORT = imaplib.IMAP4_SSL_PORT
-mailserver = imaplib.IMAP4_SSL(HOST, PORT)
+host = "imap.gmail.com"
+port = imaplib.IMAP4_SSL_PORT
 
 PREVIOUS_MONTH = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
 
@@ -29,7 +28,7 @@ path.mkdir(parents=True, exist_ok=True)
 mbox_file_path = path.joinpath(PREVIOUS_MONTH + '.mbox')
 
 
-def download_messages():
+def download_messages(mailserver):
     """Download messages for the previous month as an mbox file."""
 
     folder = PREVIOUS_MONTH
@@ -66,7 +65,7 @@ def download_messages():
     mailserver.close()
 
 
-def compare_message_counts():
+def compare_message_counts(mailserver):
     """Compare message counts of mailbox folder and downloaded mbox file."""
 
     # Get message count for previous month
@@ -98,12 +97,13 @@ def main():
     start_time = time.time()
     logging.info(f'Date: {current_date}')
 
-    login(mailserver, user, password)
+    mailserver = MailServerHandler.connect(host=host, port=port)
+    MailServerHandler.login(mailserver, user=user, password=password)
 
-    download_messages()
-    compare_message_counts()
+    download_messages(mailserver)
+    compare_message_counts(mailserver)
 
-    logout(mailserver)
+    MailServerHandler.logout(mailserver)
 
     stop_time = time.time()
     logging.info(f'Process time (secs): {round(stop_time - start_time, 2)}')

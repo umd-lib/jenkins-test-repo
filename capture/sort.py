@@ -9,7 +9,7 @@ import logging
 
 from dotenv import load_dotenv  # pip install python-dotenv
 
-from capture_imap import login, logout
+from capture_imap import MailServerHandler
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
@@ -18,15 +18,15 @@ load_dotenv()
 user = os.environ.get("user", "default")
 password = os.environ.get("password", "default")
 
-HOST = "imap.gmail.com"
-PORT = imaplib.IMAP4_SSL_PORT
-mailserver = imaplib.IMAP4_SSL(HOST, PORT)
+host = "imap.gmail.com"
+port = imaplib.IMAP4_SSL_PORT
 
 # Create a folder list in order to remove Inbox flags
 folder_list = []
+#mailserver = None
 
 
-def sort_with_uid(folder_list):
+def sort_with_uid(mailserver, folder_list):
     """Copy messages to their respective yyyy-mm folders."""
 
     response_code = mailserver.select(mailbox='INBOX', readonly=False)
@@ -63,7 +63,7 @@ def sort_with_uid(folder_list):
     return folder_list
 
 
-def remove_inbox_flag(folder_list):
+def remove_inbox_flag(mailserver, folder_list):
     """Remove Inbox label.
     Normally, using uid('STORE', uid, '+FLAGS', '\\Deleted')
     would remove messages in the Inbox, however this does not work
@@ -96,12 +96,13 @@ def main():
     start_time = time.time()
     logging.info(f'Date: {current_date}')
 
-    login(mailserver, user, password)
+    mailserver = MailServerHandler.connect(host=host, port=port)
+    MailServerHandler.login(mailserver, user=user, password=password)
 
-    sort_with_uid(folder_list)
-    remove_inbox_flag(folder_list)
+    sort_with_uid(mailserver, folder_list)
+    remove_inbox_flag(mailserver, folder_list)
 
-    logout(mailserver)
+    MailServerHandler.logout(mailserver)
 
     stop_time = time.time()
     logging.info(f'Process time (secs): {round(stop_time - start_time, 2)}')
