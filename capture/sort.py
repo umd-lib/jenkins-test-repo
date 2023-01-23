@@ -89,10 +89,8 @@ def remove_inbox_flag(mailserver, folder_list):
 def main():
     """Sort messages from Inbox to yyyy-mm folders."""
 
-    current_date = datetime.now()
-
     start_time = time.time()
-    logging.info(f'Date: {current_date}')
+    logging.info(f'Date: {datetime.now()}')
 
     mailserver = MailServerHandler.connect(host=host, port=port)
     MailServerHandler.login(mailserver, user=user, password=password)

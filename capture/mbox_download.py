@@ -93,9 +93,8 @@ def compare_message_counts(mailserver):
 def main():
     """Download an mbox file for the previous month."""
 
-    current_date = datetime.now()
     start_time = time.time()
-    logging.info(f'Date: {current_date}')
+    logging.info(f'Date: {datetime.now()}')
 
     mailserver = MailServerHandler.connect(host=host, port=port)
     MailServerHandler.login(mailserver, user=user, password=password)
