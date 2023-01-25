@@ -15,18 +15,10 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 # get configs
 load_dotenv()
-<<<<<<< HEAD
 user = os.getenv('user')
 password = os.getenv('password')
 host = os.getenv('host')
 port = os.getenv('port')
-=======
-user = os.environ.get("user", "default")
-password = os.environ.get("password", "default")
-
-host = "imap.gmail.com"
-port = imaplib.IMAP4_SSL_PORT
->>>>>>> 0f94475 (Refactored mailserver)
 
 PREVIOUS_MONTH = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
 
@@ -103,7 +95,6 @@ def main():
     start_time = time.time()
     logging.info(f'Date: {datetime.now()}')
 
-<<<<<<< HEAD
     mailserver_handler = MailServerHandler()
     mailserver_handler.connect(host=host, port=port)
     mailserver_handler.login(user=user, password=password)
@@ -112,15 +103,6 @@ def main():
     compare_message_counts(mailserver_handler.mailserver)
 
     mailserver_handler.logout()
-=======
-    mailserver = MailServerHandler.connect(host=host, port=port)
-    MailServerHandler.login(mailserver, user=user, password=password)
-
-    download_messages(mailserver)
-    compare_message_counts(mailserver)
-
-    MailServerHandler.logout(mailserver)
->>>>>>> 0f94475 (Refactored mailserver)
 
     stop_time = time.time()
     logging.info(f'Process time (secs): {round(stop_time - start_time, 2)}')

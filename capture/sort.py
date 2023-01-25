@@ -14,7 +14,6 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 # get configs
 load_dotenv()
-<<<<<<< HEAD
 user = os.getenv('user')
 password = os.getenv('password')
 host = os.getenv('host')
@@ -22,20 +21,6 @@ port = os.getenv('port')
 
 
 def sort_with_uid(mailserver):
-=======
-user = os.environ.get("user", "default")
-password = os.environ.get("password", "default")
-
-host = "imap.gmail.com"
-port = imaplib.IMAP4_SSL_PORT
-
-# Create a folder list in order to remove Inbox flags
-folder_list = []
-#mailserver = None
-
-
-def sort_with_uid(mailserver, folder_list):
->>>>>>> 0f94475 (Refactored mailserver)
     """Copy messages to their respective yyyy-mm folders."""
 
     # Track the folders where we need to remove Inbox flags
@@ -106,7 +91,6 @@ def main():
     start_time = time.time()
     logging.info(f'Date: {datetime.now()}')
 
-<<<<<<< HEAD
     mailserver_handler = MailServerHandler()
     mailserver_handler.connect(host=host, port=port)
     mailserver_handler.login(user=user, password=password)
@@ -115,15 +99,6 @@ def main():
     remove_inbox_flag(mailserver_handler.mailserver, folder_list)
 
     mailserver_handler.logout()
-=======
-    mailserver = MailServerHandler.connect(host=host, port=port)
-    MailServerHandler.login(mailserver, user=user, password=password)
-
-    sort_with_uid(mailserver, folder_list)
-    remove_inbox_flag(mailserver, folder_list)
-
-    MailServerHandler.logout(mailserver)
->>>>>>> 0f94475 (Refactored mailserver)
 
     stop_time = time.time()
     logging.info(f'Process time (secs): {round(stop_time - start_time, 2)}')
