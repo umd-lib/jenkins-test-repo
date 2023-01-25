@@ -7,45 +7,43 @@ import logging
 
 
 class MailServerHandler:
+    def __init__(self):
+        self.mailserver = None
 
-    def connect(host, port):
+    def connect(self, host, port):
         """Connect to mail server."""
 
         start = time.time()
         try:
-            mailserver = imaplib.IMAP4_SSL(host, port)
-            return mailserver
+            self.mailserver = imaplib.IMAP4_SSL(host, port)
         except imaplib.IMAP4.error:
-            logging.warn('Failed to connect')
-            mailserver = None
+            logging.warning('Failed to connect')
             sys.exit(2)
-        finally:
-            logging.info(f'Connection Object : {mailserver}')
+        else:
+            logging.info(f'Connection Object : {self.mailserver}')
             logging.info(f'Time to Connect : {time.time() - start:,.2f} Seconds')
 
-    def login(mailserver, user, password):
+    def login(self, user, password):
         """Log in to mail server."""
 
         logging.info('Logging into mailbox...')
         try:
-            response_code, response = mailserver.login(user, password)
+            response_code, response = self.mailserver.login(user, password)
         except imaplib.IMAP4.error:
-            logging.warn('Log in failed')
-            response_code, response = None, None
+            logging.warning('Log in failed')
             sys.exit(2)
-        finally:
+        else:
             logging.info(f'Response Code : {response_code}')
             logging.info(f'Response : {response[0].decode()}')
 
-    def logout(mailserver):
+    def logout(self):
         """Log out of mail server."""
 
         logging.info('Logging Out...')
         try:
-            response_code, response = mailserver.logout()
+            response_code, response = self.mailserver.logout()
         except imaplib.IMAP4.error:
-            logging.warn('Log out failed')
-            response_code, response = None, None
-        finally:
+            logging.warning('Log out failed')
+        else:
             logging.info(f'Response Code : {response_code}')
             logging.info(f'Response : {response[0].decode()}')

@@ -1,11 +1,10 @@
 """Sort messages from Inbox to yyyy-mm folders."""
 
+import email
+import logging
 import os
 import time
-import imaplib
-import email
 from datetime import datetime
-import logging
 
 from dotenv import load_dotenv  # pip install python-dotenv
 
@@ -20,12 +19,12 @@ password = os.getenv('password')
 host = os.getenv('host')
 port = os.getenv('port')
 
-# Create a folder list in order to remove Inbox flags
-folder_list = []
 
-
-def sort_with_uid(mailserver, folder_list):
+def sort_with_uid(mailserver):
     """Copy messages to their respective yyyy-mm folders."""
+
+    # Track the folders where we need to remove Inbox flags
+    folder_list = []
 
     response_code = mailserver.select(mailbox='INBOX', readonly=False)
     logging.info(f'Select Inbox response Code: {response_code}')
@@ -67,18 +66,18 @@ def remove_inbox_flag(mailserver, folder_list):
     would remove messages in the Inbox, however this does not work
     with Gmail when using UIDs. Using Gmail imap extensions,
     '+X-GM-LABELS', '\\Trash', deletes messages from all folders
-    because it uses labels and folders interchangably.
+    because it uses labels and folders interchangeably.
     Thus, removing the inbox label in the yyyy-mm folder is the solution"""
 
     folder_list = list(set(folder_list))
 
     for folder in folder_list:
-        response_code = mailserver.select(mailbox=('"' + folder + '"'), readonly=False)
+        mailserver.select(mailbox=('"' + folder + '"'), readonly=False)
         uids = mailserver.uid('SEARCH', 'ALL')
         logging.debug(uids)
         uid_list = uids[1][0].split()
         for uid in uid_list:
-            response = mailserver.uid('FETCH', uid, '(RFC822)')
+            mailserver.uid('FETCH', uid, '(RFC822)')
             logging.info(f'Removing Inbox label from {uid} in {folder} folder')
             response_code, response = mailserver.uid('STORE', uid, '-X-GM-LABELS', '\\Inbox')
             logging.debug(f'Response Code For Deleted Flag: {response_code}')
@@ -92,13 +91,14 @@ def main():
     start_time = time.time()
     logging.info(f'Date: {datetime.now()}')
 
-    mailserver = MailServerHandler.connect(host=host, port=port)
-    MailServerHandler.login(mailserver, user=user, password=password)
+    mailserver_handler = MailServerHandler()
+    mailserver_handler.connect(host=host, port=port)
+    mailserver_handler.login(user=user, password=password)
 
-    sort_with_uid(mailserver, folder_list)
-    remove_inbox_flag(mailserver, folder_list)
+    folder_list = sort_with_uid(mailserver_handler.mailserver)
+    remove_inbox_flag(mailserver_handler.mailserver, folder_list)
 
-    MailServerHandler.logout(mailserver)
+    mailserver_handler.logout()
 
     stop_time = time.time()
     logging.info(f'Process time (secs): {round(stop_time - start_time, 2)}')

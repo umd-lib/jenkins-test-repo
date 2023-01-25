@@ -1,11 +1,10 @@
 """Download an mbox file for the previous month."""
 
+import logging
+import mailbox
 import os
 import time
 from datetime import datetime, timedelta
-import imaplib
-import mailbox
-import logging
 from pathlib import Path
 
 from dotenv import load_dotenv  # pip install python-dotenv
@@ -43,8 +42,8 @@ def download_messages(mailserver):
     # Search for emails in the selected mailbox
     search_criteria = 'ALL'
     charset = None  # All
-    respose_code, message_numbers_raw = mailserver.search(charset, search_criteria)
-    logging.info(f'Search response: {respose_code}')
+    response_code, message_numbers_raw = mailserver.search(charset, search_criteria)
+    logging.info(f'Search response: {response_code}')
     logging.debug(f'Message numbers: {message_numbers_raw}')
     message_numbers = message_numbers_raw[0].split()
     for n, message_number in enumerate(message_numbers):
@@ -96,13 +95,14 @@ def main():
     start_time = time.time()
     logging.info(f'Date: {datetime.now()}')
 
-    mailserver = MailServerHandler.connect(host=host, port=port)
-    MailServerHandler.login(mailserver, user=user, password=password)
+    mailserver_handler = MailServerHandler()
+    mailserver_handler.connect(host=host, port=port)
+    mailserver_handler.login(user=user, password=password)
 
-    download_messages(mailserver)
-    compare_message_counts(mailserver)
+    download_messages(mailserver_handler.mailserver)
+    compare_message_counts(mailserver_handler.mailserver)
 
-    MailServerHandler.logout(mailserver)
+    mailserver_handler.logout()
 
     stop_time = time.time()
     logging.info(f'Process time (secs): {round(stop_time - start_time, 2)}')
