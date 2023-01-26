@@ -1,6 +1,8 @@
 __pycache__
 */__pycache__
 *.egg-info
+.env
 
 mbox
 output
+capture/data_mbox
