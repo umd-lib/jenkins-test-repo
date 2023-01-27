@@ -6,11 +6,13 @@ import os
 import time
 from datetime import datetime
 
+import click
 from dotenv import load_dotenv  # pip install python-dotenv
 
 from whpool.core.capture_imap import MailServerHandler
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 # get configs
 load_dotenv()
@@ -85,8 +87,29 @@ def remove_inbox_flag(mailserver, folder_list):
         mailserver.close()
 
 
-def main():
+@click.command(help='Automate the sorting process of messages to mailbox folders, '
+                    'creating mailbox folders in yyyy-mm format if it does not exist.')
+@click.option(
+    '-v', '--verbose', 'verbosity',
+    default=1,
+    help='''\b
+            Set verbosity logging output level.
+            0 = Warning
+            1 = Info (default)
+            2 = Debug'''
+)
+def main(verbosity: int) -> None:
     """Sort messages from Inbox to yyyy-mm folders."""
+
+    # Setup logging
+    if verbosity == 0:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
+    elif verbosity == 1:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+    elif verbosity == 2:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+    logger.debug(f'{verbosity=}')
 
     start_time = time.time()
     logging.info(f'Date: {datetime.now()}')

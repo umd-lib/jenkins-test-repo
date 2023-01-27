@@ -7,11 +7,12 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import click
 from dotenv import load_dotenv  # pip install python-dotenv
 
 from whpool.core.capture_imap import MailServerHandler
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # get configs
 load_dotenv()
@@ -89,8 +90,29 @@ def compare_message_counts(mailserver):
     logging.info(f'Message count matches: {match}')
 
 
-def main():
+@click.command(help='Automate the sorting process of messages to mailbox folders, '
+                    'creating mailbox folders in yyyy-mm format if it does not exist.')
+@click.option(
+    '-v', '--verbose', 'verbosity',
+    default=1,
+    help='''\b
+            Set verbosity logging output level.
+            0 = Warning
+            1 = Info (default)
+            2 = Debug'''
+)
+def main(verbosity: int) -> None:
     """Download an mbox file for the previous month."""
+
+    # Setup logging
+    if verbosity == 0:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
+    elif verbosity == 1:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+    elif verbosity == 2:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+    logger.debug(f'{verbosity=}')
 
     start_time = time.time()
     logging.info(f'Date: {datetime.now()}')
