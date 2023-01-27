@@ -4,22 +4,14 @@
 
 See [docs/DevelopmentEnvironment.md](docs/DevelopmentEnvironment.md).
 
-## Scripts
+## whpool Commands
 
-[imapbackup.sh](imapbackup.sh) - Sync the contents of the service account
-INBOX folder to local INBOX.mbox file.
-
-[mbox_stats.py](mbox_stats.py) - Used to gather statistics of email in an
-mbox format file during early investigations.
-
-# whpool commands
-
-## Sort
+### Sort
 
 Sorts messages by yyyy-mm to mailbox folders, creating mailbox folders in
   yyyy-mm format if it does not exist.
 
-### Sort Usage
+#### Sort Usage
 
 ```
 $ whpool sort --help
@@ -50,11 +42,11 @@ Using Gmail imap extensions, '+X-GM-LABELS', '\\Trash', deletes messages from al
 because it uses labels and folders interchangably.
 Thus, removing the inbox label while accessing the yyyy-mm folder is the solution.
 
-## mbox_download
+### mbox_download
 
 Fetches messages in mbox format from previous month's mailbox folder.
 
-### mbox_download Usage
+#### mbox_download Usage
 
 ```
 $ whpool mbox_download --help
@@ -80,13 +72,13 @@ Performs the following:
 - Compares the mbox file messages to the mailbox folder messages
 - Needs to run at least once a month
 
-## Extract
+### Extract
 
 Extract pool reports email messages from an mbox format file. Write them out to
 a directory with metadata in a single whpool.csv and HTML body and other
 attachments in sub-directories.
 
-### Extract Usage
+#### Extract Usage
 
 ```
 $ whpool extract --help
@@ -109,53 +101,50 @@ Options:
 Extract processing rules are described in
 [docs/ExtractProcessingRules.md][extract_rules].
 
-
-### Extract Output Format
+#### Extract Output Format
 
 The output directory will contain:
 
-* "whpool.csv" - a CSV file with one row of metadata from each email:
-    * "id" - based on message order within the mbox
-    * "Date" - email "Date" header
-    * "Reporter" - email "From" header
-    * "Title" - email "Subject" header
-    * "Pool Report" - ("true"/"false") best guess based on heuristics, see
-      [docs/ExtractProcessingRules.md][extract_rules]
-    * "Publish" - always "false", will be updated by reviewer
-    * "Comments" - always empty,  will be updated by reviewer
+- "whpool.csv" - a CSV file with one row of metadata from each email:
+  - "id" - based on message order within the mbox
+  - "Date" - email "Date" header
+  - "Reporter" - email "From" header
+  - "Title" - email "Subject" header
+  - "Pool Report" - ("true"/"false") best guess based on heuristics, see
+    [docs/ExtractProcessingRules.md][extract_rules]
+  - "Publish" - always "false", will be updated by reviewer
+  - "Comments" - always empty,  will be updated by reviewer
+- Each output message stored is stored in a folder based on id, with the
+following:
+  - "body.txt" - original text body, if provided
+  - "body.html" - original HTML body, if provided, or a simple “HTML-ized”
+    version of the “body.txt” file, if not. The contents of the “body.html”
+    file are used in the subsequent processing.
+  - "body-processed.html" - the “processed” HTML, all processing *except*
+    redactions, including:
+    - “Unsubscribe” signature removal
+    - Updating in-message links to point to local copies of attachments
+    - Updating in-message “img” tags to point to local copies of files
+      downloaded from the URL
+  - "body-processed-redacted.html" - the “processed” HTML with redactions
+  - "attachments/" subfolder - containing any attachments or other “parts”
+    included in the message
+  - "external_files/" subfolder - containing files downloaded from URLs
+    referenced in “img” tags. Files are given generic names (“external_img”),
+    a number (starting with “0”), and an extension based on their content
+    type (i.e., “.png” for PNG files, “.jpg” for JPEG files, etc.). Unknown
+    content types have an “.unknown” extension.
+    The files are uniquely numbered across all the messages in the mbox
+    (i.e., “external_img00.png”, external_image01.jpg”, etc.). The
+    “external_files/” subfolder for a message only contains the external files
+    associated with that message (so a subfolder may have non-consecutive
+    numbers, or not begin with “0”).
 
-* Each output message stored is stored in a folder based on id, with the
-  following:
-    * "body.txt" - original text body, if provided
-    * "body.html" - original HTML body, if provided, or a simple “HTML-ized”
-      version of the “body.txt” file, if not. The contents of the “body.html”
-      file are used in the subsequent processing.
-    * "body-processed.html" - the “processed” HTML, all processing *except*
-      redactions, including:
-        * “Unsubscribe” signature removal
-        * Updating in-message links to point to local copies of attachments
-        * Updating in-message “img” tags to point to local copies of files
-          downloaded from the URL
-    * "body-processed-redacted.html" - the “processed” HTML with redactions
-    * "attachments/" subfolder - containing any attachments or other “parts”
-      included in the message
-    * "external_files/" subfolder - containing files downloaded from URLs
-      referenced in “img” tags. Files are given generic names (“external_img”),
-      a number (starting with “0”), and an extension based on their content
-      type (i.e., “.png” for PNG files, “.jpg” for JPEG files, etc.). Unknown
-      content types have an “.unknown” extension.
-
-      The files are uniquely numbered across all the messages in the mbox
-      (i.e., “external_img00.png”, external_image01.jpg”, etc.). The
-      “external_files/” subfolder for a message only contains the external files
-      associated with that message (so a subfolder may have non-consecutive
-      numbers, or not begin with “0”).
-
-## Redact
+### Redact
 
 Redacts the text of the "body-processed.html" created by [extract](#extract).
 
-### Redact Usage
+#### Redact Usage
 
 ```
 $ whpool redact --help
@@ -175,14 +164,14 @@ Options:
   --help                         Show this message and exit.
 ```
 
-### Built-in Patterns
+#### Built-in Patterns
 
 Defined in [whpool.core.redaction.REDACT_PATTERNS](whpool/core/redaction.py):
 
 * Email address
 * North American phone number
 
-### Strings File Format
+#### Strings File Format
 
 The strings file contains exact strings that should be redacted. They are
 case-sensitive. Blank lines, or lines whose first non-whitespace character is
@@ -201,7 +190,7 @@ BAZ
 the two strings that would be redacted are `Foo` and `BAZ`. `bar` is ignored
 because it is commented out with a `#`, as is the first line of the file.
 
-### Patterns File Format
+#### Patterns File Format
 
 The patterns file is a YAML-formatted file containing regular expressions for
 finding text that should be redacted. The file contains a mapping of explanatory
@@ -225,13 +214,13 @@ North American phone number: |-
 so there is no need to specify it in an external patterns file. It is simply
 presented here as an example of how such a pattern would be formatted.)
 
-## Convert
+### Convert
 
 Converts the directory structure created by [extract](#extract) and the body 
 text as processed by [redact](#redact) to a format suitable for use with the
 [Plastron] import command.
 
-### Convert Usage
+#### Convert Usage
 
 ```
 $ whpool convert --help
@@ -273,10 +262,18 @@ as the `body-processed-redacted.html`.
 The sanitized HTML, plus any files in the `attachments` subdirectory, are added
 to the `FILES` column of the output CSV file.
 
-# Full-Text Indexing
+## Full-Text Indexing
 
 See [docs/FullTextIndexing.md](docs/FullTextIndexing.md)
 
 [extract_rules]: docs/ExtractProcessingRules.md
 [Plastron]: https://github.com/umd-lib/plastron
 [HTML Sanitizer]: https://pypi.org/project/html-sanitizer/
+
+## Depreciated Scripts
+
+[imapbackup.sh](imapbackup.sh) - Sync the contents of the service account
+INBOX folder to local INBOX.mbox file.
+
+[mbox_stats.py](mbox_stats.py) - Used to gather statistics of email in an
+mbox format file during early investigations.
