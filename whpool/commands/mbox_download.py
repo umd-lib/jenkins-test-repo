@@ -9,7 +9,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv  # pip install python-dotenv
 
-from capture_imap import MailServerHandler
+from whpool.core.capture_imap import MailServerHandler
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 

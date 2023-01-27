@@ -5,4 +5,4 @@ __pycache__
 
 mbox
 output
-capture/data_mbox
+whpool/commands/data_mbox
