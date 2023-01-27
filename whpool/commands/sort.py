@@ -87,7 +87,7 @@ def remove_inbox_flag(mailserver, folder_list):
         mailserver.close()
 
 
-@click.command(help='Automate the sorting process of messages to mailbox folders, '
+@click.command(help='Sorts messages by yyyy-mm to mailbox folders, '
                     'creating mailbox folders in yyyy-mm format if it does not exist.')
 @click.option(
     '-v', '--verbose', 'verbosity',

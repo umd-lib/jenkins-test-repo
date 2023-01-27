@@ -90,8 +90,7 @@ def compare_message_counts(mailserver):
     logging.info(f'Message count matches: {match}')
 
 
-@click.command(help='Automate the sorting process of messages to mailbox folders, '
-                    'creating mailbox folders in yyyy-mm format if it does not exist.')
+@click.command(help='Fetch messages in mbox format from mailbox folders.')
 @click.option(
     '-v', '--verbose', 'verbosity',
     default=1,
