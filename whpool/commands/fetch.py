@@ -110,13 +110,14 @@ def main(verbosity: int, output_dirname) -> None:
     """Download an mbox file for the previous month."""
 
     # Set path
-    if output_dirname is None:
-        path = Path.cwd() / 'data_mbox'
-    elif output_dirname is not None:
-        path = Path(output_dirname)
-
-    path.mkdir(parents=True, exist_ok=True)
-    mbox_file_path = path.joinpath(PREVIOUS_MONTH + '.mbox')
+    try:
+        if output_dirname is None:
+            path = Path.cwd() / 'data_mbox'
+        elif output_dirname is not None:
+            path = Path(output_dirname)
+    finally:
+        path.mkdir(parents=True, exist_ok=True)
+        mbox_file_path = path.joinpath(PREVIOUS_MONTH + '.mbox')
 
     # Set logging level
     if verbosity == 0:
