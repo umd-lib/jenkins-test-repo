@@ -42,20 +42,24 @@ Using Gmail imap extensions, '+X-GM-LABELS', '\\Trash', deletes messages from al
 because it uses labels and folders interchangably.
 Thus, removing the inbox label while accessing the yyyy-mm folder is the solution.
 
-### mbox_download
+### Fetch
 
 Fetches messages in mbox format from previous month's mailbox folder.
 
-#### mbox_download Usage
+#### Fetch Usage
 
 ```
-$ whpool mbox_download --help
+$ whpool fetch --help
 
-Usage: whpool mbox_download [OPTIONS]
+Usage: whpool fetch [OPTIONS]
 
   Fetch messages in mbox format from mailbox folders.
 
 Options:
+  -o, --output PATH      If the output_dirname is specified, the
+                         mbox file will be downloaded to that
+                         location. Otherwise, the file will be
+                         saved in ./data_mbox
   -v, --verbose INTEGER  Set verbosity logging output level.
                          0 = Warning
                          1 = Info (default)
