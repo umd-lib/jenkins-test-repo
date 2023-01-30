@@ -270,7 +270,7 @@ See [docs/FullTextIndexing.md](docs/FullTextIndexing.md)
 [Plastron]: https://github.com/umd-lib/plastron
 [HTML Sanitizer]: https://pypi.org/project/html-sanitizer/
 
-## Depreciated Scripts
+## Deprecated Scripts
 
 [imapbackup.sh](imapbackup.sh) - Sync the contents of the service account
 INBOX folder to local INBOX.mbox file.
