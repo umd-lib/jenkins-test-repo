@@ -23,12 +23,11 @@ port = os.getenv('port')
 
 PREVIOUS_MONTH = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
 
-path = Path.cwd() / 'data_mbox'
-path.mkdir(parents=True, exist_ok=True)
-mbox_file_path = path.joinpath(PREVIOUS_MONTH + '.mbox')
+path = None
+output_dirname = None
 
 
-def download_messages(mailserver):
+def download_messages(mailserver, mbox_file_path):
     """Download messages for the previous month as an mbox file."""
 
     folder = PREVIOUS_MONTH
@@ -65,7 +64,7 @@ def download_messages(mailserver):
     mailserver.close()
 
 
-def compare_message_counts(mailserver):
+def compare_message_counts(mailserver, mbox_file_path):
     """Compare message counts of mailbox folder and downloaded mbox file."""
 
     # Get message count for previous month
@@ -92,6 +91,13 @@ def compare_message_counts(mailserver):
 
 @click.command(help='Fetch messages in mbox format from mailbox folders.')
 @click.option(
+    '--output', '-o', 'output_dirname',
+    type=click.Path(),
+    default=output_dirname,
+    help='''If the output_dirname is specified, the mbox file will be downloaded to that location.
+            Otherwise, the file will be saved in ./data_mbox'''
+)
+@click.option(
     '-v', '--verbose', 'verbosity',
     default=1,
     help='''\b
@@ -100,10 +106,19 @@ def compare_message_counts(mailserver):
             1 = Info (default)
             2 = Debug'''
 )
-def main(verbosity: int) -> None:
+def main(verbosity: int, output_dirname) -> None:
     """Download an mbox file for the previous month."""
 
-    # Setup logging
+    # Set path
+    if output_dirname is None:
+        path = Path.cwd() / 'data_mbox'
+    elif output_dirname is not None:
+        path = Path(output_dirname)
+
+    path.mkdir(parents=True, exist_ok=True)
+    mbox_file_path = path.joinpath(PREVIOUS_MONTH + '.mbox')
+
+    # Set logging level
     if verbosity == 0:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
     elif verbosity == 1:
@@ -120,8 +135,8 @@ def main(verbosity: int) -> None:
     mailserver_handler.connect(host=host, port=port)
     mailserver_handler.login(user=user, password=password)
 
-    download_messages(mailserver_handler.mailserver)
-    compare_message_counts(mailserver_handler.mailserver)
+    download_messages(mailserver_handler.mailserver, mbox_file_path)
+    compare_message_counts(mailserver_handler.mailserver, mbox_file_path)
 
     mailserver_handler.logout()
 

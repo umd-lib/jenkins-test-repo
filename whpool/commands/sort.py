@@ -101,7 +101,7 @@ def remove_inbox_flag(mailserver, folder_list):
 def main(verbosity: int) -> None:
     """Sort messages from Inbox to yyyy-mm folders."""
 
-    # Setup logging
+    # Set logging level
     if verbosity == 0:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
     elif verbosity == 1:
