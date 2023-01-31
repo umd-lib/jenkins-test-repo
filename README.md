@@ -4,6 +4,12 @@
 
 See [docs/DevelopmentEnvironment.md](docs/DevelopmentEnvironment.md).
 
+## Workflow
+
+The general workflow of messages using whpool commands is illustrated in the following diagram.
+
+![Workflow Diagram](./docs/workflow.svg)
+
 ## whpool Commands
 
 ### Sort
