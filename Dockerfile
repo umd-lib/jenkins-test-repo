@@ -6,4 +6,4 @@ COPY . /opt/whpool
 WORKDIR /opt/whpool
 RUN pip install -r requirements.txt -e .
 
-ENTRYPOINT ["/opt/whpool/whpool"]
+ENTRYPOINT ["whpool"]
