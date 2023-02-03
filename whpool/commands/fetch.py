@@ -89,6 +89,19 @@ def compare_message_counts(mailserver, mbox_file_path):
     logging.info(f'Message count matches: {match}')
 
 
+def set_path(output_dirname):
+    """ Set path """
+
+    if output_dirname is None:
+        path = Path.cwd() / 'data_mbox'
+    elif output_dirname is not None:
+        path = Path(output_dirname)
+
+    path.mkdir(parents=True, exist_ok=True)
+    mbox_file_path = path / f'{PREVIOUS_MONTH}.mbox'
+    return mbox_file_path
+
+
 @click.command(help='Fetch messages in mbox format from mailbox folders.')
 @click.option(
     '--output', '-o', 'output_dirname',
@@ -110,14 +123,7 @@ def main(verbosity: int, output_dirname) -> None:
     """Download an mbox file for the previous month."""
 
     # Set path
-    try:
-        if output_dirname is None:
-            path = Path.cwd() / 'data_mbox'
-        elif output_dirname is not None:
-            path = Path(output_dirname)
-    finally:
-        path.mkdir(parents=True, exist_ok=True)
-        mbox_file_path = path.joinpath(PREVIOUS_MONTH + '.mbox')
+    mbox_file_path = set_path(output_dirname)
 
     # Set logging level
     if verbosity == 0:
