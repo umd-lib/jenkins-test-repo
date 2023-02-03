@@ -1,0 +1,55 @@
+@startuml workflow
+
+state CAPTURE {
+  state Google_Services_Account #moccasin
+  state sort: * performed daily
+  state sort: * creates folders
+  state sort: * moves messages to folders
+  state fetch: * performed at least once a month
+  state fetch: * fetches messages
+  state Box1Capture
+  state Box1Capture: mbox_file
+
+  Google_Services_Account --> sort
+  sort --> Google_Services_Account
+  Google_Services_Account --> fetch
+  fetch --> Box1Capture #tomato
+}
+
+state EXTRACT {
+  state extract
+}
+
+state REDACT {
+  state redact
+  state Box2Preview #tomato
+  state ArchivistReview
+  state Box3Publish #tomato
+  state ManualEditRedact
+
+  redact --> Box2Preview
+  Box2Preview --> ArchivistReview
+  ArchivistReview --> Box3Publish
+  Box3Publish --> ManualEditRedact
+}
+
+state CONVERT {
+  state convert
+  state Box4Complete #tomato
+
+  convert --> Box4Complete
+}
+
+state IMPORT {
+  state LoadIntoRepository #moccasin
+}
+
+
+[*] -r-> CAPTURE
+CAPTURE -r-> EXTRACT
+EXTRACT -r-> REDACT
+REDACT -r-> CONVERT
+CONVERT -r-> IMPORT
+IMPORT -r-> [*]
+
+@enduml

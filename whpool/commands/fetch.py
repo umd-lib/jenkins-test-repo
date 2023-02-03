@@ -7,11 +7,12 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import click
 from dotenv import load_dotenv  # pip install python-dotenv
 
-from capture_imap import MailServerHandler
+from whpool.core.capture_imap import MailServerHandler
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # get configs
 load_dotenv()
@@ -22,12 +23,11 @@ port = os.getenv('port')
 
 PREVIOUS_MONTH = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
 
-path = Path.cwd() / 'data_mbox'
-path.mkdir(parents=True, exist_ok=True)
-mbox_file_path = path.joinpath(PREVIOUS_MONTH + '.mbox')
+path = None
+output_dirname = None
 
 
-def download_messages(mailserver):
+def download_messages(mailserver, mbox_file_path):
     """Download messages for the previous month as an mbox file."""
 
     folder = PREVIOUS_MONTH
@@ -64,7 +64,7 @@ def download_messages(mailserver):
     mailserver.close()
 
 
-def compare_message_counts(mailserver):
+def compare_message_counts(mailserver, mbox_file_path):
     """Compare message counts of mailbox folder and downloaded mbox file."""
 
     # Get message count for previous month
@@ -89,8 +89,51 @@ def compare_message_counts(mailserver):
     logging.info(f'Message count matches: {match}')
 
 
-def main():
+def set_path(output_dirname):
+    """ Set path """
+
+    if output_dirname is None:
+        path = Path.cwd() / 'data_mbox'
+    elif output_dirname is not None:
+        path = Path(output_dirname)
+
+    path.mkdir(parents=True, exist_ok=True)
+    mbox_file_path = path / f'{PREVIOUS_MONTH}.mbox'
+    return mbox_file_path
+
+
+@click.command(help='Fetch messages in mbox format from mailbox folders.')
+@click.option(
+    '--output', '-o', 'output_dirname',
+    type=click.Path(),
+    default=output_dirname,
+    help='''If the output_dirname is specified, the mbox file will be downloaded to that location.
+            Otherwise, the file will be saved in ./data_mbox'''
+)
+@click.option(
+    '-v', '--verbose', 'verbosity',
+    default=1,
+    help='''\b
+            Set verbosity logging output level.
+            0 = Warning
+            1 = Info (default)
+            2 = Debug'''
+)
+def main(verbosity: int, output_dirname) -> None:
     """Download an mbox file for the previous month."""
+
+    # Set path
+    mbox_file_path = set_path(output_dirname)
+
+    # Set logging level
+    if verbosity == 0:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
+    elif verbosity == 1:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+    elif verbosity == 2:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+    logger.debug(f'{verbosity=}')
 
     start_time = time.time()
     logging.info(f'Date: {datetime.now()}')
@@ -99,8 +142,8 @@ def main():
     mailserver_handler.connect(host=host, port=port)
     mailserver_handler.login(user=user, password=password)
 
-    download_messages(mailserver_handler.mailserver)
-    compare_message_counts(mailserver_handler.mailserver)
+    download_messages(mailserver_handler.mailserver, mbox_file_path)
+    compare_message_counts(mailserver_handler.mailserver, mbox_file_path)
 
     mailserver_handler.logout()
 

@@ -48,6 +48,15 @@ Once "pyenv" and "pyenv-virtualenv" have been installed, install Python 3.8.2:
 > pip install -e .[dev,test]
 ```
 
+5) Create an ".env” file to access the Email server with the following:
+
+```
+user='[email account]'
+password='[account's password]'
+host='[host]]'
+port='[port]'
+```
+
 ## Running the tests
 
 ```
