@@ -36,8 +36,27 @@ class DynamicCLI(click.MultiCommand):
     cls=DynamicCLI
 )
 @click.version_option(VERSION, '--version', '-V', prog_name='whpool')
-def main() -> None:
+@click.option(
+    '-v', '--verbose', 'verbosity',
+    default=1,
+    help='''\b
+            Set verbosity logging output level.
+            0 = Warning
+            1 = Info (default)
+            2 = Debug'''
+)
+def main(verbosity: int) -> None:
     print_header(argparse.Namespace(quiet=False))
+    logging_verbosity(verbosity)
+
+
+def logging_verbosity(verbosity):
+    if verbosity == 0:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
+    elif verbosity == 1:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+    elif verbosity == 2:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 def print_header(args: argparse.Namespace) -> None:
