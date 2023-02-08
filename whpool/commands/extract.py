@@ -27,25 +27,10 @@ logger.setLevel(logging.INFO)
     help='Output directory which must already exist; files and sub-directories '
          'will be created or overwritten as necessary.'
 )
-@click.option(
-    '-v', '--verbose', 'verbosity',
-    count=True,
-    help='Produce verbose logging output.'
-)
-def extract(input_filename: str, output_dirname: str, verbosity: int) -> None:
-    # Setup logging
-    logging.basicConfig()
-
-    if verbosity == 0:
-        logging.getLogger("whpool").setLevel(logging.WARN)
-    elif verbosity == 1:
-        logging.getLogger("whpool").setLevel(logging.INFO)
-    elif verbosity == 2:
-        logging.getLogger("whpool").setLevel(logging.DEBUG)
+def extract(input_filename: str, output_dirname: str) -> None:
 
     logger.debug(f'{input_filename=}')
     logger.debug(f'{output_dirname=}')
-    logger.debug(f'{verbosity=}')
 
     # Read the mbox file (slurp all into memory)
     box = mailbox.mbox(input_filename)
