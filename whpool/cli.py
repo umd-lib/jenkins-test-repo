@@ -2,6 +2,9 @@ import argparse
 import logging
 import pkgutil
 import sys
+import time
+
+from datetime import datetime
 from importlib import import_module
 from typing import List
 
@@ -48,6 +51,7 @@ class DynamicCLI(click.MultiCommand):
 def main(verbosity: int) -> None:
     print_header(argparse.Namespace(quiet=False))
     logging_verbosity(verbosity)
+    logging.info(f'Date: {datetime.now()}')
 
 
 def logging_verbosity(verbosity):

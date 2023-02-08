@@ -102,7 +102,6 @@ def main(verbosity: int) -> None:
     """Sort messages from Inbox to yyyy-mm folders."""
 
     start_time = time.time()
-    logging.info(f'Date: {datetime.now()}')
 
     mailserver_handler = MailServerHandler()
     mailserver_handler.connect(host=host, port=port)
