@@ -33,6 +33,16 @@ class DynamicCLI(click.MultiCommand):
         raise click.UsageError(f'Unrecognized command: {cmd_name}')
 
 
+def logging_verbosity(verbosity):
+    """Set logger verbosity level."""
+    if verbosity == 0:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
+    elif verbosity == 1:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+    elif verbosity == 2:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+
 @click.command(
     name='whpool',
     help='WHCA Utilities',
@@ -52,15 +62,6 @@ def main(verbosity: int) -> None:
     print_header(argparse.Namespace(quiet=False))
     logging_verbosity(verbosity)
     logging.info(f'Date: {datetime.now()}')
-
-
-def logging_verbosity(verbosity):
-    if verbosity == 0:
-        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
-    elif verbosity == 1:
-        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-    elif verbosity == 2:
-        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 def print_header(args: argparse.Namespace) -> None:
