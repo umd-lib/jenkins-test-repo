@@ -117,7 +117,6 @@ def main(output_dirname) -> None:
     mbox_file_path = set_path(output_dirname)
 
     start_time = time.time()
-    logging.info(f'Date: {datetime.now()}')
 
     mailserver_handler = MailServerHandler()
     mailserver_handler.connect(host=host, port=port)
