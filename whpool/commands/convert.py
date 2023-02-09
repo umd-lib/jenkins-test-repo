@@ -10,7 +10,6 @@ import click
 from html_sanitizer import Sanitizer  # type: ignore
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 OUTPUT_COLUMNS = [
     'Identifier',

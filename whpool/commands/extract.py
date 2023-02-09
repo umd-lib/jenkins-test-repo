@@ -9,7 +9,6 @@ from whpool.core.external_images import retrieve_external_images
 from whpool.extract.extract import HEADERS, Message
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 @click.command(help='Extract pool report emails from mbox format file and create '
