@@ -2,9 +2,11 @@ import logging
 import mailbox
 from csv import DictWriter
 from pathlib import Path
+from datetime import datetime
 
 import click
 
+from whpool import VERSION
 from whpool.core.external_images import retrieve_external_images
 from whpool.extract.extract import HEADERS, Message
 
@@ -13,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 @click.command(help='Extract pool report emails from mbox format file and create '
                     'an output format suitable for curatorial review.')
+@click.version_option(VERSION, '--version', '-V', prog_name='whpool')
 @click.option(
     '--input', '-i', 'input_filename',
     type=click.Path(exists=True, dir_okay=False),
@@ -27,6 +30,9 @@ logger = logging.getLogger(__name__)
          'will be created or overwritten as necessary.'
 )
 def extract(input_filename: str, output_dirname: str) -> None:
+    logger.info(f'whpool version {VERSION}')
+    logger.info(f'{__name__}')
+    logger.info(f'Date: {datetime.now()}')
 
     logger.debug(f'{input_filename=}')
     logger.debug(f'{output_dirname=}')

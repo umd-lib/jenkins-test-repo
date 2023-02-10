@@ -1,9 +1,6 @@
 import logging
 import pkgutil
-import sys
-import time
 
-from datetime import datetime
 from importlib import import_module
 from typing import List
 
@@ -59,7 +56,6 @@ def logging_verbosity(verbosity):
 )
 def main(verbosity: int) -> None:
     logging_verbosity(verbosity)
-    logging.info(f'Date: {datetime.now()}')
 
 
 if __name__ == "__main__":

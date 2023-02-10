@@ -2,10 +2,12 @@ import logging
 import re
 from pathlib import Path
 from typing import Dict, List, Pattern, TextIO
+from datetime import datetime
 
 import click
 import yaml
 
+from whpool import VERSION
 from whpool.core.redaction import REDACT_PATTERNS, RedactedText
 
 logger = logging.getLogger(__name__)
@@ -33,6 +35,7 @@ def load_redact_patterns(patterns_file: TextIO) -> Dict[str, Pattern[str]]:
 
 
 @click.command(help='Redact strings or patterns in extracted message bodies in the given directories.')
+@click.version_option(VERSION, '--version', '-V', prog_name='whpool')
 @click.option(
     '--strings-from-file', 'strings_file',
     type=click.File(),
@@ -54,13 +57,18 @@ def load_redact_patterns(patterns_file: TextIO) -> Dict[str, Pattern[str]]:
     type=click.Path(exists=True, file_okay=False),
 )
 def redact(strings_file: TextIO, patterns_file: TextIO, dry_run: bool, directories: List[str]) -> None:
+
+    logger.info(f'whpool version {VERSION}')
+    logger.info(f'{__name__}')
+    logger.info(f'Date: {datetime.now()}')
+
     redact_strings = load_redact_strings(strings_file)
     redact_patterns = {**REDACT_PATTERNS, **load_redact_patterns(patterns_file)}
 
     for directory in map(Path, directories):
         processed_body_file = directory / 'body-processed.html'
         if not processed_body_file.exists():
-            logging.warning(f'Directory {directory} does not contain a "body-processed.html"; skipping')
+            logger.warning(f'Directory {directory} does not contain a "body-processed.html"; skipping')
             continue
 
         with processed_body_file.open(mode='r') as fh:

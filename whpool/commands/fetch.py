@@ -10,6 +10,7 @@ from pathlib import Path
 import click
 from dotenv import load_dotenv  # pip install python-dotenv
 
+from whpool import VERSION
 from whpool.core.capture_imap import MailServerHandler
 
 logger = logging.getLogger(__name__)
@@ -38,13 +39,13 @@ def download_messages(mailserver, mbox_file_path):
     mbox.lock()
     # Select a mailbox folder
     mailserver.select(f'"{folder}"', readonly=True)
-    logging.info(f'Fetching mailbox folder: {PREVIOUS_MONTH}')
+    logger.info(f'Fetching mailbox folder: {PREVIOUS_MONTH}')
     # Search for emails in the selected mailbox
     search_criteria = 'ALL'
     charset = None  # All
     response_code, message_numbers_raw = mailserver.search(charset, search_criteria)
-    logging.info(f'Search response: {response_code}')
-    logging.debug(f'Message numbers: {message_numbers_raw}')
+    logger.info(f'Search response: {response_code}')
+    logger.debug(f'Message numbers: {message_numbers_raw}')
     message_numbers = message_numbers_raw[0].split()
     for n, message_number in enumerate(message_numbers):
         typ, data = mailserver.fetch(message_number, "RFC822")
@@ -58,7 +59,7 @@ def download_messages(mailserver, mbox_file_path):
             text = data[0][1].decode("utf-8", "backslashreplace")
         text = text.strip().replace("\r", "")
         mbox.add(text.encode())
-        logging.info(f'Downloading message {n} of {len(message_numbers)}')
+        logger.info(f'Downloading message {n} of {len(message_numbers)}')
     mbox.flush()
     mbox.unlock()
     mailserver.close()
@@ -70,23 +71,23 @@ def compare_message_counts(mailserver, mbox_file_path):
     # Get message count for previous month
     directory_name = PREVIOUS_MONTH
     response_code, mail_count = mailserver.select(mailbox=directory_name, readonly=True)
-    logging.info(f'Response Code For Select: {response_code}')
+    logger.info(f'Response Code For Select: {response_code}')
     directory_message_count = {directory_name: mail_count[0].decode()}
-    logging.info(f'Message count for {directory_name}: {directory_message_count[directory_name]}')
+    logger.info(f'Message count for {directory_name}: {directory_message_count[directory_name]}')
 
     mbox = mailbox.mbox(mbox_file_path)
     mbox_message_count = {'messages': 0}
     for item in mbox.iteritems():
         mbox_message_count['messages'] += 1
         message = {'i': item}
-        logging.debug(f'{message}')
-    logging.info('Comparing message counts...')
-    logging.info(f'mbox total message count  : {mbox_message_count["messages"]}')
-    logging.info(f'Folder total message count: {directory_message_count[directory_name]}')
+        logger.debug(f'{message}')
+    logger.info('Comparing message counts...')
+    logger.info(f'mbox total message count  : {mbox_message_count["messages"]}')
+    logger.info(f'Folder total message count: {directory_message_count[directory_name]}')
     mbox_messages = str(mbox_message_count['messages'])
     mailbox_messages = str(directory_message_count[directory_name])
     match = mbox_messages == mailbox_messages
-    logging.info(f'Message count matches: {match}')
+    logger.info(f'Message count matches: {match}')
 
 
 def set_path(output_dirname):
@@ -103,6 +104,7 @@ def set_path(output_dirname):
 
 
 @click.command(help='Fetch messages in mbox format from mailbox folders.')
+@click.version_option(VERSION, '--version', '-V', prog_name='whpool')
 @click.option(
     '--output', '-o', 'output_dirname',
     type=click.Path(),
@@ -112,6 +114,10 @@ def set_path(output_dirname):
 )
 def main(output_dirname) -> None:
     """Download an mbox file for the previous month."""
+
+    logger.info(f'whpool version {VERSION}')
+    logger.info(f'{__name__}')
+    logger.info(f'Date: {datetime.now()}')
 
     # Set path
     mbox_file_path = set_path(output_dirname)
@@ -128,7 +134,7 @@ def main(output_dirname) -> None:
     mailserver_handler.logout()
 
     stop_time = time.time()
-    logging.info(f'Process time (secs): {round(stop_time - start_time, 2)}')
+    logger.info(f'Process time (secs): {round(stop_time - start_time, 2)}')
 
 
 if __name__ == '__main__':

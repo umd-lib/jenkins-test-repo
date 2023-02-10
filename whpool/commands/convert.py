@@ -1,6 +1,7 @@
 import logging
 import re
 from csv import DictReader, DictWriter
+from datetime import datetime
 from distutils.util import strtobool
 from email.utils import parsedate_to_datetime
 from pathlib import Path
@@ -8,6 +9,8 @@ from typing import Dict, List, TextIO
 
 import click
 from html_sanitizer import Sanitizer  # type: ignore
+
+from whpool import VERSION
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +70,7 @@ def get_item_row(identifier: str, row: Dict[str, str], files: List[str]) -> Dict
 
 
 @click.command(help='Convert extracted pool reports metadata and files into an import package.')
+@click.version_option(VERSION, '--version', '-V', prog_name='whpool')
 @click.option(
     '--input-dir', '-I', 'base_dirname',
     type=click.Path(exists=True, dir_okay=True, file_okay=False),
@@ -85,6 +89,11 @@ def get_item_row(identifier: str, row: Dict[str, str], files: List[str]) -> Dict
     help='String to prepend to the item id; it will be followed by a "_".'
 )
 def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> None:
+
+    logger.info(f'whpool version {VERSION}')
+    logger.info(f'{__name__}')
+    logger.info(f'Date: {datetime.now()}')
+
     base_path = Path(base_dirname)
     sanitizer = Sanitizer()
     with open(base_path/'whpool.csv', mode='r') as input_file:
