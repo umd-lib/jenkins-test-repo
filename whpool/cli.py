@@ -1,4 +1,3 @@
-import argparse
 import logging
 import pkgutil
 import sys
@@ -59,24 +58,8 @@ def logging_verbosity(verbosity):
             2 = Debug'''
 )
 def main(verbosity: int) -> None:
-    print_header(argparse.Namespace(quiet=False))
     logging_verbosity(verbosity)
     logging.info(f'Date: {datetime.now()}')
-
-
-def print_header(args: argparse.Namespace) -> None:
-    """Common header formatting."""
-    if not args.quiet:
-        title = '|       whpool       |'
-        bar = '+' + '=' * (len(title) - 2) + '+'
-        spacer = '|' + ' ' * (len(title) - 2) + '|'
-        print('\n'.join(['', bar, spacer, title, spacer, bar, '']), file=sys.stderr)
-
-
-def print_footer(args: argparse.Namespace) -> None:
-    """Report success or failure and resources created."""
-    if not args.quiet:
-        print('\nScript complete. Goodbye!\n', file=sys.stderr)
 
 
 if __name__ == "__main__":
