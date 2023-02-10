@@ -89,7 +89,7 @@ def get_item_row(identifier: str, row: Dict[str, str], files: List[str]) -> Dict
     required=True,
     help='String to prepend to the item id; it will be followed by a "_".'
 )
-@Timer(name="decorator")
+@Timer(name="convert", logger=logging.info)
 def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> None:
 
     logger.info(f'whpool version {VERSION}')

@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
     help='Output directory which must already exist; files and sub-directories '
          'will be created or overwritten as necessary.'
 )
-@Timer(name="decorator")
+@Timer(name="extract", logger=logging.info)
 def extract(input_filename: str, output_dirname: str) -> None:
     logger.info(f'whpool version {VERSION}')
     logger.info(f'{__name__}')
