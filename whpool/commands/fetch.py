@@ -9,6 +9,7 @@ from pathlib import Path
 
 import click
 from dotenv import load_dotenv  # pip install python-dotenv
+from codetiming import Timer
 
 from whpool import VERSION
 from whpool.core.capture_imap import MailServerHandler
@@ -112,6 +113,7 @@ def set_path(output_dirname):
     help='''If the output_dirname is specified, the mbox file will be downloaded to that location.
             Otherwise, the file will be saved in ./data_mbox'''
 )
+@Timer(name="decorator")
 def main(output_dirname) -> None:
     """Download an mbox file for the previous month."""
 

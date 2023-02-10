@@ -6,6 +6,7 @@ from datetime import datetime
 
 import click
 import yaml
+from codetiming import Timer
 
 from whpool import VERSION
 from whpool.core.redaction import REDACT_PATTERNS, RedactedText
@@ -56,6 +57,7 @@ def load_redact_patterns(patterns_file: TextIO) -> Dict[str, Pattern[str]]:
     nargs=-1,
     type=click.Path(exists=True, file_okay=False),
 )
+@Timer(name="decorator")
 def redact(strings_file: TextIO, patterns_file: TextIO, dry_run: bool, directories: List[str]) -> None:
 
     logger.info(f'whpool version {VERSION}')

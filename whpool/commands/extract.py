@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime
 
 import click
+from codetiming import Timer
 
 from whpool import VERSION
 from whpool.core.external_images import retrieve_external_images
@@ -29,6 +30,7 @@ logger = logging.getLogger(__name__)
     help='Output directory which must already exist; files and sub-directories '
          'will be created or overwritten as necessary.'
 )
+@Timer(name="decorator")
 def extract(input_filename: str, output_dirname: str) -> None:
     logger.info(f'whpool version {VERSION}')
     logger.info(f'{__name__}')

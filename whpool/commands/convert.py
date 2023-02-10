@@ -9,6 +9,7 @@ from typing import Dict, List, TextIO
 
 import click
 from html_sanitizer import Sanitizer  # type: ignore
+from codetiming import Timer
 
 from whpool import VERSION
 
@@ -88,6 +89,7 @@ def get_item_row(identifier: str, row: Dict[str, str], files: List[str]) -> Dict
     required=True,
     help='String to prepend to the item id; it will be followed by a "_".'
 )
+@Timer(name="decorator")
 def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> None:
 
     logger.info(f'whpool version {VERSION}')
