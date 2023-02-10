@@ -124,8 +124,6 @@ def main(output_dirname) -> None:
     # Set path
     mbox_file_path = set_path(output_dirname)
 
-    start_time = time.time()
-
     mailserver_handler = MailServerHandler()
     mailserver_handler.connect(host=host, port=port)
     mailserver_handler.login(user=user, password=password)
@@ -134,9 +132,6 @@ def main(output_dirname) -> None:
     compare_message_counts(mailserver_handler.mailserver, mbox_file_path)
 
     mailserver_handler.logout()
-
-    stop_time = time.time()
-    logger.info(f'Process time (secs): {round(stop_time - start_time, 2)}')
 
 
 if __name__ == '__main__':
