@@ -1,5 +1,3 @@
-from codetiming import Timer
-
 from whpool.commands.convert import get_item_row
 
 

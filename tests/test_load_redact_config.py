@@ -1,6 +1,5 @@
 import io
 from re import Pattern
-from codetiming import Timer
 
 from whpool.commands.redact import load_redact_patterns, load_redact_strings
 
