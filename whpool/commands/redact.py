@@ -86,7 +86,7 @@ def redact(strings_file: TextIO, patterns_file: TextIO, dry_run: bool, directori
         for string in redact_strings:
             redacted_html.redact(string, f'"{string}"')
 
-        print(directory)
+        logger.info(directory)
 
         if dry_run:
             print('=' * 80)
