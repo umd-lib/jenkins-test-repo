@@ -97,7 +97,7 @@ def redact(strings_file: TextIO, patterns_file: TextIO, dry_run: bool, directori
             with redacted_body_file.open(mode='w') as fh:
                 fh.write(str(redacted_html))
 
-            logger.info(f'Wrote redacted version to {redacted_body_file}')
+            print(f'Wrote redacted version to {redacted_body_file}')
 
         print('Total redactions:', sum(redacted_html.matches.values()))
         for label, count in redacted_html.matches.items():
