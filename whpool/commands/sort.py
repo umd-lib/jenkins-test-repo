@@ -6,12 +6,10 @@ import os
 from datetime import datetime
 
 import click
-
 from codetiming import Timer
-from dotenv import load_dotenv  # pip install python-dotenv
+from dotenv import load_dotenv
 
 from whpool.core.capture_imap import MailServerHandler
-
 
 logger = logging.getLogger(__name__)
 

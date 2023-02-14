@@ -1,8 +1,8 @@
 import logging
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Pattern, TextIO
-from datetime import datetime
 
 import click
 import yaml

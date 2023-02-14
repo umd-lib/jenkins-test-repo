@@ -7,8 +7,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import click
-from dotenv import load_dotenv  # pip install python-dotenv
 from codetiming import Timer
+from dotenv import load_dotenv
 
 from whpool.core.capture_imap import MailServerHandler
 

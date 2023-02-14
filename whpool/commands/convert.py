@@ -8,9 +8,8 @@ from pathlib import Path
 from typing import Dict, List, TextIO
 
 import click
-from html_sanitizer import Sanitizer  # type: ignore
 from codetiming import Timer
-
+from html_sanitizer import Sanitizer  # type: ignore
 
 logger = logging.getLogger(__name__)
 

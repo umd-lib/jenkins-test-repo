@@ -1,8 +1,8 @@
 import logging
 import mailbox
 from csv import DictWriter
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 import click
 from codetiming import Timer
