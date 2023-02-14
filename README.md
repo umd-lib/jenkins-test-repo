@@ -273,13 +273,13 @@ metadata model.
 
 Column mappings:
 
-| Extracted | Converted        | Notes |
-|-----------|------------------|-------|
-| id        | Identifier       | prepended with the `--base-id` argument plus "_" |
-| Reporter  | Creator          | |
-| Title     | Title            | |
-| Date      | Date             | converted to ISO 8601 format |
-| --        | Object Type      | `http://vocab.lib.umd.edu/form#pool_reports` 
+| Extracted | Converted        | Notes                                             |
+|-----------|------------------|---------------------------------------------------|
+| id        | Identifier       | prepended with the `--base-id` argument plus "_"  |
+| Reporter  | Creator          |                                                   |
+| Title     | Title            |                                                   |
+| Date      | Date             | converted to ISO 8601 format                      |
+| --        | Object Type      | `http://vocab.lib.umd.edu/form#pool_reports`      |
 | --        | Rights Statement | `http://vocab.lib.umd.edu/rightsStatement#InC-NC` |
 
 The `body-processed-redacted.html` file is further sanitized using
@@ -299,8 +299,8 @@ See [docs/FullTextIndexing.md](docs/FullTextIndexing.md)
 
 ## Deprecated Scripts
 
-[imapbackup.sh](imapbackup.sh) - Sync the contents of the service account
+[imapbackup.sh](deprecated/imapbackup.sh) - Sync the contents of the service account
 INBOX folder to local INBOX.mbox file.
 
-[mbox_stats.py](mbox_stats.py) - Used to gather statistics of email in an
+[mbox_stats.py](deprecated/mbox_stats.py) - Used to gather statistics of email in an
 mbox format file during early investigations.

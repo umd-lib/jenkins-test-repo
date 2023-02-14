@@ -7,66 +7,62 @@ information useful for developers to be aware of.
 
 ## Prerequisites
 
-The following instructions assume that "pyenv" and "pyenv-virtualenv" are
-installed to enable the setup of an isolated Python environment.
+The following instructions assume that "pyenv" is installed to enable
+the setup of an isolated Python environment.
 
 See the following for setup instructions:
 
-* https://github.com/pyenv/pyenv
-* https://github.com/pyenv/pyenv-virtualenv
+* <https://github.com/pyenv/pyenv>
 
-Once "pyenv" and "pyenv-virtualenv" have been installed, install Python 3.8.2:
+Once "pyenv" have been installed, install Python 3.9:
 
+```bash
+pyenv install 3.9
 ```
-> pyenv install 3.9.0
-```
+
+This should download and install the latest version of Python 3.9.
 
 ## Installation for development
 
-1) Clone the "whpool" Git repository:
-
-```
-> git clone git@github.com:umd-lib/whpool.git
-```
-
-2) Switch to the "whpool" directory:
-
-```
-> cd whpool
-```
-
-3) Set up the virtual environment:
-
-```
-> pyenv virtualenv 3.9.0 whpool
-> pyenv shell whpool
-```
-
-4) Run "pip install", including the "dev" and "test" dependencies:
-
-```
-> pip install -e .[dev,test]
-```
-
-5) Create an ".env” file to access the Email server with the following:
-
-```
-user='[email account]'
-password='[account's password]'
-host='[host]]'
-port='[port]'
-```
+1. Clone the "whpool" Git repository:
+    ```bash
+    git clone git@github.com:umd-lib/whpool.git
+    ```
+2. Switch to the "whpool" directory:
+    ```bash
+    cd whpool
+    ```
+3. Verify that the Python version is 3.9:
+    ```bash
+    pyenv version
+    ```
+4. Create and activate the virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+5. Install all dependencies and configure the `whpool` entrypoint:
+   ```bash
+   pip install -r requirements.dev.txt -e .
+   ```
+6. Create an ".env" file to access the Email server with the following:
+   ```ini
+   user='[email account]'
+   password='[account's password]'
+   host='[host]]'
+   port='[port]'
+   ```
 
 ## Running the tests
 
-```
-> pytest
+```bash
+pytest
 ```
 
 **Note:** To restrict pytest test discovery to just the "tests" directory, run
 
-```
-> pytest tests
+```bash
+pytest tests
 ```
 
 This can speed up pytest if you have "mbox" directories (or the output of the
@@ -74,22 +70,23 @@ extraction scripts in the directory).
 
 ## Code Style
 
-Application code style should generally conform to the guidelines in
-[PEP 8](https://www.python.org/dev/peps/pep-0008/). The "pycodestyle" tool
-to check compliance with the guidelines can be run using:
+Application code style should generally conform to the guidelines in [PEP 8]. The
+"pycodestyle" tool to check compliance with the guidelines can be run using:
 
-```
-> pycodestyle .
+```bash
+pycodestyle .
 ```
 
 ## Python Type Hinting
 
-The application uses Python type hinting (see
-[PEP 484](https://www.python.org/dev/peps/pep-0484/)) to document class and
+The application uses Python type hinting (see [PEP 484]) to document class and
 method signatures.
 
 The "mypy" tool can be used to assess issues with the type hinting:
 
+```bash
+mypy whpool --strict --show-error-codes
 ```
-> mypy whpool --strict --show-error-codes
-```
+
+[PEP 8]: https://www.python.org/dev/peps/pep-0008/
+[PEP 484]: https://www.python.org/dev/peps/pep-0484/
