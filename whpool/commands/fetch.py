@@ -10,7 +10,6 @@ import click
 from dotenv import load_dotenv  # pip install python-dotenv
 from codetiming import Timer
 
-from whpool import VERSION
 from whpool.core.capture_imap import MailServerHandler
 
 logger = logging.getLogger(__name__)
@@ -104,7 +103,6 @@ def set_path(output_dirname):
 
 
 @click.command(help='Fetch messages in mbox format from mailbox folders.')
-@click.version_option(VERSION, '--version', '-V', prog_name='whpool')
 @click.option(
     '--output', '-o', 'output_dirname',
     type=click.Path(),
@@ -115,8 +113,6 @@ def set_path(output_dirname):
 @Timer(name="fetch", logger=logging.info)
 def main(output_dirname) -> None:
     """Download an mbox file for the previous month."""
-
-    logger.info(f'whpool version {VERSION}')
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')
 
