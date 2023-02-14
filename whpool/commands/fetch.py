@@ -23,9 +23,6 @@ port = os.getenv('port')
 
 PREVIOUS_MONTH = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
 
-path = None
-output_dirname = None
-
 
 def download_messages(mailserver, mbox_file_path):
     """Download messages for the previous month as an mbox file."""
@@ -94,7 +91,7 @@ def set_path(output_dirname):
 
     if output_dirname is None:
         path = Path.cwd() / 'data_mbox'
-    elif output_dirname is not None:
+    else:
         path = Path(output_dirname)
 
     path.mkdir(parents=True, exist_ok=True)
@@ -106,7 +103,6 @@ def set_path(output_dirname):
 @click.option(
     '--output', '-o', 'output_dirname',
     type=click.Path(),
-    default=output_dirname,
     help='''If the output_dirname is specified, the mbox file will be downloaded to that location.
             Otherwise, the file will be saved in ./data_mbox'''
 )
