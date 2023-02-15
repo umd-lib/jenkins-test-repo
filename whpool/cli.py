@@ -56,6 +56,7 @@ def logging_verbosity(verbosity):
 )
 def main(verbosity: int) -> None:
     logging_verbosity(verbosity)
+    logger.info(f'whpool version {VERSION}')
 
 
 if __name__ == "__main__":

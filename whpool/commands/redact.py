@@ -1,14 +1,13 @@
 import logging
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Pattern, TextIO
-from datetime import datetime
 
 import click
 import yaml
 from codetiming import Timer
 
-from whpool import VERSION
 from whpool.core.redaction import REDACT_PATTERNS, RedactedText
 
 logger = logging.getLogger(__name__)
@@ -36,7 +35,6 @@ def load_redact_patterns(patterns_file: TextIO) -> Dict[str, Pattern[str]]:
 
 
 @click.command(help='Redact strings or patterns in extracted message bodies in the given directories.')
-@click.version_option(VERSION, '--version', '-V', prog_name='whpool')
 @click.option(
     '--strings-from-file', 'strings_file',
     type=click.File(),
@@ -59,8 +57,6 @@ def load_redact_patterns(patterns_file: TextIO) -> Dict[str, Pattern[str]]:
 )
 @Timer(name="redact", logger=logging.info)
 def redact(strings_file: TextIO, patterns_file: TextIO, dry_run: bool, directories: List[str]) -> None:
-
-    logger.info(f'whpool version {VERSION}')
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')
 

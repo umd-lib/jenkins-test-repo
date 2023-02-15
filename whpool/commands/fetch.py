@@ -7,10 +7,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import click
-from dotenv import load_dotenv  # pip install python-dotenv
 from codetiming import Timer
+from dotenv import load_dotenv
 
-from whpool import VERSION
 from whpool.core.capture_imap import MailServerHandler
 
 logger = logging.getLogger(__name__)
@@ -23,9 +22,6 @@ host = os.getenv('host')
 port = os.getenv('port')
 
 PREVIOUS_MONTH = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
-
-path = None
-output_dirname = None
 
 
 def download_messages(mailserver, mbox_file_path):
@@ -95,7 +91,7 @@ def set_path(output_dirname):
 
     if output_dirname is None:
         path = Path.cwd() / 'data_mbox'
-    elif output_dirname is not None:
+    else:
         path = Path(output_dirname)
 
     path.mkdir(parents=True, exist_ok=True)
@@ -104,19 +100,15 @@ def set_path(output_dirname):
 
 
 @click.command(help='Fetch messages in mbox format from mailbox folders.')
-@click.version_option(VERSION, '--version', '-V', prog_name='whpool')
 @click.option(
     '--output', '-o', 'output_dirname',
     type=click.Path(),
-    default=output_dirname,
     help='''If the output_dirname is specified, the mbox file will be downloaded to that location.
             Otherwise, the file will be saved in ./data_mbox'''
 )
 @Timer(name="fetch", logger=logging.info)
 def main(output_dirname) -> None:
     """Download an mbox file for the previous month."""
-
-    logger.info(f'whpool version {VERSION}')
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')
 

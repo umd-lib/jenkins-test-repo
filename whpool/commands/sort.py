@@ -6,13 +6,10 @@ import os
 from datetime import datetime
 
 import click
-
 from codetiming import Timer
-from dotenv import load_dotenv  # pip install python-dotenv
+from dotenv import load_dotenv
 
-from whpool import VERSION
 from whpool.core.capture_imap import MailServerHandler
-
 
 logger = logging.getLogger(__name__)
 
@@ -91,12 +88,9 @@ def remove_inbox_flag(mailserver, folder_list):
 
 @click.command(help='Sorts messages by yyyy-mm to mailbox folders, '
                     'creating mailbox folders in yyyy-mm format if it does not exist.')
-@click.version_option(VERSION, '--version', '-V', prog_name='whpool')
 @Timer(name="sort", logger=logging.info)
 def main() -> None:
     """Sort messages from Inbox to yyyy-mm folders."""
-
-    logger.info(f'whpool version {VERSION}')
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')
 

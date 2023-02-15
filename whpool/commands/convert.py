@@ -8,10 +8,8 @@ from pathlib import Path
 from typing import Dict, List, TextIO
 
 import click
-from html_sanitizer import Sanitizer  # type: ignore
 from codetiming import Timer
-
-from whpool import VERSION
+from html_sanitizer import Sanitizer  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +69,6 @@ def get_item_row(identifier: str, row: Dict[str, str], files: List[str]) -> Dict
 
 
 @click.command(help='Convert extracted pool reports metadata and files into an import package.')
-@click.version_option(VERSION, '--version', '-V', prog_name='whpool')
 @click.option(
     '--input-dir', '-I', 'base_dirname',
     type=click.Path(exists=True, dir_okay=True, file_okay=False),
@@ -91,8 +88,6 @@ def get_item_row(identifier: str, row: Dict[str, str], files: List[str]) -> Dict
 )
 @Timer(name="convert", logger=logging.info)
 def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> None:
-
-    logger.info(f'whpool version {VERSION}')
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')
 
