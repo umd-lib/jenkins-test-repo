@@ -1,16 +1,17 @@
 import logging
 import re
 from csv import DictReader, DictWriter
+from datetime import datetime
 from distutils.util import strtobool
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Dict, List, TextIO
 
 import click
+from codetiming import Timer
 from html_sanitizer import Sanitizer  # type: ignore
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 OUTPUT_COLUMNS = [
     'Identifier',
@@ -85,7 +86,11 @@ def get_item_row(identifier: str, row: Dict[str, str], files: List[str]) -> Dict
     required=True,
     help='String to prepend to the item id; it will be followed by a "_".'
 )
+@Timer(name="convert", logger=logging.info)
 def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> None:
+    logger.info(f'{__name__}')
+    logger.info(f'Date: {datetime.now()}')
+
     base_path = Path(base_dirname)
     sanitizer = Sanitizer()
     with open(base_path/'whpool.csv', mode='r') as input_file:

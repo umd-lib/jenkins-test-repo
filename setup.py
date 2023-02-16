@@ -73,6 +73,7 @@ setup(
     install_requires=[
         'beautifulsoup4',
         'click',
+        'codetiming',
         'html_sanitizer',
         'PyYAML',
         'requests'

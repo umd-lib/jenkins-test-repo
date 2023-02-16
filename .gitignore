@@ -2,7 +2,9 @@ __pycache__
 */__pycache__
 *.egg-info
 .env
+.venv
 
 mbox
 output
 whpool/data_mbox
+data_mbox

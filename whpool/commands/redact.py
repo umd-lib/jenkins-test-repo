@@ -1,10 +1,12 @@
 import logging
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Pattern, TextIO
 
 import click
 import yaml
+from codetiming import Timer
 
 from whpool.core.redaction import REDACT_PATTERNS, RedactedText
 
@@ -53,14 +55,18 @@ def load_redact_patterns(patterns_file: TextIO) -> Dict[str, Pattern[str]]:
     nargs=-1,
     type=click.Path(exists=True, file_okay=False),
 )
+@Timer(name="redact", logger=logging.info)
 def redact(strings_file: TextIO, patterns_file: TextIO, dry_run: bool, directories: List[str]) -> None:
+    logger.info(f'{__name__}')
+    logger.info(f'Date: {datetime.now()}')
+
     redact_strings = load_redact_strings(strings_file)
     redact_patterns = {**REDACT_PATTERNS, **load_redact_patterns(patterns_file)}
 
     for directory in map(Path, directories):
         processed_body_file = directory / 'body-processed.html'
         if not processed_body_file.exists():
-            logging.warning(f'Directory {directory} does not contain a "body-processed.html"; skipping')
+            logger.warning(f'Directory {directory} does not contain a "body-processed.html"; skipping')
             continue
 
         with processed_body_file.open(mode='r') as fh:
@@ -87,7 +93,7 @@ def redact(strings_file: TextIO, patterns_file: TextIO, dry_run: bool, directori
             with redacted_body_file.open(mode='w') as fh:
                 fh.write(str(redacted_html))
 
-            logger.info(f'Wrote redacted version to {redacted_body_file}')
+            print(f'Wrote redacted version to {redacted_body_file}')
 
         print('Total redactions:', sum(redacted_html.matches.values()))
         for label, count in redacted_html.matches.items():

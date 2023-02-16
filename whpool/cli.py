@@ -1,7 +1,6 @@
-import argparse
 import logging
 import pkgutil
-import sys
+
 from importlib import import_module
 from typing import List
 
@@ -30,29 +29,34 @@ class DynamicCLI(click.MultiCommand):
         raise click.UsageError(f'Unrecognized command: {cmd_name}')
 
 
+def logging_verbosity(verbosity):
+    """Set logger verbosity level."""
+    if verbosity == 0:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
+    elif verbosity == 1:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+    elif verbosity == 2:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+
 @click.command(
     name='whpool',
     help='WHCA Utilities',
     cls=DynamicCLI
 )
 @click.version_option(VERSION, '--version', '-V', prog_name='whpool')
-def main() -> None:
-    print_header(argparse.Namespace(quiet=False))
-
-
-def print_header(args: argparse.Namespace) -> None:
-    """Common header formatting."""
-    if not args.quiet:
-        title = '|       whpool       |'
-        bar = '+' + '=' * (len(title) - 2) + '+'
-        spacer = '|' + ' ' * (len(title) - 2) + '|'
-        print('\n'.join(['', bar, spacer, title, spacer, bar, '']), file=sys.stderr)
-
-
-def print_footer(args: argparse.Namespace) -> None:
-    """Report success or failure and resources created."""
-    if not args.quiet:
-        print('\nScript complete. Goodbye!\n', file=sys.stderr)
+@click.option(
+    '-v', '--verbose', 'verbosity',
+    default=1,
+    help='''\b
+            Set verbosity logging output level.
+            0 = Warning
+            1 = Info (default)
+            2 = Debug'''
+)
+def main(verbosity: int) -> None:
+    logging_verbosity(verbosity)
+    logger.info(f'whpool version {VERSION}')
 
 
 if __name__ == "__main__":

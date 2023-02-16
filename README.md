@@ -10,7 +10,32 @@ The general workflow of messages using whpool commands is illustrated in the fol
 
 ![Workflow Diagram](./docs/workflow.svg)
 
-## whpool Commands
+## whpool Command
+
+```
+$ whpool --help
+
+Usage: whpool [OPTIONS] COMMAND [ARGS]...
+
+  WHCA Utilities
+
+Options:
+  -V, --version          Show the version and exit.
+  -v, --verbose INTEGER  Set verbosity logging output level.
+                         0 = Warning
+                         1 = Info (default)
+                         2 = Debug
+  --help                 Show this message and exit.
+
+Commands:
+  convert  Convert extracted pool reports metadata and files into an...
+  extract  Extract pool report emails from mbox format file and create an...
+  fetch    Fetch messages in mbox format from mailbox folders.
+  redact   Redact strings or patterns in extracted message bodies in the...
+  sort     Sorts messages by yyyy-mm to mailbox folders, creating mailbox...
+```
+
+## whpool Subcommands
 
 ### Sort
 
@@ -28,11 +53,8 @@ Usage: whpool sort [OPTIONS]
   yyyy-mm format if it does not exist.
 
 Options:
-  -v, --verbose INTEGER  Set verbosity logging output level.
-                         0 = Warning
-                         1 = Info (default)
-                         2 = Debug
-  --help                 Show this message and exit.
+  -V, --version  Show the version and exit.
+  --help         Show this message and exit.
 ```
 
 Performs the following:
@@ -62,15 +84,11 @@ Usage: whpool fetch [OPTIONS]
   Fetch messages in mbox format from mailbox folders.
 
 Options:
-  -o, --output PATH      If the output_dirname is specified, the
-                         mbox file will be downloaded to that
-                         location. Otherwise, the file will be
-                         saved in ./data_mbox
-  -v, --verbose INTEGER  Set verbosity logging output level.
-                         0 = Warning
-                         1 = Info (default)
-                         2 = Debug
-  --help                 Show this message and exit.
+  -V, --version      Show the version and exit.
+  -o, --output PATH  If the output_dirname is specified, the mbox file will be
+                     downloaded to that location. Otherwise, the file will be
+                     saved in ./data_mbox
+  --help             Show this message and exit.
 ```
 
 Performs the following:
@@ -95,16 +113,15 @@ $ whpool extract --help
 
 Usage: whpool extract [OPTIONS]
 
-  Extract pool report emails from mbox format file and create an output
-  format suitable for curatorial review.
+  Extract pool report emails from mbox format file and create an output format
+  suitable for curatorial review.
 
 Options:
+  -V, --version           Show the version and exit.
   -i, --input FILE        Input mbox format email file.  [required]
   -o, --output DIRECTORY  Output directory which must already exist; files and
                           sub-directories will be created or overwritten as
                           necessary.  [required]
-
-  -v, --verbose           Produce verbose logging output.
   --help                  Show this message and exit.
 ```
 
@@ -165,6 +182,7 @@ Usage: whpool redact [OPTIONS] [DIRECTORIES]...
   directories.
 
 Options:
+  -V, --version                  Show the version and exit.
   --strings-from-file FILENAME   File containing exact strings to redact, one
                                  per line.
   --patterns-from-file FILENAME  YAML file containing a map of labels to
@@ -240,13 +258,12 @@ Usage: whpool convert [OPTIONS]
   Convert extracted pool reports metadata and files into an import package.
 
 Options:
+  -V, --version              Show the version and exit.
   -I, --input-dir DIRECTORY  Location of metadata and binaries to convert to
                              an import package.  [required]
-
   -o, --output FILENAME      Output CSV file; use "-" for STDOUT.  [required]
   -b, --base-id TEXT         String to prepend to the item id; it will be
                              followed by a "_".  [required]
-
   --help                     Show this message and exit.
 ```
 
@@ -256,13 +273,13 @@ metadata model.
 
 Column mappings:
 
-| Extracted | Converted        | Notes |
-|-----------|------------------|-------|
-| id        | Identifier       | prepended with the `--base-id` argument plus "_" |
-| Reporter  | Creator          | |
-| Title     | Title            | |
-| Date      | Date             | converted to ISO 8601 format |
-| --        | Object Type      | `http://vocab.lib.umd.edu/form#pool_reports` 
+| Extracted | Converted        | Notes                                             |
+|-----------|------------------|---------------------------------------------------|
+| id        | Identifier       | prepended with the `--base-id` argument plus "_"  |
+| Reporter  | Creator          |                                                   |
+| Title     | Title            |                                                   |
+| Date      | Date             | converted to ISO 8601 format                      |
+| --        | Object Type      | `http://vocab.lib.umd.edu/form#pool_reports`      |
 | --        | Rights Statement | `http://vocab.lib.umd.edu/rightsStatement#InC-NC` |
 
 The `body-processed-redacted.html` file is further sanitized using
@@ -282,8 +299,8 @@ See [docs/FullTextIndexing.md](docs/FullTextIndexing.md)
 
 ## Deprecated Scripts
 
-[imapbackup.sh](imapbackup.sh) - Sync the contents of the service account
+[imapbackup.sh](deprecated/imapbackup.sh) - Sync the contents of the service account
 INBOX folder to local INBOX.mbox file.
 
-[mbox_stats.py](mbox_stats.py) - Used to gather statistics of email in an
+[mbox_stats.py](deprecated/mbox_stats.py) - Used to gather statistics of email in an
 mbox format file during early investigations.

@@ -1,15 +1,16 @@
 import logging
 import mailbox
 from csv import DictWriter
+from datetime import datetime
 from pathlib import Path
 
 import click
+from codetiming import Timer
 
 from whpool.core.external_images import retrieve_external_images
 from whpool.extract.extract import HEADERS, Message
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 @click.command(help='Extract pool report emails from mbox format file and create '
@@ -27,25 +28,13 @@ logger.setLevel(logging.INFO)
     help='Output directory which must already exist; files and sub-directories '
          'will be created or overwritten as necessary.'
 )
-@click.option(
-    '-v', '--verbose', 'verbosity',
-    count=True,
-    help='Produce verbose logging output.'
-)
-def extract(input_filename: str, output_dirname: str, verbosity: int) -> None:
-    # Setup logging
-    logging.basicConfig()
-
-    if verbosity == 0:
-        logging.getLogger("whpool").setLevel(logging.WARN)
-    elif verbosity == 1:
-        logging.getLogger("whpool").setLevel(logging.INFO)
-    elif verbosity == 2:
-        logging.getLogger("whpool").setLevel(logging.DEBUG)
+@Timer(name="extract", logger=logging.info)
+def extract(input_filename: str, output_dirname: str) -> None:
+    logger.info(f'{__name__}')
+    logger.info(f'Date: {datetime.now()}')
 
     logger.debug(f'{input_filename=}')
     logger.debug(f'{output_dirname=}')
-    logger.debug(f'{verbosity=}')
 
     # Read the mbox file (slurp all into memory)
     box = mailbox.mbox(input_filename)

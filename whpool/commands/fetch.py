@@ -3,12 +3,12 @@
 import logging
 import mailbox
 import os
-import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import click
-from dotenv import load_dotenv  # pip install python-dotenv
+from codetiming import Timer
+from dotenv import load_dotenv
 
 from whpool.core.capture_imap import MailServerHandler
 
@@ -23,9 +23,6 @@ port = os.getenv('port')
 
 PREVIOUS_MONTH = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
 
-path = None
-output_dirname = None
-
 
 def download_messages(mailserver, mbox_file_path):
     """Download messages for the previous month as an mbox file."""
@@ -38,13 +35,13 @@ def download_messages(mailserver, mbox_file_path):
     mbox.lock()
     # Select a mailbox folder
     mailserver.select(f'"{folder}"', readonly=True)
-    logging.info(f'Fetching mailbox folder: {PREVIOUS_MONTH}')
+    logger.info(f'Fetching mailbox folder: {PREVIOUS_MONTH}')
     # Search for emails in the selected mailbox
     search_criteria = 'ALL'
     charset = None  # All
     response_code, message_numbers_raw = mailserver.search(charset, search_criteria)
-    logging.info(f'Search response: {response_code}')
-    logging.debug(f'Message numbers: {message_numbers_raw}')
+    logger.info(f'Search response: {response_code}')
+    logger.debug(f'Message numbers: {message_numbers_raw}')
     message_numbers = message_numbers_raw[0].split()
     for n, message_number in enumerate(message_numbers):
         typ, data = mailserver.fetch(message_number, "RFC822")
@@ -58,7 +55,7 @@ def download_messages(mailserver, mbox_file_path):
             text = data[0][1].decode("utf-8", "backslashreplace")
         text = text.strip().replace("\r", "")
         mbox.add(text.encode())
-        logging.info(f'Downloading message {n} of {len(message_numbers)}')
+        logger.info(f'Downloading message {n} of {len(message_numbers)}')
     mbox.flush()
     mbox.unlock()
     mailserver.close()
@@ -70,23 +67,23 @@ def compare_message_counts(mailserver, mbox_file_path):
     # Get message count for previous month
     directory_name = PREVIOUS_MONTH
     response_code, mail_count = mailserver.select(mailbox=directory_name, readonly=True)
-    logging.info(f'Response Code For Select: {response_code}')
+    logger.info(f'Response Code For Select: {response_code}')
     directory_message_count = {directory_name: mail_count[0].decode()}
-    logging.info(f'Message count for {directory_name}: {directory_message_count[directory_name]}')
+    logger.info(f'Message count for {directory_name}: {directory_message_count[directory_name]}')
 
     mbox = mailbox.mbox(mbox_file_path)
     mbox_message_count = {'messages': 0}
     for item in mbox.iteritems():
         mbox_message_count['messages'] += 1
         message = {'i': item}
-        logging.debug(f'{message}')
-    logging.info('Comparing message counts...')
-    logging.info(f'mbox total message count  : {mbox_message_count["messages"]}')
-    logging.info(f'Folder total message count: {directory_message_count[directory_name]}')
+        logger.debug(f'{message}')
+    logger.info('Comparing message counts...')
+    logger.info(f'mbox total message count  : {mbox_message_count["messages"]}')
+    logger.info(f'Folder total message count: {directory_message_count[directory_name]}')
     mbox_messages = str(mbox_message_count['messages'])
     mailbox_messages = str(directory_message_count[directory_name])
     match = mbox_messages == mailbox_messages
-    logging.info(f'Message count matches: {match}')
+    logger.info(f'Message count matches: {match}')
 
 
 def set_path(output_dirname):
@@ -94,7 +91,7 @@ def set_path(output_dirname):
 
     if output_dirname is None:
         path = Path.cwd() / 'data_mbox'
-    elif output_dirname is not None:
+    else:
         path = Path(output_dirname)
 
     path.mkdir(parents=True, exist_ok=True)
@@ -106,37 +103,17 @@ def set_path(output_dirname):
 @click.option(
     '--output', '-o', 'output_dirname',
     type=click.Path(),
-    default=output_dirname,
     help='''If the output_dirname is specified, the mbox file will be downloaded to that location.
             Otherwise, the file will be saved in ./data_mbox'''
 )
-@click.option(
-    '-v', '--verbose', 'verbosity',
-    default=1,
-    help='''\b
-            Set verbosity logging output level.
-            0 = Warning
-            1 = Info (default)
-            2 = Debug'''
-)
-def main(verbosity: int, output_dirname) -> None:
+@Timer(name="fetch", logger=logging.info)
+def main(output_dirname) -> None:
     """Download an mbox file for the previous month."""
+    logger.info(f'{__name__}')
+    logger.info(f'Date: {datetime.now()}')
 
     # Set path
     mbox_file_path = set_path(output_dirname)
-
-    # Set logging level
-    if verbosity == 0:
-        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
-    elif verbosity == 1:
-        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-    elif verbosity == 2:
-        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-
-    logger.debug(f'{verbosity=}')
-
-    start_time = time.time()
-    logging.info(f'Date: {datetime.now()}')
 
     mailserver_handler = MailServerHandler()
     mailserver_handler.connect(host=host, port=port)
@@ -146,9 +123,6 @@ def main(verbosity: int, output_dirname) -> None:
     compare_message_counts(mailserver_handler.mailserver, mbox_file_path)
 
     mailserver_handler.logout()
-
-    stop_time = time.time()
-    logging.info(f'Process time (secs): {round(stop_time - start_time, 2)}')
 
 
 if __name__ == '__main__':
