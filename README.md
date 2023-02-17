@@ -299,6 +299,8 @@ See [docs/FullTextIndexing.md](docs/FullTextIndexing.md)
 
 ## Deprecated Scripts
 
+See [docs/DeprecatedScripts.md](docs/DeprecatedScripts.md).
+
 [imapbackup.sh](deprecated/imapbackup.sh) - Sync the contents of the service account
 INBOX folder to local INBOX.mbox file.
 
