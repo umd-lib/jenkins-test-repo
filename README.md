@@ -10,6 +10,33 @@ The general workflow of messages using whpool commands is illustrated in the fol
 
 ![Workflow Diagram](./docs/workflow.svg)
 
+1. Capture
+    - Email arrives continuously to a Google Service Account Inbox from 3 WHCA lists. 
+    - Sort messages by date.
+    - Fetch messages by month.
+    - Upload YYYY-MM.mbox to the Box 1-Capture folder.
+
+2. Extract
+    - Extract pool reports email messages from an mbox format file and write them out to a directory.
+
+3. Redact
+    - Redact the text of the "body-processed.html" created by extract.
+    - Upload YYYY-MM.zip to the Box 2-Preview folder.
+    - Review by Special Collections
+      - Special Collections reviews and notes corrections/redactions to body-redacted HTML files.
+      - Create whpool_YYYY-MM.csv
+      - Upload whpool_YYYY-MM.csv to the Box 3-Publish folder.
+    - Manual Edit/Redact
+      - Merge Box 2-Preview and 3-Publish
+      - Edit HTML files per archivists instructions
+
+4. Convert
+    - Convert the directory structure created by extract and the body text as processed by redact to a format suitable for use with the Plastron import command.
+    - Upload YYYY-MM.zip to the Box 4-Complete folder.
+
+5. Import
+    - Load into Repository
+
 ## whpool Command
 
 ```
