@@ -6,7 +6,7 @@ annotation describing the page.
 
 The conceptual model looks like this:
 
-![](Model.svg)
+![](./images/Model.svg)
 
 The annotation is not done natively by the whpool tool. After running `extract`
 and `convert`, and importing the metadata and binaries into the repository, you
