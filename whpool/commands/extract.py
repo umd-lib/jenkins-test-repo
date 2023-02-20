@@ -8,7 +8,7 @@ import click
 from codetiming import Timer
 
 from whpool.core.external_images import retrieve_external_images
-from whpool.extract.extract import HEADERS, Message
+from whpool.core.extraction import HEADERS, Message
 
 logger = logging.getLogger(__name__)
 
