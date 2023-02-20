@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 )
 @click.option(
     '--output', '-o', 'output_dirname',
-    type=click.Path(exists=True, file_okay=False, writable=True),
+    type=click.Path(exists=False, file_okay=False, writable=True),
     required=True,
     help='Output directory which must already exist; files and sub-directories '
          'will be created or overwritten as necessary.'
@@ -42,7 +42,8 @@ def extract(input_filename: str, output_dirname: str) -> None:
     # Retrieve external images
     external_images = retrieve_external_images(box)
 
-    output_path = Path(output_dirname)
+    # Create output path if not exists
+    output_path = Path(output_dirname).mkdir(parents=True, exist_ok=True)
 
     # Open the output CSV for writing
     with open(output_path/'whpool.csv', 'w') as csv_file:

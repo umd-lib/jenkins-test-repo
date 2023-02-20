@@ -1,6 +1,6 @@
 import pytest
 
-from whpool.core.extraction import scrub_title
+from whpool.extract.extract import scrub_title
 
 
 @pytest.mark.parametrize(
