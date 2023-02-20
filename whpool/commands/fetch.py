@@ -107,7 +107,7 @@ def set_path(output_dirname):
             Otherwise, the file will be saved in ./data_mbox'''
 )
 @Timer(name="fetch", logger=logging.info)
-def main(output_dirname) -> None:
+def fetch(output_dirname) -> None:
     """Download an mbox file for the previous month."""
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')
@@ -123,7 +123,3 @@ def main(output_dirname) -> None:
     compare_message_counts(mailserver_handler.mailserver, mbox_file_path)
 
     mailserver_handler.logout()
-
-
-if __name__ == '__main__':
-    main()
