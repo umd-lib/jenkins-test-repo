@@ -60,14 +60,14 @@ See [FullTextIndexing.md](FullTextIndexing.md)
 
 ## RDF Model
 
-![](Model.svg)
+![RDF Model](./images/Model.svg)
 
 [Full-text search](FullTextIndexing.md) is implemented by indexing the
 annotation body values in Solr.
 
 ## LDP Structure
 
-![](Structure.svg)
+![LDP Structure](./images/Structure.svg)
 
 ## Generating Diagrams
 
