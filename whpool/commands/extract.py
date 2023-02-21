@@ -8,7 +8,7 @@ import click
 from codetiming import Timer
 
 from whpool.core.external_images import retrieve_external_images
-from whpool.extract.extract import HEADERS, Message
+from whpool.core.extraction import HEADERS, Message
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +23,9 @@ logger = logging.getLogger(__name__)
 )
 @click.option(
     '--output', '-o', 'output_dirname',
-    type=click.Path(exists=True, file_okay=False, writable=True),
+    type=click.Path(file_okay=False, writable=True),
     required=True,
-    help='Output directory which must already exist; files and sub-directories '
-         'will be created or overwritten as necessary.'
+    help='Output directory files and sub-directories will be created or overwritten as necessary.'
 )
 @Timer(name="extract", logger=logging.info)
 def extract(input_filename: str, output_dirname: str) -> None:
@@ -42,7 +41,10 @@ def extract(input_filename: str, output_dirname: str) -> None:
     # Retrieve external images
     external_images = retrieve_external_images(box)
 
-    output_path = Path(output_dirname)
+    # Create output path if not exists
+    path = Path(output_dirname)
+    path.mkdir(parents=True, exist_ok=True)
+    output_path = path
 
     # Open the output CSV for writing
     with open(output_path/'whpool.csv', 'w') as csv_file:

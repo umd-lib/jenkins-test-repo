@@ -1,4 +1,4 @@
-from whpool.extract.extract import MessageFile, create_canonical_body_html
+from whpool.core.extraction import MessageFile, create_canonical_body_html
 
 
 def test_create_canonical_body_html_with_missing_body():

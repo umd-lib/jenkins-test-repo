@@ -1,4 +1,4 @@
-from whpool.extract.extract import MessageFile, rewrite_attachment_path
+from whpool.core.extraction import MessageFile, rewrite_attachment_path
 
 
 def test_rewrite_attachment_path():

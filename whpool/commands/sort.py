@@ -89,7 +89,7 @@ def remove_inbox_flag(mailserver, folder_list):
 @click.command(help='Sorts messages by yyyy-mm to mailbox folders, '
                     'creating mailbox folders in yyyy-mm format if it does not exist.')
 @Timer(name="sort", logger=logging.info)
-def main() -> None:
+def sort() -> None:
     """Sort messages from Inbox to yyyy-mm folders."""
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')
@@ -102,7 +102,3 @@ def main() -> None:
     remove_inbox_flag(mailserver_handler.mailserver, folder_list)
 
     mailserver_handler.logout()
-
-
-if __name__ == '__main__':
-    main()

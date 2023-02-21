@@ -1,4 +1,4 @@
-from whpool.extract.extract import is_pool_report
+from whpool.core.extraction import is_pool_report
 
 
 def test_is_pool_report_true():

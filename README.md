@@ -80,7 +80,6 @@ Usage: whpool sort [OPTIONS]
   yyyy-mm format if it does not exist.
 
 Options:
-  -V, --version  Show the version and exit.
   --help         Show this message and exit.
 ```
 
@@ -111,7 +110,6 @@ Usage: whpool fetch [OPTIONS]
   Fetch messages in mbox format from mailbox folders.
 
 Options:
-  -V, --version      Show the version and exit.
   -o, --output PATH  If the output_dirname is specified, the mbox file will be
                      downloaded to that location. Otherwise, the file will be
                      saved in ./data_mbox
@@ -144,11 +142,9 @@ Usage: whpool extract [OPTIONS]
   suitable for curatorial review.
 
 Options:
-  -V, --version           Show the version and exit.
   -i, --input FILE        Input mbox format email file.  [required]
-  -o, --output DIRECTORY  Output directory which must already exist; files and
-                          sub-directories will be created or overwritten as
-                          necessary.  [required]
+  -o, --output DIRECTORY  Output directory files and sub-directories will be
+                          created or overwritten as necessary.  [required]
   --help                  Show this message and exit.
 ```
 
@@ -209,7 +205,6 @@ Usage: whpool redact [OPTIONS] [DIRECTORIES]...
   directories.
 
 Options:
-  -V, --version                  Show the version and exit.
   --strings-from-file FILENAME   File containing exact strings to redact, one
                                  per line.
   --patterns-from-file FILENAME  YAML file containing a map of labels to
@@ -285,8 +280,7 @@ Usage: whpool convert [OPTIONS]
   Convert extracted pool reports metadata and files into an import package.
 
 Options:
-  -V, --version              Show the version and exit.
-  -I, --input-dir DIRECTORY  Location of metadata and binaries to convert to
+  -i, --input DIRECTORY  Location of metadata and binaries to convert to
                              an import package.  [required]
   -o, --output FILENAME      Output CSV file; use "-" for STDOUT.  [required]
   -b, --base-id TEXT         String to prepend to the item id; it will be
