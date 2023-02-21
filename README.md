@@ -146,9 +146,8 @@ Usage: whpool extract [OPTIONS]
 Options:
   -V, --version           Show the version and exit.
   -i, --input FILE        Input mbox format email file.  [required]
-  -o, --output DIRECTORY  Output directory which must already exist; files and
-                          sub-directories will be created or overwritten as
-                          necessary.  [required]
+  -o, --output DIRECTORY  Output directory files and sub-directories will be
+                          created or overwritten as necessary.  [required]
   --help                  Show this message and exit.
 ```
 
