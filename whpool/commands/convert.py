@@ -70,7 +70,7 @@ def get_item_row(identifier: str, row: Dict[str, str], files: List[str]) -> Dict
 
 @click.command(help='Convert extracted pool reports metadata and files into an import package.')
 @click.option(
-    '--input-dir', '-I', 'base_dirname',
+    '--input', '-i', 'base_dirname',
     type=click.Path(exists=True, dir_okay=True, file_okay=False),
     required=True,
     help='Location of metadata and binaries to convert to an import package.'
