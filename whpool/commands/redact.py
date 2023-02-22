@@ -55,7 +55,7 @@ def load_redact_patterns(patterns_file: TextIO) -> Dict[str, Pattern[str]]:
     nargs=-1,
     type=click.Path(exists=True, file_okay=False),
 )
-@Timer(name="redact", logger=logging.info)
+@Timer(name="redact", logger=logger.info)
 def redact(strings_file: TextIO, patterns_file: TextIO, dry_run: bool, directories: List[str]) -> None:
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')

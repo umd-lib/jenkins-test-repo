@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
     required=True,
     help='Output directory files and sub-directories will be created or overwritten as necessary.'
 )
-@Timer(name="extract", logger=logging.info)
+@Timer(name="extract", logger=logger.info)
 def extract(input_filename: str, output_dirname: str) -> None:
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')

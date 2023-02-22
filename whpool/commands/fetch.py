@@ -106,7 +106,7 @@ def set_path(output_dirname):
     help='''If the output_dirname is specified, the mbox file will be downloaded to that location.
             Otherwise, the file will be saved in ./data_mbox'''
 )
-@Timer(name="fetch", logger=logging.info)
+@Timer(name="fetch", logger=logger.info)
 def fetch(output_dirname) -> None:
     """Download an mbox file for the previous month."""
     logger.info(f'{__name__}')

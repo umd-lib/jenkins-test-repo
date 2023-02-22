@@ -4,6 +4,7 @@ import email
 import logging
 import os
 from datetime import datetime
+from email.utils import parsedate_to_datetime
 
 import click
 from codetiming import Timer
@@ -38,9 +39,8 @@ def sort_with_uid(mailserver):
         response, mail_data = mailserver.uid('FETCH', uid, '(RFC822)')
         logger.debug(f'Response For Fetch: {response}')
         message = email.message_from_bytes(mail_data[0][1])
-        message_date = (message.get("Date"))[:-6]
-        date_in_utc_iso = email.utils.parsedate_to_datetime(message_date)
-        message_year_month = (str(date_in_utc_iso))[:7]
+        message_datetime = parsedate_to_datetime(message.get('Date'))
+        message_year_month = message_datetime.strftime('%Y-%m')
         logger.debug(f'{message_year_month}')
 
         # Add folder to list in order to remove Inbox flags
@@ -88,7 +88,7 @@ def remove_inbox_flag(mailserver, folder_list):
 
 @click.command(help='Sorts messages by yyyy-mm to mailbox folders, '
                     'creating mailbox folders in yyyy-mm format if it does not exist.')
-@Timer(name="sort", logger=logging.info)
+@Timer(name="sort", logger=logger.info)
 def sort() -> None:
     """Sort messages from Inbox to yyyy-mm folders."""
     logger.info(f'{__name__}')

@@ -1,8 +1,7 @@
 import logging
 import pkgutil
-
 from importlib import import_module
-from typing import List
+from typing import List, Optional
 
 import click
 
@@ -29,7 +28,7 @@ class DynamicCLI(click.MultiCommand):
         raise click.UsageError(f'Unrecognized command: {cmd_name}')
 
 
-def logging_verbosity(verbosity):
+def set_logging_verbosity(verbosity: int) -> None:
     """Set logger verbosity level."""
     if verbosity == 0:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARN)
@@ -37,6 +36,13 @@ def logging_verbosity(verbosity):
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
     elif verbosity == 2:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+
+def set_log_file(log_file_name: Optional[str]) -> None:
+    """Add a logging handler to write to a file"""
+    if log_file_name is not None:
+        handler = logging.FileHandler(log_file_name)
+        logging.getLogger('root').addHandler(handler)
 
 
 @click.command(
@@ -54,8 +60,14 @@ def logging_verbosity(verbosity):
             1 = Info (default)
             2 = Debug'''
 )
-def main(verbosity: int) -> None:
-    logging_verbosity(verbosity)
+@click.option(
+    '--log-file', 'log_file_name',
+    type=click.Path(dir_okay=False, writable=True),
+    help='Send a copy of logging output to this file'
+)
+def main(verbosity: int, log_file_name: str = None) -> None:
+    set_logging_verbosity(verbosity)
+    set_log_file(log_file_name)
     logger.info(f'whpool version {VERSION}')
 
 
