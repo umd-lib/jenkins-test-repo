@@ -46,21 +46,13 @@ def get_files(base_path: Path, dir_name: str, sanitizer: Sanitizer) -> List[Path
     help='Output CSV file; use "-" for STDOUT.'
 )
 @Timer(name="clean", logger=logger.info)
-def clean(output_file: TextIO, base_dirname: str) -> None:
+def clean(base_dirname: str) -> None:
     logger.info(f'{__name__}')
     logger.info(f'Date: {datetime.now()}')
 
     base_path = Path(base_dirname)
     sanitizer = Sanitizer()
-    with open(base_path/'whpool.csv', mode='r') as input_file:
-        csv_input = DictReader(input_file)
-        csv_output = DictWriter(output_file, OUTPUT_COLUMNS)
-        csv_output.writeheader()
-        for row in filter(is_publishable, csv_input):
-            dir_name = format(int(row['id']), '03d')
-            logger.info(f'Processing {dir_name}')
-            files = [str(f.relative_to(base_path)) for f in get_files(base_path, dir_name, sanitizer)]
-            identifier = base_identifier + '_' + dir_name
-            csv_output.writerow(get_item_row(identifier, row, files))
 
-# need to remove csv formatting
+    dir_name = format(int(row['id']), '03d')
+    logger.info(f'Processing {dir_name}')
+    files = [str(f.relative_to(base_path)) for f in get_files(base_path, dir_name, sanitizer)]
