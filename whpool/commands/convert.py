@@ -9,7 +9,6 @@ from typing import Dict, List, TextIO
 
 import click
 from codetiming import Timer
-from html_sanitizer import Sanitizer  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -33,18 +32,13 @@ def is_publishable(row: Dict[str, str]) -> bool:
     return bool(strtobool(row['Publish']))
 
 
-def get_files(base_path: Path, dir_name: str, sanitizer: Sanitizer) -> List[Path]:
+def get_files(base_path: Path, dir_name: str) -> List[Path]:
     files = []
     item_path = base_path / dir_name
     body_path = item_path / 'body-processed-redacted.html'
     if body_path.is_file():
-        # create a sanitized version of the HTML
-        sanitized_path = item_path / f'body-{dir_name}.html'
         with body_path.open() as body_file:
             html = body_file.read()
-        with sanitized_path.open(mode='w') as sanitized_file:
-            sanitized_file.write(sanitizer.sanitize(html))
-        files.append(sanitized_path)
     attachments_dir = item_path / 'attachments'
     if attachments_dir.is_dir():
         files.extend(attachments_dir.iterdir())
@@ -92,7 +86,7 @@ def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> Non
     logger.info(f'Date: {datetime.now()}')
 
     base_path = Path(base_dirname)
-    sanitizer = Sanitizer()
+
     with open(base_path/'whpool.csv', mode='r') as input_file:
         csv_input = DictReader(input_file)
         csv_output = DictWriter(output_file, OUTPUT_COLUMNS)
@@ -100,6 +94,6 @@ def convert(output_file: TextIO, base_identifier: str, base_dirname: str) -> Non
         for row in filter(is_publishable, csv_input):
             dir_name = format(int(row['id']), '03d')
             logger.info(f'Processing {dir_name}')
-            files = [str(f.relative_to(base_path)) for f in get_files(base_path, dir_name, sanitizer)]
+            files = [str(f.relative_to(base_path)) for f in get_files(base_path, dir_name)]
             identifier = base_identifier + '_' + dir_name
             csv_output.writerow(get_item_row(identifier, row, files))
