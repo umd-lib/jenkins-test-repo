@@ -22,6 +22,14 @@ host = os.getenv('host')
 port = os.getenv('port')
 
 
+def search_for_uids(mailserver, search_query='ALL'):
+    logger.debug(f'> UID SEARCH {search_query}')
+    response = mailserver.uid('SEARCH', search_query)
+    logger.debug(f'< {response}')
+    uids = response[1][0]
+    return uids.split() if len(uids) > 0 else []
+
+
 def sort_with_uid(mailserver):
     """Copy messages to their respective yyyy-mm folders."""
 
@@ -31,11 +39,7 @@ def sort_with_uid(mailserver):
     response_code = mailserver.select(mailbox='INBOX', readonly=False)
     logger.info(f'Select Inbox response Code: {response_code}')
 
-    uids = mailserver.uid('SEARCH', 'ALL')
-    logger.debug(f'{uids}')
-    uid_list = uids[1][0].split()
-    logger.debug(uid_list)
-    for uid in uid_list:
+    for uid in search_for_uids(mailserver, 'ALL'):
         response, mail_data = mailserver.uid('FETCH', uid, '(RFC822)')
         logger.debug(f'Response For Fetch: {response}')
         message = email.message_from_bytes(mail_data[0][1])
@@ -74,10 +78,7 @@ def remove_inbox_flag(mailserver, folder_list):
 
     for folder in folder_list:
         mailserver.select(mailbox=('"' + folder + '"'), readonly=False)
-        uids = mailserver.uid('SEARCH', 'ALL')
-        logger.debug(uids)
-        uid_list = uids[1][0].split()
-        for uid in uid_list:
+        for uid in search_for_uids(mailserver, 'X-GM-LABELS Inbox'):
             mailserver.uid('FETCH', uid, '(RFC822)')
             logger.info(f'Removing Inbox label from {uid} in {folder} folder')
             response_code, response = mailserver.uid('STORE', uid, '-X-GM-LABELS', '\\Inbox')
