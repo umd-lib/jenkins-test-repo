@@ -22,7 +22,21 @@ def clean(base_dirname: str) -> None:
     logger.info(f'Date: {datetime.now()}')
 
     base_path = Path(base_dirname)
-    sanitizer = Sanitizer()
+    sanitizer = Sanitizer({
+        "tags": {
+            "a", "h1", "h2", "h3", "strong", "em", "p", "ul", "ol",
+            "li", "br", "sub", "sup", "hr",
+        },
+        "attributes": {"a": ("href", "name", "target", "title", "id", "rel")},
+        "empty": {"hr", "a", "br"},
+        "separate": {"a", "li"},
+        "whitespace": {},
+        "keep_typographic_whitespace": True,
+        "add_nofollow": False,
+        "autolink": False,
+        "element_postprocessors": [],
+        "is_mergeable": lambda e1, e2: False,
+        })
 
     files = []
     files = base_path.glob('**/body-processed.html')
