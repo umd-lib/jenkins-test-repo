@@ -317,13 +317,3 @@ See [docs/FullTextIndexing.md](docs/FullTextIndexing.md)
 [extract_rules]: docs/ExtractProcessingRules.md
 [Plastron]: https://github.com/umd-lib/plastron
 [HTML Sanitizer]: https://pypi.org/project/html-sanitizer/
-
-## Deprecated Scripts
-
-See [docs/DeprecatedScripts.md](docs/DeprecatedScripts.md).
-
-[imapbackup.sh](deprecated/imapbackup.sh) - Sync the contents of the service account
-INBOX folder to local INBOX.mbox file.
-
-[mbox_stats.py](deprecated/mbox_stats.py) - Used to gather statistics of email in an
-mbox format file during early investigations.
