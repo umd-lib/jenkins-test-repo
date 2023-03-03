@@ -24,8 +24,8 @@ def clean(base_dirname: str) -> None:
     base_path = Path(base_dirname)
     sanitizer = Sanitizer({
         "tags": {
-            "a", "h1", "h2", "h3", "strong", "em", "p", "ul", "ol",
-            "li", "br", "sub", "sup", "hr",
+            "a", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "p", "ul", "ol",
+            "li", "br", "sub", "sup", "hr", "div", "pre",
         },
         "attributes": {"a": ("href", "name", "target", "title", "id", "rel")},
         "empty": {"hr", "a", "br"},
