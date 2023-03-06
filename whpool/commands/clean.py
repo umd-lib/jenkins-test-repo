@@ -1,4 +1,5 @@
 import logging
+from bs4 import BeautifulSoup
 from datetime import datetime
 from pathlib import Path
 
@@ -7,6 +8,30 @@ from codetiming import Timer
 from html_sanitizer import Sanitizer  # type: ignore
 
 logger = logging.getLogger(__name__)
+
+
+def cleaner(html):
+    sanitizer = Sanitizer({
+        "tags": {
+            "a", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "p", "ul", "ol",
+            "li", "br", "sub", "sup", "hr", "div", "pre",
+            "table", "tbody", "thead", "tr", "td",
+            "blockquote",
+        },
+
+        "attributes": {"a": ("href", "name", "target", "title", "id", "rel")},
+        "empty": {"hr", "a", "br"},
+        "separate": {"a", "li"},
+        "whitespace": {},
+        "keep_typographic_whitespace": True,
+        "add_nofollow": False,
+        "autolink": False,
+        "element_postprocessors": [],
+        "is_mergeable": lambda e1, e2: False,
+        })
+
+    html = sanitizer.sanitize(html)
+    return html
 
 
 @click.command(help='Clean extracted pool reports HTML files.')
@@ -22,22 +47,6 @@ def clean(base_dirname: str) -> None:
     logger.info(f'Date: {datetime.now()}')
 
     base_path = Path(base_dirname)
-    sanitizer = Sanitizer({
-        "tags": {
-            "a", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "p", "ul", "ol",
-            "li", "br", "sub", "sup", "hr", "div", "pre",
-        },
-        "attributes": {"a": ("href", "name", "target", "title", "id", "rel")},
-        "empty": {"hr", "a", "br"},
-        "separate": {"a", "li"},
-        "whitespace": {},
-        "keep_typographic_whitespace": True,
-        "add_nofollow": False,
-        "autolink": False,
-        "element_postprocessors": [],
-        "is_mergeable": lambda e1, e2: False,
-        })
-
     files = []
     files = base_path.glob('**/body-processed.html')
 
@@ -46,5 +55,6 @@ def clean(base_dirname: str) -> None:
         clean_file = file.with_name('body-processed-clean.html')
         with file.open() as body_file:
             html = body_file.read()
+            html = cleaner(html)
             with clean_file.open(mode='w+'):
-                clean_file.write_text(sanitizer.sanitize(html))
+                clean_file.write_text(html)
