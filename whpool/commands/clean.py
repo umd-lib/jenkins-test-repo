@@ -10,11 +10,28 @@ from html_sanitizer import Sanitizer  # type: ignore
 logger = logging.getLogger(__name__)
 
 
+def replace_pre_with_p(html):
+    """Replaces pre tag with p and line breaks with br"""
+
+    if '<pre>' in html:
+        html = html.replace("\n", "<br>")
+        soup = BeautifulSoup(html, 'html.parser')
+        while True:
+            tag = soup.find('pre')
+            if not tag:
+                break
+            tag.name = 'p'
+        html = str(soup)
+        return html
+    else:
+        return html
+
+
 def cleaner(html):
     sanitizer = Sanitizer({
         "tags": {
             "a", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "p", "ul", "ol",
-            "li", "br", "sub", "sup", "hr", "div", "pre",
+            "li", "br", "sub", "sup", "hr", "div",
             "table", "tbody", "thead", "tr", "td",
             "blockquote",
         },
@@ -32,6 +49,16 @@ def cleaner(html):
 
     html = sanitizer.sanitize(html)
     return html
+
+
+def replace_div_tags(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    while True:
+        tag = soup.find('div')
+        if not tag:
+            break
+        tag.name = 'p'
+    return str(soup)
 
 
 @click.command(help='Clean extracted pool reports HTML files.')
@@ -55,6 +82,9 @@ def clean(base_dirname: str) -> None:
         clean_file = file.with_name('body-processed-clean.html')
         with file.open() as body_file:
             html = body_file.read()
-            html = cleaner(html)
+            html_no_pre = replace_pre_with_p(html)
+            html_cleaned = cleaner(html_no_pre)
+            html_no_div = replace_div_tags(html_cleaned)
+            soup = BeautifulSoup(html_no_div, 'html.parser')
             with clean_file.open(mode='w+'):
-                clean_file.write_text(html)
+                clean_file.write_text(soup.prettify())
