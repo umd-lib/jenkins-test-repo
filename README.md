@@ -210,7 +210,7 @@ Options:
 
 ### Redact
 
-Redacts the text of the "body-processed.html" created by [extract](#extract).
+Redacts the text of the "body-processed-clean.html" created by [clean](#clean).
 
 #### Redact Usage
 
