@@ -20,6 +20,12 @@ state EXTRACT {
   state extract
 }
 
+state CLEAN {
+  state clean
+  state clean: * cleans body html
+
+}
+
 state REDACT {
   state redact
   state Box2Preview #tomato
@@ -47,7 +53,8 @@ state IMPORT {
 
 [*] -r-> CAPTURE
 CAPTURE -r-> EXTRACT
-EXTRACT -r-> REDACT
+EXTRACT -r-> CLEAN
+CLEAN -r-> REDACT
 REDACT -r-> CONVERT
 CONVERT -r-> IMPORT
 IMPORT -r-> [*]
