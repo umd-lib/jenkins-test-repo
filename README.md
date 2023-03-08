@@ -19,8 +19,11 @@ The general workflow of messages using whpool commands is illustrated in the fol
 2. Extract
     - Extract pool reports email messages from an mbox format file and write them out to a directory.
 
-3. Redact
-    - Redact the text of the "body-processed.html" created by extract.
+3. Clean
+    - Clean the text of the "body-processed.html" created by extract.
+
+4. Redact
+    - Redact the text of the "body-processed-clean.html" created by clean.
     - Upload YYYY-MM.zip to the Box 2-Preview folder.
     - Review by Special Collections
       - Special Collections reviews and notes corrections/redactions to body-redacted HTML files.
@@ -30,11 +33,11 @@ The general workflow of messages using whpool commands is illustrated in the fol
       - Merge Box 2-Preview and 3-Publish
       - Edit HTML files per archivists instructions
 
-4. Convert
+5. Convert
     - Convert the directory structure created by extract and the body text as processed by redact to a format suitable for use with the Plastron import command.
     - Upload YYYY-MM.zip to the Box 4-Complete folder.
 
-5. Import
+6. Import
     - Load into Repository
 
 ## whpool Command
