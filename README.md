@@ -190,6 +190,24 @@ following:
     associated with that message (so a subfolder may have non-consecutive
     numbers, or not begin with “0”).
 
+### Clean
+
+Cleans the HTML of the "body-processed.html" created by [extract](#extract).
+
+#### Clean Usage
+
+```
+$ whpool clean --help
+Usage: whpool clean [OPTIONS]
+
+  Clean extracted pool reports HTML files.
+
+Options:
+  -i, --input DIRECTORY  Location of metadata and binaries to convert to an
+                         import package.  [required]
+  --help                 Show this message and exit.
+```
+
 ### Redact
 
 Redacts the text of the "body-processed.html" created by [extract](#extract).
