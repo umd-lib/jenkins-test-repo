@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def replace_pre_with_p(html):
-    """Replaces pre tag with p and line breaks with br"""
+    """Replaces pre tag with p tag and line breaks with br"""
 
     if '<pre>' in html:
         html = html.replace("\n", "<br>")
@@ -27,7 +27,26 @@ def replace_pre_with_p(html):
         return html
 
 
+def replace_div_with_p(html):
+    """Replaces div tag with p tag and removes empty div tags"""
+
+    empty_whitelist = ['a', 'img', 'br']
+
+    soup = BeautifulSoup(html, 'lxml')
+    while True:
+        tag = soup.find('div')
+        if not tag:
+            break
+        tag.name = 'p'
+        for x in soup.find_all():
+            if len(x.get_text(strip=True)) == 0 and (x.name not in empty_whitelist):
+                x.extract()
+    return str(soup)
+
+
 def cleaner(html):
+    """Sanitizes the HTML"""
+
     sanitizer = Sanitizer({
         "tags": {
             "p", "a", "br", "hr",
@@ -54,22 +73,6 @@ def cleaner(html):
 
     html = sanitizer.sanitize(html)
     return html
-
-
-def replace_div_with_p(html):
-
-    empty_whitelist = ['a', 'img', 'br']
-
-    soup = BeautifulSoup(html, 'lxml')
-    while True:
-        tag = soup.find('div')
-        if not tag:
-            break
-        tag.name = 'p'
-        for x in soup.find_all():
-            if len(x.get_text(strip=True)) == 0 and (x.name not in empty_whitelist):
-                x.extract()
-    return str(soup)
 
 
 @click.command(help='Clean extracted pool reports HTML files.')
