@@ -30,16 +30,16 @@ def replace_pre_with_p(html):
 def cleaner(html):
     sanitizer = Sanitizer({
         "tags": {
-            "p", "a", "div", "br",
+            "p", "a", "br", "hr",
             "h1", "h2", "h3", "h4", "h5", "h6",
-            "strong", "em", "sub", "sup", "hr",
+            "strong", "em", "sub", "sup",
             "ul", "ol", "li",
             "table", "tbody", "thead", "tr", "td",
             "blockquote", "img",
         },
 
         "attributes": {"a": ("href", "name", "target", "title", "id", "rel"),
-                       "img": ("src")
+                       "img": ("src", "name", "alt", "height"),
                        },
         "empty": {"hr", "a", "br"},
         "separate": {"a", "li"},
@@ -56,9 +56,9 @@ def cleaner(html):
     return html
 
 
-def replace_div_tags(html):
+def replace_div_with_p(html):
 
-    empty_whitelist = ['img', 'br']
+    empty_whitelist = ['a', 'img', 'br']
 
     soup = BeautifulSoup(html, 'lxml')
     while True:
@@ -95,7 +95,7 @@ def clean(base_dirname: str) -> None:
             html = body_file.read()
 
             html_no_pre = replace_pre_with_p(html)
-            html_no_div = replace_div_tags(html_no_pre)
+            html_no_div = replace_div_with_p(html_no_pre)
             html_cleaned = cleaner(html_no_div)
 
             soup = BeautifulSoup(html_cleaned, 'lxml')
