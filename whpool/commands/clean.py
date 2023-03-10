@@ -88,19 +88,17 @@ def clean(base_dirname: str) -> None:
     logger.info(f'Date: {datetime.now()}')
 
     base_path = Path(base_dirname)
-    files = []
-    files = base_path.glob('**/body-processed.html')
 
-    for file in files:
+    for file in base_path.glob('**/body-processed.html'):
         logger.debug(file.parent)
-        clean_file = file.with_name('body-processed-clean.html')
         with file.open() as body_file:
             html = body_file.read()
 
-            html_no_pre = replace_pre_with_p(html)
-            html_no_div = replace_div_with_p(html_no_pre)
-            html_cleaned = cleaner(html_no_div)
+        html_no_pre = replace_pre_with_p(html)
+        html_no_div = replace_div_with_p(html_no_pre)
+        html_cleaned = cleaner(html_no_div)
 
-            soup = BeautifulSoup(html_cleaned, 'lxml')
-            with clean_file.open(mode='w+'):
-                clean_file.write_text(soup.prettify())
+        soup = BeautifulSoup(html_cleaned, 'lxml')
+        clean_file = file.with_name('body-processed-clean.html')
+        with clean_file.open(mode='w+'):
+            clean_file.write_text(soup.prettify())
