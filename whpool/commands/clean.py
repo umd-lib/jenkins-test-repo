@@ -44,6 +44,13 @@ def replace_div_with_p(html):
     return str(soup)
 
 
+def remove_ufeff(html):
+    """Remove invisible characters U+FEFF"""
+    html.replace(u'\ufeff', '')
+
+    return html
+
+
 def cleaner(html):
     """Sanitizes the HTML"""
 
@@ -95,8 +102,8 @@ def clean(base_dirname: str) -> None:
             html = body_file.read()
 
         html_no_pre = replace_pre_with_p(html)
-        
-        html_cleaned = cleaner(html_no_pre)
+        html_no_ufeff = remove_ufeff(html_no_pre)
+        html_cleaned = cleaner(html_no_ufeff)
         html_no_div = replace_div_with_p(html_cleaned)
 
         soup = BeautifulSoup(html_no_div, 'lxml')
