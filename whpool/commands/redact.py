@@ -64,9 +64,9 @@ def redact(strings_file: TextIO, patterns_file: TextIO, dry_run: bool, directori
     redact_patterns = {**REDACT_PATTERNS, **load_redact_patterns(patterns_file)}
 
     for directory in map(Path, directories):
-        processed_body_file = directory / 'body-processed.html'
+        processed_body_file = directory / 'body-processed-clean.html'
         if not processed_body_file.exists():
-            logger.warning(f'Directory {directory} does not contain a "body-processed.html"; skipping')
+            logger.warning(f'Directory {directory} does not contain a "body-processed-clean.html"; skipping')
             continue
 
         with processed_body_file.open(mode='r') as fh:
