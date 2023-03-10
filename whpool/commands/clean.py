@@ -60,7 +60,7 @@ def cleaner(html):
         "attributes": {"a": ("href", "name", "target", "title", "id", "rel"),
                        "img": ("src", "name", "alt", "height"),
                        },
-        "empty": {"hr", "a", "br"},
+        "empty": {"hr", "a", "br", "img"},
         "separate": {"a", "li"},
         "whitespace": {},
         "keep_typographic_whitespace": False,
@@ -95,10 +95,11 @@ def clean(base_dirname: str) -> None:
             html = body_file.read()
 
         html_no_pre = replace_pre_with_p(html)
-        html_no_div = replace_div_with_p(html_no_pre)
-        html_cleaned = cleaner(html_no_div)
+        
+        html_cleaned = cleaner(html_no_pre)
+        html_no_div = replace_div_with_p(html_cleaned)
 
-        soup = BeautifulSoup(html_cleaned, 'lxml')
+        soup = BeautifulSoup(html_no_div, 'lxml')
         clean_file = file.with_name('body-processed-clean.html')
         with clean_file.open(mode='w+'):
-            clean_file.write_text(soup.prettify())
+            clean_file.write_text(html_cleaned)
