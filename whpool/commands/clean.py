@@ -27,21 +27,21 @@ def replace_pre_with_p(html):
         return html
 
 
-def replace_div_with_p(html):
-    """Replaces div tag with p tag and removes empty div tags"""
-
-    empty_whitelist = ['a', 'img', 'br']
-
-    soup = BeautifulSoup(html, 'lxml')
-    while True:
-        tag = soup.find('div')
-        if not tag:
-            break
-        tag.name = 'p'
-        for x in soup.find_all():
-            if len(x.get_text(strip=True)) == 0 and (x.name not in empty_whitelist):
-                x.extract()
-    return str(soup)
+# def replace_div_with_p(html):
+#     """Replaces div tag with p tag and removes empty div tags"""
+# 
+#     empty_whitelist = ['a', 'img', 'br']
+# 
+#     soup = BeautifulSoup(html, 'lxml')
+#     while True:
+#         tag = soup.find('div')
+#         if not tag:
+#             break
+#         tag.name = 'p'
+#         for x in soup.find_all():
+#             if len(x.get_text(strip=False)) == 0 and (x.name not in empty_whitelist):
+#                 x.extract()
+#     return str(soup)
 
 
 def remove_ufeff(html):
@@ -58,10 +58,10 @@ def cleaner(html):
         "tags": {
             "p", "a", "br", "hr",
             "h1", "h2", "h3", "h4", "h5", "h6",
-            "strong", "em", "sub", "sup",
+            "strong", "em", "sub", "sup", "u", "i",
             "ul", "ol", "li",
             "table", "tbody", "thead", "tr", "td",
-            "blockquote", "img",
+            "blockquote", "img", "div"
         },
 
         "attributes": {"a": ("href", "name", "target", "title", "id", "rel"),
@@ -80,6 +80,51 @@ def cleaner(html):
 
     html = sanitizer.sanitize(html)
     return html
+
+
+# def change_mso_normal(html):
+#     """Handle p.MsoNormal"""
+#     empty_whitelist = []
+# 
+#     soup = BeautifulSoup(html, 'lxml')
+#     while True:
+#         tag = soup.find('p', class_='MsoNormal')
+#         if not tag:
+#             break
+#         tag.name = 'div'
+#         for x in soup.find_all():
+#             if len(x.get_text(strip=True)) == 0 and (x.name not in empty_whitelist):
+#                 x.extract()
+#     return str(soup)
+
+
+def ms_messages(html):
+    soup = BeautifulSoup(html, 'lxml')
+    for tag in soup(['head', 'style', 'meta']):
+        tag.extract()
+
+    empty_whitelist = ['a', 'img', 'br']
+    while True:
+        tag = soup.find('div', class_="WordSection1")
+        if not tag:
+            break
+        tag.name = 'p'
+        for x in soup.find_all():
+            if len(x.get_text(strip=False)) == 0 and (x.name not in empty_whitelist):
+                x.extract()
+    return str(soup)
+
+
+def remove_p_br_p(html):
+    soup = BeautifulSoup(html, 'lxml')
+    matches = soup.find_all('p')
+
+    for match in matches:
+        just_br = match.find_all('br')
+        for x in just_br:
+            x.extract()
+
+    return str(soup)
 
 
 @click.command(help='Clean extracted pool reports HTML files.')
@@ -101,12 +146,16 @@ def clean(base_dirname: str) -> None:
         with file.open() as body_file:
             html = body_file.read()
 
-        html_no_pre = replace_pre_with_p(html)
+        html_remove_odd_spaces = remove_p_br_p(html)
+        html_no_pre = replace_pre_with_p(html_remove_odd_spaces)
         html_no_ufeff = remove_ufeff(html_no_pre)
-        html_cleaned = cleaner(html_no_ufeff)
-        html_no_div = replace_div_with_p(html_cleaned)
+        cleaned_ms_messages = ms_messages(html_no_ufeff)
+        html_cleaned = cleaner(cleaned_ms_messages)
 
-        soup = BeautifulSoup(html_no_div, 'lxml')
+        # removed
+        # html_no_div = replace_div_with_p(html_no_ufeff)
+        # html_no_p_msonormal = change_mso_normal(html_no_ufeff)
+
         clean_file = file.with_name('body-processed-clean.html')
         with clean_file.open(mode='w+'):
             clean_file.write_text(html_cleaned)
