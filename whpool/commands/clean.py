@@ -56,12 +56,20 @@ def cleaner(html):
 
     sanitizer = Sanitizer({
         "tags": {
-            "p", "a", "br", "hr",
-            "h1", "h2", "h3", "h4", "h5", "h6",
-            "strong", "em", "sub", "sup", "u", "i",
-            "ul", "ol", "li",
-            "table", "tbody", "thead", "tr", "td",
-            "blockquote", "img", "div"
+            # Text Tags
+            'p', 'br', 'hr', 'div',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'strong', 'em', 'sub', 'sup', 'u', 'i', 'b',
+            'blockquote', 'cite', 'q',
+            
+            # Link and Image Tags
+            'a', 'img',
+
+            # List Tags
+            'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+
+            # Table Tags
+            'table', 'tr', 'td', 'th', 'tbody', 'thead', 'tfoot', 'col', 'colgroup', 'caption'
         },
 
         "attributes": {"a": ("href", "name", "target", "title", "id", "rel"),
