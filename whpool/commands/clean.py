@@ -28,23 +28,6 @@ def replace_pre_with_p(html):
         return html
 
 
-# def replace_div_with_p(html):
-#     """Replaces div tag with p tag and removes empty div tags"""
-# 
-#     empty_whitelist = ['a', 'img', 'br']
-# 
-#     soup = BeautifulSoup(html, 'lxml')
-#     while True:
-#         tag = soup.find('div')
-#         if not tag:
-#             break
-#         tag.name = 'p'
-#         for x in soup.find_all():
-#             if len(x.get_text(strip=False)) == 0 and (x.name not in empty_whitelist):
-#                 x.extract()
-#     return str(soup)
-
-
 def remove_ufeff(html):
     """Remove invisible characters U+FEFF"""
     html.replace(u'\ufeff', '')
@@ -62,7 +45,7 @@ def cleaner(html):
             'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
             'strong', 'em', 'sub', 'sup', 'u', 'i', 'b',
             'blockquote', 'cite', 'q',
-            
+
             # Link and Image Tags
             'a', 'img',
 
@@ -89,22 +72,6 @@ def cleaner(html):
 
     html = sanitizer.sanitize(html)
     return html
-
-
-# def change_mso_normal(html):
-#     """Handle p.MsoNormal"""
-#     empty_whitelist = []
-# 
-#     soup = BeautifulSoup(html, 'lxml')
-#     while True:
-#         tag = soup.find('p', class_='MsoNormal')
-#         if not tag:
-#             break
-#         tag.name = 'div'
-#         for x in soup.find_all():
-#             if len(x.get_text(strip=True)) == 0 and (x.name not in empty_whitelist):
-#                 x.extract()
-#     return str(soup)
 
 
 def ms_messages(html):
@@ -137,6 +104,7 @@ def remove_p_br_p(html):
 
 
 def xml_escape(chars, data_dict):
+    """Emoji encoding helps ensure successful html-sanitizer processing"""
     return chars.encode('ascii', 'xmlcharrefreplace').decode()
 
 
@@ -165,10 +133,6 @@ def clean(base_dirname: str) -> None:
         cleaned_ms_messages = ms_messages(html_no_ufeff)
         html_emoji_replaced = emoji.replace_emoji(cleaned_ms_messages, replace=xml_escape)
         html_cleaned = cleaner(html_emoji_replaced)
-
-        # removed
-        # html_no_div = replace_div_with_p(html_no_ufeff)
-        # html_no_p_msonormal = change_mso_normal(html_no_ufeff)
 
         clean_file = file.with_name('body-processed-clean.html')
         with clean_file.open(mode='w+'):
