@@ -211,6 +211,9 @@ Options:
   --help                 Show this message and exit.
 ```
 
+Clean processing rules are described in
+[docs/CleanProcessing.md](clean_processing).
+
 ### Redact
 
 Redacts the text of the "body-processed-clean.html" created by [clean](#clean).
