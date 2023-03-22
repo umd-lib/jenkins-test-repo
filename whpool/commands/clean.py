@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 import click
+import emoji
 from codetiming import Timer
 from html_sanitizer import Sanitizer  # type: ignore
 
@@ -135,6 +136,10 @@ def remove_p_br_p(html):
     return str(soup)
 
 
+def xml_escape(chars, data_dict):
+    return chars.encode('ascii', 'xmlcharrefreplace').decode()
+
+
 @click.command(help='Clean extracted pool reports HTML files.')
 @click.option(
     '--input', '-i', 'base_dirname',
@@ -158,7 +163,8 @@ def clean(base_dirname: str) -> None:
         html_no_pre = replace_pre_with_p(html_remove_odd_spaces)
         html_no_ufeff = remove_ufeff(html_no_pre)
         cleaned_ms_messages = ms_messages(html_no_ufeff)
-        html_cleaned = cleaner(cleaned_ms_messages)
+        html_emoji_replaced = emoji.replace_emoji(cleaned_ms_messages, replace=xml_escape)
+        html_cleaned = cleaner(html_emoji_replaced)
 
         # removed
         # html_no_div = replace_div_with_p(html_no_ufeff)
