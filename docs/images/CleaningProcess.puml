@@ -1,0 +1,37 @@
+@startuml processingOverview
+
+state Preformatted #LightBlue
+state MS_style #LightSalmon
+state 3D_style #LightGreen
+state Plain_HTML #Pink
+
+state replace_pre_with_p
+state remove_ms_style
+state replace_emoji_with_ascii
+state html_sanitizer
+state remove_p_that_contain_only_br
+state remove_ufeff
+
+
+Preformatted -[#LightBlue]-> replace_pre_with_p
+replace_pre_with_p -[#LightBlue]-> remove_ufeff
+remove_ufeff -[#LightBlue]-> replace_emoji_with_ascii
+replace_emoji_with_ascii --[#LightBlue]> html_sanitizer
+
+MS_style -[#LightSalmon]-> remove_p_that_contain_only_br
+remove_p_that_contain_only_br -[#LightSalmon]-> remove_ms_style
+remove_ms_style -[#LightSalmon]-> remove_ufeff
+remove_ufeff -[#LightSalmon]-> replace_emoji_with_ascii
+replace_emoji_with_ascii -[#LightSalmon]-> html_sanitizer
+
+3D_style -[#LightGreen]-> remove_p_that_contain_only_br
+remove_p_that_contain_only_br -[#LightGreen]-> remove_ufeff
+remove_ufeff -[#LightGreen]-> replace_emoji_with_ascii
+replace_emoji_with_ascii -[#LightGreen]-> html_sanitizer
+
+Plain_HTML -[#Pink]-> remove_p_that_contain_only_br
+remove_p_that_contain_only_br -[#Pink]-> remove_ufeff
+remove_ufeff -[#Pink]-> replace_emoji_with_ascii
+replace_emoji_with_ascii -[#Pink]-> html_sanitizer
+
+@enduml
