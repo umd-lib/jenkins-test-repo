@@ -116,6 +116,17 @@ def xml_escape(chars, data_dict):
     return chars.encode('ascii', 'xmlcharrefreplace').decode()
 
 
+def ltr_messages(html):
+    soup = BeautifulSoup(html, 'lxml')
+
+    for tag in soup('p', class_='p1'):
+        tag.append(soup.new_tag('br'))
+    for tag in soup('p', class_='p1'):
+        tag.unwrap()
+
+    return str(soup)
+
+
 @click.command(help='Clean extracted pool reports HTML files.')
 @click.option(
     '--input', '-i', 'base_dirname',
@@ -139,7 +150,8 @@ def clean(base_dirname: str) -> None:
         html_no_pre = replace_pre_with_p(html_remove_odd_spaces)
         html_no_ufeff = remove_ufeff(html_no_pre)
         cleaned_ms_messages = ms_messages(html_no_ufeff)
-        html_emoji_replaced = emoji.replace_emoji(cleaned_ms_messages, replace=xml_escape)
+        cleaned_ltr_messages = ltr_messages(cleaned_ms_messages)
+        html_emoji_replaced = emoji.replace_emoji(cleaned_ltr_messages, replace=xml_escape)
         html_cleaned = cleaner(html_emoji_replaced)
 
         clean_file = file.with_name('body-processed-clean.html')
