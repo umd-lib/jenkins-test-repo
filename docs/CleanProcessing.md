@@ -6,10 +6,11 @@ The following documents the different styles of message HTML and how they are pr
 
 ## Types of Email message styles
 
-Email clients create HTML and associated styles (or lack there of) that are unique to the client. Whpool messages were analyzed to find distict styles that will need preprocessing before using an HTML sanitizer. Four distinct types have been identified:
+Email clients create HTML and associated styles (or lack there of) that are unique to the client. Whpool messages were analyzed to find distict styles that will need preprocessing before using an HTML sanitizer. Five distinct types have been identified:
 
 - Preformatted
 - MS Style
+- LTR
 - 3D Style
 - Plain HTML
 
@@ -19,7 +20,11 @@ Some messages do not create HTML for the messages. These messages are in text on
 
 ### MS Style
 
-Microsoft uses a large amount of inline stlyes within messages. These can be created by the client itself or possibly when pasting a messages created in a Word document. A common characteristic is the use of MsoNormal style added to tags and spans.
+Microsoft uses a large amount of inline stlyes within messages. These can be created by the client itself or possibly when pasting a messages created in a Word document. A common characteristic is the use of MsoNormal style added to tags and spans. The MsoNormal style sets p tags to a margin of 0px.
+
+### LTR
+
+Some clients create inline styles that can be identified by \<div dir="ltr"> (left to right). Similar to Mso, it sets p tags to a margin of 0px.
 
 ### 3D Style
 

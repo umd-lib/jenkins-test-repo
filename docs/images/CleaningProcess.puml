@@ -4,6 +4,7 @@ state Preformatted #LightBlue
 state MS_style #LightSalmon
 state 3D_style #LightGreen
 state Plain_HTML #Pink
+state LTR #IndianRed
 
 state replace_pre_with_p
 state remove_ms_style
