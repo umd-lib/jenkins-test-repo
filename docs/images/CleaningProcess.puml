@@ -4,10 +4,11 @@ state Preformatted #LightBlue
 state MS_style #LightSalmon
 state 3D_style #LightGreen
 state Plain_HTML #Pink
-state LTR #IndianRed
+state LTR_style #IndianRed
 
 state replace_pre_with_p
 state remove_ms_style
+state remove_ltr_style
 state replace_emoji_with_ascii
 state html_sanitizer
 state remove_p_that_contain_only_br
@@ -34,5 +35,11 @@ Plain_HTML -[#Pink]-> remove_p_that_contain_only_br
 remove_p_that_contain_only_br -[#Pink]-> remove_ufeff
 remove_ufeff -[#Pink]-> replace_emoji_with_ascii
 replace_emoji_with_ascii -[#Pink]-> html_sanitizer
+
+LTR_style -[#IndianRed]-> remove_ltr_style
+remove_ltr_style -[#IndianRed]-> remove_p_that_contain_only_br
+remove_p_that_contain_only_br -[#IndianRed]-> remove_ufeff
+remove_ufeff -[#IndianRed]-> replace_emoji_with_ascii
+replace_emoji_with_ascii -[#IndianRed]-> html_sanitizer
 
 @enduml
