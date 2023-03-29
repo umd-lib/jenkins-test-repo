@@ -121,6 +121,8 @@ def ltr_messages(html):
 
     for tag in soup('p', class_='p1'):
         tag.append(soup.new_tag('br'))
+    for tag in soup('span', class_='s1'):
+        tag.wrap(soup.new_tag('b'))
     for tag in soup('p', class_='p1'):
         tag.unwrap()
 
