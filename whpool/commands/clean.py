@@ -11,6 +11,17 @@ from html_sanitizer import Sanitizer  # type: ignore
 logger = logging.getLogger(__name__)
 
 
+def remove_p_br_p(soup):
+    matches = soup.find_all('p')
+
+    for match in matches:
+        just_br = match.find_all('br')
+        for x in just_br:
+            x.extract()
+
+    return soup
+
+
 def replace_pre_with_p(html):
     """Replaces pre tag with p tag and line breaks with br"""
 
@@ -30,9 +41,50 @@ def replace_pre_with_p(html):
 
 def remove_ufeff(html):
     """Remove invisible characters U+FEFF"""
+
     html.replace(u'\ufeff', '')
 
     return html
+
+
+def ms_messages(soup):
+    for tag in soup(['head', 'style', 'meta']):
+        tag.extract()
+
+    empty_whitelist = ['a', 'img']
+    while True:
+        tag = soup.find('div', class_="WordSection1")
+        if not tag:
+            break
+        tag.name = 'p'
+        for x in soup.find_all():
+            if len(x.get_text(strip=False)) == 0 and (x.name not in empty_whitelist):
+                x.extract()
+
+        for tag in soup(['p']):
+            tag.append(soup.new_tag('br'))
+        for tag in soup(['p', 'html', 'div']):
+            tag.unwrap()
+        tag_body = soup.body
+        tag_body.name = 'p'
+
+    return soup
+
+
+def ltr_messages(soup):
+    for tag in soup('p', class_='p1'):
+        tag.append(soup.new_tag('br'))
+    for tag in soup('span', class_='s1'):
+        tag.wrap(soup.new_tag('b'))
+    for tag in soup('p', class_='p1'):
+        tag.unwrap()
+
+    return soup
+
+
+def xml_escape(chars, data_dict):
+    """Emoji encoding helps ensure successful html-sanitizer processing"""
+    return chars.encode('ascii', 'xmlcharrefreplace').decode()
 
 
 def cleaner(html):
@@ -74,61 +126,6 @@ def cleaner(html):
     return html
 
 
-def ms_messages(html):
-    soup = BeautifulSoup(html, 'lxml')
-    for tag in soup(['head', 'style', 'meta']):
-        tag.extract()
-
-    empty_whitelist = ['a', 'img']
-    while True:
-        tag = soup.find('div', class_="WordSection1")
-        if not tag:
-            break
-        tag.name = 'p'
-        for x in soup.find_all():
-            if len(x.get_text(strip=False)) == 0 and (x.name not in empty_whitelist):
-                x.extract()
-
-        for tag in soup(['p']):
-            tag.append(soup.new_tag('br'))
-        for tag in soup(['p', 'html', 'div']):
-            tag.unwrap()
-        tag_body = soup.body
-        tag_body.name = 'p'
-
-    return str(soup)
-
-
-def remove_p_br_p(html):
-    soup = BeautifulSoup(html, 'lxml')
-    matches = soup.find_all('p')
-
-    for match in matches:
-        just_br = match.find_all('br')
-        for x in just_br:
-            x.extract()
-
-    return str(soup)
-
-
-def xml_escape(chars, data_dict):
-    """Emoji encoding helps ensure successful html-sanitizer processing"""
-    return chars.encode('ascii', 'xmlcharrefreplace').decode()
-
-
-def ltr_messages(html):
-    soup = BeautifulSoup(html, 'lxml')
-
-    for tag in soup('p', class_='p1'):
-        tag.append(soup.new_tag('br'))
-    for tag in soup('span', class_='s1'):
-        tag.wrap(soup.new_tag('b'))
-    for tag in soup('p', class_='p1'):
-        tag.unwrap()
-
-    return str(soup)
-
-
 @click.command(help='Clean extracted pool reports HTML files.')
 @click.option(
     '--input', '-i', 'base_dirname',
@@ -148,14 +145,21 @@ def clean(base_dirname: str) -> None:
         with file.open() as body_file:
             html = body_file.read()
 
-        html_remove_odd_spaces = remove_p_br_p(html)
-        html_no_pre = replace_pre_with_p(html_remove_odd_spaces)
-        html_no_ufeff = remove_ufeff(html_no_pre)
-        cleaned_ms_messages = ms_messages(html_no_ufeff)
-        cleaned_ltr_messages = ltr_messages(cleaned_ms_messages)
-        html_emoji_replaced = emoji.replace_emoji(cleaned_ltr_messages, replace=xml_escape)
-        html_cleaned = cleaner(html_emoji_replaced)
+        soup = BeautifulSoup(html, 'lxml')
+        soup = remove_p_br_p(soup)
+
+        html = str(soup)
+        html = replace_pre_with_p(html)
+        html = remove_ufeff(html)
+
+        soup = BeautifulSoup(html, 'lxml')
+        soup = ms_messages(soup)
+        soup = ltr_messages(soup)
+
+        html = str(soup)
+        html = emoji.replace_emoji(html, replace=xml_escape)
+        html = cleaner(html)
 
         clean_file = file.with_name('body-processed-clean.html')
         with clean_file.open(mode='w+'):
-            clean_file.write_text(html_cleaned)
+            clean_file.write_text(html)
