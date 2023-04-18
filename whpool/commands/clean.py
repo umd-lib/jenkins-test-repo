@@ -39,14 +39,6 @@ def replace_pre_with_p(html):
         return html
 
 
-def remove_ufeff(html):
-    """Remove invisible characters U+FEFF"""
-
-    html.replace(u'\ufeff', '')
-
-    return html
-
-
 def ms_messages(soup):
     for tag in soup(['head', 'style', 'meta']):
         tag.extract()
@@ -157,7 +149,6 @@ def clean(base_dirname: str) -> None:
 
         html = str(soup)
         html = replace_pre_with_p(html)
-        html = remove_ufeff(html)
 
         soup = BeautifulSoup(html, 'lxml')
         soup = ms_messages(soup)
