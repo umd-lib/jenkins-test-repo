@@ -74,6 +74,7 @@ setup(
         'beautifulsoup4',
         'click',
         'codetiming',
+        'emoji',
         'html_sanitizer',
         'PyYAML',
         'requests'
