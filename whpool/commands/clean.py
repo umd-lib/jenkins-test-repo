@@ -87,6 +87,13 @@ def xml_escape(chars, data_dict):
     return chars.encode('ascii', 'xmlcharrefreplace').decode()
 
 
+def emoji_fixer(html, replace=xml_escape):
+    """Emoji encoding helps ensure successful html-sanitizer processing"""
+    # _xmlescape = chars.encode('ascii', 'xmlcharrefreplace').decode()
+    html = emoji.replace_emoji(html, replace=xml_escape)
+    return html
+
+
 def cleaner(html):
     """Sanitizes the HTML"""
 
@@ -157,7 +164,7 @@ def clean(base_dirname: str) -> None:
         soup = ltr_messages(soup)
 
         html = str(soup)
-        html = emoji.replace_emoji(html, replace=xml_escape)
+        html = emoji_fixer(html, replace=xml_escape)
         html = cleaner(html)
 
         clean_file = file.with_name('body-processed-clean.html')
