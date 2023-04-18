@@ -81,7 +81,6 @@ def xml_escape(chars, data_dict):
 
 def emoji_fixer(html, replace=xml_escape):
     """Emoji encoding helps ensure successful html-sanitizer processing"""
-    # _xmlescape = chars.encode('ascii', 'xmlcharrefreplace').decode()
     html = emoji.replace_emoji(html, replace=xml_escape)
     return html
 
