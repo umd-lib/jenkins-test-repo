@@ -109,7 +109,7 @@ def cleaner(html):
         "attributes": {"a": ("href", "name", "target", "title", "id", "rel"),
                        "img": ("src", "name", "alt", "height"),
                        },
-        "empty": {"hr", "a", "br", "img"},
+        "empty": {"hr", "a", "br", "img", "col"},
         "separate": {"a", "li"},
         "whitespace": {},
         "keep_typographic_whitespace": False,
