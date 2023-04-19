@@ -68,5 +68,8 @@ def test_emoji_fixer(value, expected):
     assert result == expected
 
 
-def test_cleaner():
-    pass
+def test_cleaner(shared_datadir):
+    expected = (shared_datadir / "cleaner_expected.html").read_text()
+    value = (shared_datadir / "cleaner_value.html").read_text()
+    result = cleaner(value)
+    assert expected == result
