@@ -8,7 +8,7 @@ See [docs/DevelopmentEnvironment.md](docs/DevelopmentEnvironment.md).
 
 The general workflow of messages using whpool commands is illustrated in the following diagram.
 
-![Workflow Diagram](./docs/images/workflow.svg)
+![Workflow Diagram](docs/images/Workflow.svg)
 
 1. Capture
     - Email arrives continuously to a Google Service Account Inbox from 3 WHCA lists. 
@@ -210,6 +210,9 @@ Options:
                          import package.  [required]
   --help                 Show this message and exit.
 ```
+
+Clean processing rules are described in
+[docs/CleanProcessing.md](clean_processing).
 
 ### Redact
 

@@ -74,9 +74,11 @@ setup(
         'beautifulsoup4',
         'click',
         'codetiming',
+        'emoji',
         'html_sanitizer',
+        'pytest-datadir',
         'PyYAML',
-        'requests'
+        'requests',
     ],
     python_requires='>=3.9',
 
