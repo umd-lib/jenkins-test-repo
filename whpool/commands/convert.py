@@ -37,8 +37,12 @@ def get_files(base_path: Path, dir_name: str) -> List[Path]:
     item_path = base_path / dir_name
     body_path = item_path / 'body-processed-redacted.html'
     if body_path.is_file():
+        final_path = item_path / f'body-{dir_name}.html'
         with body_path.open() as body_file:
             html = body_file.read()
+        with final_path.open(mode='w') as final_file:
+            final_file.write(html)
+        files.append(final_path)
     attachments_dir = item_path / 'attachments'
     if attachments_dir.is_dir():
         files.extend(attachments_dir.iterdir())
