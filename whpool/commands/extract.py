@@ -48,7 +48,7 @@ def extract(input_filename: str, output_dirname: str) -> None:
 
     # Open the output CSV for writing
     with open(output_path/'whpool.csv', 'w') as csv_file:
-        csv_writer = DictWriter(csv_file, fieldnames=HEADERS, extrasaction='ignore')
+        csv_writer = DictWriter(csv_file, fieldnames=HEADERS, extrasaction='ignore', escapechar='\\')
 
         # Add the headers
         csv_writer.writeheader()
