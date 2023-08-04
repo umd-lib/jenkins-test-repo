@@ -16,4 +16,6 @@ def test_extracted_csv(shared_datadir):
     expect_csv = shared_datadir / 'extract_expected/whpool.csv'
     result_csv = output_dir / 'whpool.csv'
     compare = filecmp.cmp(expect_csv, result_csv, shallow=False)
+    print(expect_csv.read_text())
+    print(result_csv.read_text())
     assert compare is True
