@@ -111,7 +111,7 @@ def cleaner(html):
                        },
         "empty": {"hr", "a", "br", "img", "col"},
         "separate": {"a", "li"},
-        "whitespace": {},
+        "whitespace": set(),
         "keep_typographic_whitespace": False,
         "add_nofollow": False,
         "autolink": False,
