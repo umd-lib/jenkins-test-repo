@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import pytest
 
-from whpool.commands.clean import cleaner, emoji_fixer, ltr_messages,\
+from whpool.commands.clean import cleaner, emoji_fixer, ltr_messages, \
       ms_messages, remove_p_br_p, replace_pre_with_p
 
 
