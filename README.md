@@ -11,7 +11,7 @@ The general workflow of messages using whpool commands is illustrated in the fol
 ![Workflow Diagram](docs/images/Workflow.svg)
 
 1. Capture
-    - Email arrives continuously to a Google Service Account Inbox from 3 WHCA lists. 
+    - Email arrives continuously to a Google Service Account Inbox from 3 WHCA lists.
     - Sort messages by date.
     - Fetch messages by month.
     - Upload YYYY-MM.mbox to the Box 1-Capture folder.
@@ -242,8 +242,8 @@ Options:
 
 Defined in [whpool.core.redaction.REDACT_PATTERNS](whpool/core/redaction.py):
 
-* Email address
-* North American phone number
+- Email address
+- North American phone number
 
 #### Strings File Format
 
@@ -290,7 +290,7 @@ presented here as an example of how such a pattern would be formatted.)
 
 ### Convert
 
-Converts the directory structure created by [extract](#extract) and the body 
+Converts the directory structure created by [extract](#extract) and the body
 text as processed by [redact](#redact) to a format suitable for use with the
 [Plastron] import command.
 
@@ -341,3 +341,9 @@ See [docs/FullTextIndexing.md](docs/FullTextIndexing.md)
 [extract_rules]: docs/ExtractProcessingRules.md
 [Plastron]: https://github.com/umd-lib/plastron
 [HTML Sanitizer]: https://pypi.org/project/html-sanitizer/
+
+## Architecture Decision Documents
+
+Links to architecture decision documents for [whpool-k8s](https://github.com/umd-lib/k8s-whpool):
+
+- [0002-sort-and-fetch-commands](https://github.com/umd-lib/k8s-whpool/blob/main/docs/decisions/0002-sort-and-fetch-commands.md)
