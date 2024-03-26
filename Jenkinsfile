@@ -117,7 +117,7 @@ pipeline {
         always {
           junit '**/reports/results.xml'
 
-          cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'reports/coverage.xml', failUnhealthy: false, failUnstable: false, maxNumberOfBuilds: 0, onlyStable: false, zoomCoverageChart: false
+          recordCoverage(tools: [[parser: 'COBERTURA', pattern: 'reports/coverage.xml']])
         }
       }
     }
