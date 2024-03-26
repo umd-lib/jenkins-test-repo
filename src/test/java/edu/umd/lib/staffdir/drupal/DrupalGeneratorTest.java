@@ -128,7 +128,7 @@ public class DrupalGeneratorTest {
     testPerson.setField("LDAP", "umOfficialTitle", "Janitor");
 
     String title = drupalGenerator.getTitle(testPerson);
-    assertEquals("LDAP umDisplayTitleABC", title);
+    assertEquals("LDAP umDisplayTitle", title);
   }
 
   @Test
