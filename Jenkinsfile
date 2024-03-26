@@ -42,7 +42,7 @@ pipeline {
 
   environment {
     MAVEN_SETTINGS_XML = "--settings /apps/ci/maven-repository/settings.xml"
-    
+
     DEFAULT_RECIPIENTS = "${ \
       sh(returnStdout: true, \
          script: 'echo $JENKINS_DEFAULT_EMAIL_RECIPIENTS').trim() \
@@ -111,7 +111,7 @@ pipeline {
           junit '**/target/surefire-reports/*.xml'
 
           // Collect Checkstyle reports
-          recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')], unstableTotalAll: 1)
+          recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')], qualityGates: [[threshold: 1, type: 'TOTAL', criticality: 'FAILURE']])
         }
       }
     }
@@ -122,7 +122,7 @@ pipeline {
       emailext to: "$DEFAULT_RECIPIENTS",
                subject: "$EMAIL_SUBJECT",
                body: "$EMAIL_CONTENT"
-               
+
       // Clean the workspace
       cleanWs()
     }
