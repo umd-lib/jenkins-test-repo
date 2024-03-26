@@ -28,6 +28,7 @@ public class AllStaffListBuilder {
   public static final Logger log = LoggerFactory.getLogger(AllStaffListBuilder.class);
 
   public static void main(String[] args) {
+    try {
     CommandLine cmdLine = parseCommandLine(args);
 
     String propFilename = cmdLine.getOptionValue("config");
@@ -49,6 +50,8 @@ public class AllStaffListBuilder {
 
     ExcelGenerator excelGenerator = new ExcelGenerator(allStaffListMappings, categoryStatusAbbreviations);
     excelGenerator.generate(outputFilename, jsonPersons);
+    } catch(Exception e) {
+    }
   }
 
   /**
