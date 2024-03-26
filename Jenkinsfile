@@ -139,7 +139,7 @@ pipeline {
       post {
         always {
           // Collect pycodestyle reports
-          recordIssues(tools: [pyLint(reportEncoding: 'UTF-8', name: 'pycodestyle')], unstableTotalAll: 1)
+          recordIssues(tools: [pyLint(reportEncoding: 'UTF-8', name: 'pycodestyle')], qualityGates: [[threshold: 1, type: 'TOTAL', criticality: 'UNSTABLE']])
         }
       }
     }
