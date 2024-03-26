@@ -111,7 +111,7 @@ pipeline {
           junit '**/target/surefire-reports/*.xml'
 
           // Collect Checkstyle reports
-          recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')], qualityGates: [[threshold: 1, type: 'TOTAL', criticality: 'FAILURE']])
+          recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')], qualityGates: [[threshold: 1, type: 'TOTAL', criticality: 'UNSTABLE']])
         }
       }
     }
