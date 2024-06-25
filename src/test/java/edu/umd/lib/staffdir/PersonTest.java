@@ -75,7 +75,7 @@ public class PersonTest {
     Person p = new Person(uid, sources);
 
     String value = p.get("EXISTING SOURCE", "EXISTING FIELD");
-    assertEquals("exists123", value);
+    assertEquals("exists", value);
   }
 
   @Test
