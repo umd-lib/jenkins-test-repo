@@ -28,7 +28,7 @@ public class AllStaffListBuilder {
   public static final Logger log = LoggerFactory.getLogger(AllStaffListBuilder.class);
 
   public static void main(String[] args) {
-  CommandLine cmdLine = parseCommandLine(args);
+    CommandLine cmdLine = parseCommandLine(args);
 
     String propFilename = cmdLine.getOptionValue("config");
     String inputFilename = cmdLine.getOptionValue("input");
